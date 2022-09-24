@@ -26,7 +26,7 @@ public class Content {
     private String author;
 
     @Column(nullable = false)
-    private long like;
+    private long likes;
 
     @Column(nullable = false)
     private String word;

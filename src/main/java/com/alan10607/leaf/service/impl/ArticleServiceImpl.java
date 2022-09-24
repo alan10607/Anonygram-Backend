@@ -23,7 +23,7 @@ public class ArticleServiceImpl implements ArticleService {
         return new ArticleDTO(article.getId(),
                 article.getTitle(),
                 article.getAuthor(),
-                article.getLike(),
+                article.getLikes(),
                 article.getWord(),
                 article.getCreateDate());
     }
@@ -45,7 +45,7 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = articleDAO.findById(articleDTO.getId())
                 .orElseThrow(() -> new IllegalStateException("Article id not found"));
 
-        article.setLike(articleDTO.getLike());
+        article.setLikes(articleDTO.getLike());
         articleDAO.save(article);
     }
 

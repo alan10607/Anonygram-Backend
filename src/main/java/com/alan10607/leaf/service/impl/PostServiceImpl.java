@@ -5,7 +5,6 @@ import com.alan10607.leaf.dao.ArticleDAO;
 import com.alan10607.leaf.dto.ArticleDTO;
 import com.alan10607.leaf.dto.ContentDTO;
 import com.alan10607.leaf.model.Article;
-import com.alan10607.leaf.service.ArticleService;
 import com.alan10607.leaf.util.RedisKeyUtil;
 import com.alan10607.leaf.util.TimeUtil;
 import lombok.AllArgsConstructor;
@@ -33,57 +32,48 @@ public class PostServiceImpl {
     private final TimeUtil timeUtil;
 
     public void initArtSetRedis(){
-//        List<Article> articleList = articleDAO.findTop10ByOrderByCreateDateDesc();
-//        List<Map<String, Object>> mapList2 = new ArrayList<>();
-//        articleList.stream().forEach((article) -> mapList2.add(Map.of(
-//                "id", article.getId(),
-//                "title", article.getTitle(),
-//                "author", article.getAuthor(),
-//                "like", article.getLike(),
-//                "word", article.getWord(),
-//                "status", article.getStatus(),
-//                "createDate", article.getCreateDate()
-//        )));
-//
-//        List<Map<String, Object>> mapList = articleList.stream().map((article) -> Map.of(
-//                "id", article.getId(),
-//                "title", article.getTitle(),
-//                "author", article.getAuthor(),
-//                "like", article.getLike(),
-//                "word", article.getWord(),
-//                "status", article.getStatus(),
-//                "createDate", article.getCreateDate()
-//        )).collect(Collectors.toList());
-//
+        List<Article> articleList = articleDAO.findTop10ByOrderByCreateDateDesc();
+
+        List<Map<String, Object>> mapList = articleList.stream().map((article) -> {
+                Map<String, Object> map = Map.of(
+                        "id", article.getId(),
+                        "title", article.getTitle(),
+                        "author", article.getAuthor(),
+                        "like", article.getLikes(),
+                        "word", article.getWord(),
+                        "status", article.getStatus(),
+                        "createDate", article.getCreateDate());
+                return map;
+
+            }
+        ).collect(Collectors.toList());
+
 //        for(Map<String, Object> map : mapList){
 //            String id = (map.get("id");
 //            redisTemplate.opsForHash().putAll("data:art:" + id, map);
 //            redisTemplate.opsForZSet().add("data:artSet", id, getRevTimeScore());
 //
 //        }
-//
-//        redisTemplate.opsForHash().putAll("data:art:" + id, artMap);
-//        redisTemplate.opsForZSet().add("data:artSet", id, getRevTimeScore());
+
     }
 
     public List<ArticleDTO> findArticle(long start, long end) {
         //會自動sort嗎?
         Set<ZSetOperations.TypedTuple<String>> zSet = redisTemplate.opsForZSet().rangeWithScores(redisKeyUtil.ART_SET, start, end);
         List<String> hashList = zSet.stream()
-                .sorted((a, b) -> b.getScore().compareTo(a.getScore()))
                 .map(s -> s.getValue())
                 .collect(Collectors.toList());
 
         List<ArticleDTO> artList = new ArrayList<>();
         for(String id : hashList){
             Map<String, Object> artMap = redisTemplate.opsForHash().entries(redisKeyUtil.art(id));
-            if(ArtStatusType.NORMAL.name().equals(artMap.get("status"))){
+            if(ArtStatusType.NORMAL.equals(artMap.get("status"))){
                 artList.add(new ArticleDTO(id,
                         (String) artMap.get("title"),
                         (String) artMap.get("author"),
                         ((Number) artMap.get("like")).longValue(),
                         (String) artMap.get("word"),
-                        redisFormatter((String) artMap.get("createDate"))
+                        timeUtil.parseString((String) artMap.get("createDate"))
                 ));
             }
         }
@@ -98,9 +88,9 @@ public class PostServiceImpl {
                 "id", id,
                 "title", articleDTO.getTitle(),
                 "author", articleDTO.getAuthor(),
-                "like", articleDTO.getLike(),
+                "like", 0L,
                 "word", articleDTO.getWord(),
-                "createDate", timeUtil.now().toString(),
+                "createDate", timeUtil.nowString(),
                 "status", ArtStatusType.NORMAL
         );
 
@@ -116,27 +106,30 @@ public class PostServiceImpl {
     public List<ContentDTO> findContent(String id, long start, long end) {
         Set<ZSetOperations.TypedTuple<String>> zSet = redisTemplate.opsForZSet().rangeWithScores(redisKeyUtil.contSet(id), start, end);
         List<String> hashList = zSet.stream()
-                .sorted((a, b) -> b.getScore().compareTo(a.getScore()))
                 .map(s -> s.getValue())
                 .collect(Collectors.toList());
 
         List<ContentDTO> contList = new ArrayList<>();
         for(String contentId : hashList){
-            Map<String, Object> contMap = redisTemplate.opsForHash().entries(redisKeyUtil.cont(id));
-            if(ArtStatusType.NORMAL.name().equals(contMap.get("status"))){
+            Map<String, Object> contMap = redisTemplate.opsForHash().entries(redisKeyUtil.cont(contentId));
+
+            if(contMap.isEmpty())
+                continue;;
+
+            if(ArtStatusType.NORMAL.equals(contMap.get("status"))){
                 contList.add(new ContentDTO(contentId,
                         (String) contMap.get("author"),
                         ((Number) contMap.get("like")).longValue(),
                         (String) contMap.get("word"),
-                        (String) contMap.get("status"),
-                        redisFormatter((String) contMap.get("createDate"))
+                        ((ArtStatusType) contMap.get("status")).name(),
+                        timeUtil.parseString((String) contMap.get("createDate"))
                 ));
             }else{
                 contList.add(new ContentDTO(contentId,
                         "",
                         0L,
                         "Nothing here~~",
-                        (String) contMap.get("status"),
+                        ((ArtStatusType) contMap.get("status")).name(),
                         LocalDateTime.of(0,0,0,0,0,0,0)
                 ));
             }
@@ -146,14 +139,14 @@ public class PostServiceImpl {
     }
 
 
-    public void createContent(ContentDTO contentDTO, String parentId) {
+    public void createContent(String parentId, ContentDTO contentDTO) {
         String id = UUID.randomUUID().toString();
         Map<String, Object> contMap = Map.of(
                 "id", id,
                 "author", contentDTO.getAuthor(),
-                "like", contentDTO.getLike(),
+                "like", 0L,
                 "word", contentDTO.getWord(),
-                "createDate", timeUtil.now().toString(),
+                "createDate", timeUtil.nowString(),
                 "status", ArtStatusType.NORMAL
         );
         redisTemplate.opsForHash().putAll(redisKeyUtil.cont(id), contMap);
@@ -222,10 +215,6 @@ public class PostServiceImpl {
         return Long.MAX_VALUE - System.currentTimeMillis();
     }
 
-    private LocalDateTime redisFormatter(String dateTime) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-        return LocalDateTime.parse(dateTime, formatter);
-    }
 
 
 }

@@ -23,7 +23,7 @@ public class ContentServiceImpl implements ContentService {
 
         return new ContentDTO(content.getId(),
                 content.getAuthor(),
-                content.getLike(),
+                content.getLikes(),
                 content.getWord(),
                 content.getStatus(),
                 content.getCreateDate());
@@ -45,7 +45,7 @@ public class ContentServiceImpl implements ContentService {
         Content content = contentDAO.findById(contentDTO.getId())
                 .orElseThrow(() -> new IllegalStateException("Content id not found"));
 
-        content.setLike(contentDTO.getLike());
+        content.setLikes(contentDTO.getLike());
         contentDAO.save(content);
     }
 

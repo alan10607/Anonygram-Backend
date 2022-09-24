@@ -1,15 +1,11 @@
 package com.alan10607.leaf.model;
 
-import com.alan10607.leaf.constant.ArtStatusType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Data
@@ -27,7 +23,7 @@ public class Article {
     private String author;
 
     @Column(nullable = false)
-    private long like;
+    private long likes;
 
     @Column(nullable = false)
     private String word;
