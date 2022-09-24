@@ -1,0 +1,232 @@
+package com.alan10607.leaf.service.impl;
+
+import com.alan10607.leaf.constant.ArtStatusType;
+import com.alan10607.leaf.dao.ArticleDAO;
+import com.alan10607.leaf.dto.ArticleDTO;
+import com.alan10607.leaf.dto.ContentDTO;
+import com.alan10607.leaf.model.Article;
+import com.alan10607.leaf.service.ArticleService;
+import com.alan10607.leaf.util.RedisKeyUtil;
+import com.alan10607.leaf.util.TimeUtil;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+@AllArgsConstructor
+@Slf4j
+public class PostServiceImpl {
+    private ArticleDAO articleDAO;
+    private final RedisTemplate redisTemplate;
+    private final RedissonClient redisson;
+    private final RedisKeyUtil redisKeyUtil;
+    private final TimeUtil timeUtil;
+
+    public void initArtSetRedis(){
+//        List<Article> articleList = articleDAO.findTop10ByOrderByCreateDateDesc();
+//        List<Map<String, Object>> mapList2 = new ArrayList<>();
+//        articleList.stream().forEach((article) -> mapList2.add(Map.of(
+//                "id", article.getId(),
+//                "title", article.getTitle(),
+//                "author", article.getAuthor(),
+//                "like", article.getLike(),
+//                "word", article.getWord(),
+//                "status", article.getStatus(),
+//                "createDate", article.getCreateDate()
+//        )));
+//
+//        List<Map<String, Object>> mapList = articleList.stream().map((article) -> Map.of(
+//                "id", article.getId(),
+//                "title", article.getTitle(),
+//                "author", article.getAuthor(),
+//                "like", article.getLike(),
+//                "word", article.getWord(),
+//                "status", article.getStatus(),
+//                "createDate", article.getCreateDate()
+//        )).collect(Collectors.toList());
+//
+//        for(Map<String, Object> map : mapList){
+//            String id = (map.get("id");
+//            redisTemplate.opsForHash().putAll("data:art:" + id, map);
+//            redisTemplate.opsForZSet().add("data:artSet", id, getRevTimeScore());
+//
+//        }
+//
+//        redisTemplate.opsForHash().putAll("data:art:" + id, artMap);
+//        redisTemplate.opsForZSet().add("data:artSet", id, getRevTimeScore());
+    }
+
+    public List<ArticleDTO> findArticle(long start, long end) {
+        //會自動sort嗎?
+        Set<ZSetOperations.TypedTuple<String>> zSet = redisTemplate.opsForZSet().rangeWithScores(redisKeyUtil.ART_SET, start, end);
+        List<String> hashList = zSet.stream()
+                .sorted((a, b) -> b.getScore().compareTo(a.getScore()))
+                .map(s -> s.getValue())
+                .collect(Collectors.toList());
+
+        List<ArticleDTO> artList = new ArrayList<>();
+        for(String id : hashList){
+            Map<String, Object> artMap = redisTemplate.opsForHash().entries(redisKeyUtil.art(id));
+            if(ArtStatusType.NORMAL.name().equals(artMap.get("status"))){
+                artList.add(new ArticleDTO(id,
+                        (String) artMap.get("title"),
+                        (String) artMap.get("author"),
+                        ((Number) artMap.get("like")).longValue(),
+                        (String) artMap.get("word"),
+                        redisFormatter((String) artMap.get("createDate"))
+                ));
+            }
+        }
+
+        return artList;
+    }
+
+
+    public void createArticle(ArticleDTO articleDTO) {
+        String id = UUID.randomUUID().toString();
+        Map<String, Object> artMap = Map.of(
+                "id", id,
+                "title", articleDTO.getTitle(),
+                "author", articleDTO.getAuthor(),
+                "like", articleDTO.getLike(),
+                "word", articleDTO.getWord(),
+                "createDate", timeUtil.now().toString(),
+                "status", ArtStatusType.NORMAL
+        );
+
+        redisTemplate.opsForHash().putAll(redisKeyUtil.art(id), artMap);
+        redisTemplate.opsForZSet().add(redisKeyUtil.ART_SET, id, getRevTimeScore());
+    }
+
+    public void deleteArticle(ArticleDTO articleDTO) throws Exception {
+        redisTemplate.opsForHash().put(redisKeyUtil.art(articleDTO.getId()), "status", ArtStatusType.DELETED);
+    }
+
+
+    public List<ContentDTO> findContent(String id, long start, long end) {
+        Set<ZSetOperations.TypedTuple<String>> zSet = redisTemplate.opsForZSet().rangeWithScores(redisKeyUtil.contSet(id), start, end);
+        List<String> hashList = zSet.stream()
+                .sorted((a, b) -> b.getScore().compareTo(a.getScore()))
+                .map(s -> s.getValue())
+                .collect(Collectors.toList());
+
+        List<ContentDTO> contList = new ArrayList<>();
+        for(String contentId : hashList){
+            Map<String, Object> contMap = redisTemplate.opsForHash().entries(redisKeyUtil.cont(id));
+            if(ArtStatusType.NORMAL.name().equals(contMap.get("status"))){
+                contList.add(new ContentDTO(contentId,
+                        (String) contMap.get("author"),
+                        ((Number) contMap.get("like")).longValue(),
+                        (String) contMap.get("word"),
+                        (String) contMap.get("status"),
+                        redisFormatter((String) contMap.get("createDate"))
+                ));
+            }else{
+                contList.add(new ContentDTO(contentId,
+                        "",
+                        0L,
+                        "Nothing here~~",
+                        (String) contMap.get("status"),
+                        LocalDateTime.of(0,0,0,0,0,0,0)
+                ));
+            }
+        }
+
+        return contList;
+    }
+
+
+    public void createContent(ContentDTO contentDTO, String parentId) {
+        String id = UUID.randomUUID().toString();
+        Map<String, Object> contMap = Map.of(
+                "id", id,
+                "author", contentDTO.getAuthor(),
+                "like", contentDTO.getLike(),
+                "word", contentDTO.getWord(),
+                "createDate", timeUtil.now().toString(),
+                "status", ArtStatusType.NORMAL
+        );
+        redisTemplate.opsForHash().putAll(redisKeyUtil.cont(id), contMap);
+        redisTemplate.opsForZSet().add(redisKeyUtil.contSet(parentId), id, getRevTimeScore());
+    }
+
+    public void deleteContent(ContentDTO contentDTO) {
+        redisTemplate.opsForHash().put(redisKeyUtil.cont(contentDTO.getId()), "status", ArtStatusType.DELETED);
+    }
+
+    public void likeContent(ContentDTO contentDTO) throws Exception {
+        if(Strings.isBlank(contentDTO.getLikeUserId())) throw new IllegalStateException("LikeUserId can't be blank");
+        if(Strings.isBlank(contentDTO.getId())) throw new IllegalStateException("Content id can't be blank");
+
+        RLock lock = redisson.getLock(redisKeyUtil.LIKE_CONT_LOCK);
+        String userLike = redisKeyUtil.userLike(contentDTO.getLikeUserId(), contentDTO.getId());
+        try{
+            if(lock.tryLock()){
+                if(!redisTemplate.hasKey(userLike)){
+                    redisTemplate.opsForValue().set(userLike, 1);
+                    redisTemplate.opsForValue().increment(redisKeyUtil.likeCount(contentDTO.getId()));
+                }
+            }else{
+                log.error("Not get key when like content, userId:contentId={}", userLike);
+            }
+        } catch (Exception e) {
+            log.error("Like content failed, userId:contentId={}", userLike, e);
+            throw new Exception(e);
+        } finally {
+            if(lock.isLocked() && lock.isHeldByCurrentThread()){
+                lock.unlock();//已鎖定且為當前線程的鎖, 才解鎖
+            }
+        }
+    }
+    public void unlikeContent(ContentDTO contentDTO) throws Exception {
+        if(Strings.isBlank(contentDTO.getLikeUserId())) throw new IllegalStateException("LikeUserId can't be blank");
+        if(Strings.isBlank(contentDTO.getId())) throw new IllegalStateException("Content id can't be blank");
+
+        RLock lock = redisson.getLock(redisKeyUtil.LIKE_CONT_LOCK);
+        String userLike = redisKeyUtil.userLike(contentDTO.getLikeUserId(), contentDTO.getId());
+        try{
+            if(lock.tryLock()){
+                if(redisTemplate.hasKey(userLike)){
+                    redisTemplate.delete(userLike);
+                    redisTemplate.opsForValue().decrement(redisKeyUtil.likeCount(contentDTO.getId()));
+                }
+            }else{
+                log.error("Not get key when unlike content, userId:contentId={}", userLike);
+            }
+        } catch (Exception e) {
+            log.error("Unlike content failed, userId:contentId={}", userLike, e);
+            throw new Exception(e);
+        } finally {
+            if(lock.isLocked() && lock.isHeldByCurrentThread()){
+                lock.unlock();//已鎖定且為當前線程的鎖, 才解鎖
+            }
+        }
+    }
+
+
+    /**
+     * Reverse currentTimeMillis for redis ZSet, reduce redis time from O(log n) to O(n) when add artSet to ZSet
+     * @return
+     */
+    private long getRevTimeScore(){
+        return Long.MAX_VALUE - System.currentTimeMillis();
+    }
+
+    private LocalDateTime redisFormatter(String dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        return LocalDateTime.parse(dateTime, formatter);
+    }
+
+
+}
+
