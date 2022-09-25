@@ -34,4 +34,7 @@ public class Article {
     @Column(nullable = false)
     private LocalDateTime createDate;
 
+    @Column(nullable = false)
+    private long redisScore;
+
 }

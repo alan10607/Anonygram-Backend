@@ -1,10 +1,16 @@
 package com.alan10607.leaf.service.impl;
 
 import com.alan10607.leaf.constant.ArtStatusType;
+import com.alan10607.leaf.constant.LeafRoleType;
 import com.alan10607.leaf.dao.ArticleDAO;
+import com.alan10607.leaf.dao.ContentDAO;
 import com.alan10607.leaf.dto.ArticleDTO;
 import com.alan10607.leaf.dto.ContentDTO;
 import com.alan10607.leaf.model.Article;
+import com.alan10607.leaf.model.Content;
+import com.alan10607.leaf.model.LeafRole;
+import com.alan10607.leaf.model.LeafUser;
+import com.alan10607.leaf.service.UserService;
 import com.alan10607.leaf.util.RedisKeyUtil;
 import com.alan10607.leaf.util.TimeUtil;
 import lombok.AllArgsConstructor;
@@ -12,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
@@ -26,11 +34,45 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PostServiceImpl {
     private ArticleDAO articleDAO;
+    private ContentDAO contentDAO;
     private final RedisTemplate redisTemplate;
     private final RedissonClient redisson;
     private final RedisKeyUtil redisKeyUtil;
     private final TimeUtil timeUtil;
 
+    @Bean
+    CommandLineRunner run2(ArticleDAO articleDAO, ContentDAO contentDAO) {
+        return args -> {
+            String id1 = UUID.randomUUID().toString();
+            String id2 = UUID.randomUUID().toString();
+            articleDAO.save(new Article(id1,
+                    "title1",
+                    "author1",
+                    0L,
+                    "hahahahaha",
+                    ArtStatusType.NORMAL.name(),
+                    timeUtil.now(),
+                    getRevTimeScore()));
+
+            articleDAO.save(new Article(id2,
+                    "title2",
+                    "author2",
+                    10L,
+                    "hahahahaha2",
+                    ArtStatusType.NORMAL.name(),
+                    timeUtil.now(),
+                    getRevTimeScore()));
+
+            contentDAO.save(new Content(UUID.randomUUID().toString(),
+                    "contAu1",
+                    100L,
+                    "contWord",
+                    ArtStatusType.NORMAL.name(),
+                    timeUtil.now(),
+                    0L,
+                    "parentId"));
+        };
+    }
     public void initArtSetRedis(){
         List<Article> articleList = articleDAO.findTop10ByOrderByCreateDateDesc();
 

@@ -38,7 +38,9 @@ public class ContentServiceImpl implements ContentService {
                 contentDTO.getLike(),
                 contentDTO.getWord(),
                 ArtStatusType.NORMAL.name(),
-                timeUtil.now()));
+                timeUtil.now(),
+                0L,
+                "parentId"));
     }
 
     public void updateContentLike(ContentDTO contentDTO) {

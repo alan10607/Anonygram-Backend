@@ -38,7 +38,8 @@ public class ArticleServiceImpl implements ArticleService {
                 articleDTO.getLike(),
                 articleDTO.getWord(),
                 ArtStatusType.NORMAL.name(),
-                timeUtil.now()));
+                timeUtil.now(),
+                0L));
     }
 
     public void updateArticleLike(ArticleDTO articleDTO) {
