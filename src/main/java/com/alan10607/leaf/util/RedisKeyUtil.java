@@ -43,7 +43,7 @@ public class RedisKeyUtil {
     public static final String ART_SET = "data:artSet";
     public static final String ART_PREFIX = "data:art:%s";
     public static final String CONT_SET_PREFIX = "data:contSet:%s";
-    public static final String CONT_PREFIX = "data:cont:%s";
+    public static final String CONT_PREFIX = "data:cont:%s:$s";
     public static final String USER_LIKE_PREFIX = "data:userLike:%s:%s";
     public static final String LIKE_COUNT_PREFIX = "data:likeCount:%s";
     public static final String LIKE_CONT_LOCK = "lock:likeCont";
@@ -53,8 +53,8 @@ public class RedisKeyUtil {
     public String contSet(String artId){
         return String.format(CONT_SET_PREFIX, artId);
     }
-    public String cont(String contId){
-        return String.format(CONT_PREFIX, contId);
+    public String cont(String contId, String no){
+        return String.format(CONT_PREFIX, contId, no);
     }
     public String userLike(String userId, String contId){
         return String.format(USER_LIKE_PREFIX, userId, contId);

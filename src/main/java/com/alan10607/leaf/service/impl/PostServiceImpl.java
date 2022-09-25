@@ -145,21 +145,12 @@ public class PostServiceImpl {
     }
 
 
-    public List<ContentDTO> findContent(String id, long start, long end) {
-        Set<ZSetOperations.TypedTuple<String>> zSet = redisTemplate.opsForZSet().rangeWithScores(redisKeyUtil.contSet(id), start, end);
-        List<String> hashList = zSet.stream()
-                .map(s -> s.getValue())
-                .collect(Collectors.toList());
-
+    public List<ContentDTO> findContent(String id, int start, int end) {
         List<ContentDTO> contList = new ArrayList<>();
-        for(String contentId : hashList){
-            Map<String, Object> contMap = redisTemplate.opsForHash().entries(redisKeyUtil.cont(contentId));
-
-            if(contMap.isEmpty())
-                continue;;
-
+        for(int i = start; i < end; i++){
+            Map<String, Object> contMap = redisTemplate.opsForHash().entries(redisKeyUtil.cont(id, Integer.toString(i)));
             if(ArtStatusType.NORMAL.equals(contMap.get("status"))){
-                contList.add(new ContentDTO(contentId,
+                contList.add(new ContentDTO(i,
                         (String) contMap.get("author"),
                         ((Number) contMap.get("like")).longValue(),
                         (String) contMap.get("word"),

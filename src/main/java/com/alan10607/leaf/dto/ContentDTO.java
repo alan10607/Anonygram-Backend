@@ -19,6 +19,7 @@ public class ContentDTO {
     private String status;
     private LocalDateTime createDate;
     private String likeUserId;
+    private long contNo;
 
     public ContentDTO(String id,
                       String author,
