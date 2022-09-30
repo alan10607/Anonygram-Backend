@@ -1,0 +1,125 @@
+body{
+	font-family: Microsoft JhengHei;
+    background-color: #e0e0e0;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 0 5px;
+}
+
+p{
+    margin: 5px 0;
+}
+
+a{
+	color: black;
+	text-decoration: initial;
+	transition-duration: 0.2s;
+	display: inline-block;
+	margin: 5px 0;
+}
+
+a:visited{
+	color: black;
+}
+
+a:hover{
+	transform: scale(1.1);
+	transition-duration: 0.2s;
+}
+
+body button{
+    border: 0.5px #6a6a6a dotted;
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 18px;
+    height: 27px;
+    padding: 4px 10px 4px 10px;
+    background-color: #f5f5f5;
+    transition: 0.1s;
+}
+
+body button:hover{
+    box-shadow: #38373759 0px 0px 7px 0px;
+    transition: 0.1s;
+}
+
+input{
+    font-size: 14px;
+    line-height: 18px;
+    background-color: #ffffff;
+    border: 0.5px #6a6a6a dotted;
+    padding: 4px 10px 4px 10px;
+}
+
+table{
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+table td{
+    border: 1px solid black;
+    padding: 3px 5px;
+}
+
+.art{
+}
+
+.art + .art{
+    margin-top: 15px
+}
+
+.cont-box{
+    padding-left: 10px;
+}
+
+.cont{
+}
+
+.cont + .cont:before, .cont-box:before{
+    display: block;
+    width: 90%;
+    height: 5px;
+    margin-bottom: 5px;
+    content: "";
+    border-bottom: 1px solid #111;
+}
+.author{
+    font-size: 14px;
+}
+
+.title{
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.word{
+    font-size: 14px;
+}
+
+.info{
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.likes{
+}
+
+.move{
+    font-size: 14px;
+}
+
+.time{
+}
+
+.open{
+}
+
+.reply{
+}
+
+.no{
+}
+
+.likes-in{
+}
+

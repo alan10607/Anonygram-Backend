@@ -2,6 +2,9 @@ package com.alan10607.leaf.util;
 
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Component
 public class RedisKeyUtil {
     //格式: leaf:類別:內容
@@ -34,7 +37,7 @@ public class RedisKeyUtil {
      * @param sec
      * @return
      */
-    public int getRandomExpire(int sec){
+    public int getRanExp(int sec){
         return ((int) (Math.random() * 60)) + sec;//加上60秒
     }
 
@@ -42,25 +45,31 @@ public class RedisKeyUtil {
 
     public static final String ART_SET = "data:artSet";
     public static final String ART_PREFIX = "data:art:%s";
-    public static final String CONT_SET_PREFIX = "data:contSet:%s";
     public static final String CONT_PREFIX = "data:cont:%s:$s";
-    public static final String USER_LIKE_PREFIX = "data:userLike:%s:%s";
-    public static final String LIKE_COUNT_PREFIX = "data:likeCount:%s";
-    public static final String LIKE_CONT_LOCK = "lock:likeCont";
+    public static final String LIKE_STATIC = "data:like:static";
+    public static final String LIKE_NEW = "data:like:new";
+    public static final String LIKE_BATCH = "data:like:batch";
+
+
     public String art(String artId){
         return String.format(ART_PREFIX, artId);
     }
-    public String contSet(String artId){
-        return String.format(CONT_SET_PREFIX, artId);
-    }
-    public String cont(String contId, String no){
+
+    public String cont(String contId, int no){
         return String.format(CONT_PREFIX, contId, no);
     }
-    public String userLike(String userId, String contId){
-        return String.format(USER_LIKE_PREFIX, userId, contId);
+
+    public String likeLock(String contId, int no, String userId){
+        return String.format("lock:like:%s:%s:%s", contId, no, userId);
     }
-    public String likeCount(String contId){
-        return String.format(LIKE_COUNT_PREFIX, contId);
+
+    public String LikeValue(String contId, int no, String userId, int likeStatus){
+        return String.format("%s:%s:%s:%s", contId, no, userId, likeStatus);
+    }
+
+    public String likeBatchFailed(LocalDateTime time){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        return String.format("data:like:batchFailed:%s", time.format(formatter));
     }
 
 }

@@ -1,5 +1,6 @@
 package com.alan10607.leaf.model;
 
+import com.alan10607.leaf.constant.ArtStatusType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,21 +21,15 @@ public class Article {
     private String title;
 
     @Column(nullable = false)
-    private String author;
+    private int contNum;
 
     @Column(nullable = false)
-    private long likes;
+    private ArtStatusType status;
 
     @Column(nullable = false)
-    private String word;
-
-    @Column(nullable = false)
-    private String status;
+    private LocalDateTime updateDate;
 
     @Column(nullable = false)
     private LocalDateTime createDate;
-
-    @Column(nullable = false)
-    private long redisScore;
 
 }
