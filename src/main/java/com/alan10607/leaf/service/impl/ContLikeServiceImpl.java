@@ -4,7 +4,6 @@ import com.alan10607.leaf.dao.ContLikeDAO;
 import com.alan10607.leaf.dao.ContentDAO;
 import com.alan10607.leaf.model.ContLike;
 import com.alan10607.leaf.service.ContLikeService;
-import com.alan10607.leaf.service.ContentService;
 import com.alan10607.leaf.util.RedisKeyUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Slf4j
 public class ContLikeServiceImpl implements ContLikeService {
-    private ContentService contentService;
     private ContentDAO contentDAO;
     private ContLikeDAO contLikeDAO;
     private final RedisTemplate redis;
@@ -63,16 +61,17 @@ public class ContLikeServiceImpl implements ContLikeService {
         }
     }
 
-    public void UpdateIsLikeFromRedis(String id, int no, String userId) throws Exception {
+    public boolean UpdateIsLikeFromRedis(String id, int no, String userId) throws Exception {
         String isLike = keyUtil.LikeValue(id, no, userId, LIKE);
         String unLike = keyUtil.LikeValue(id, no, userId, UNLIKE);
+        boolean isSuccess = false;
         RLock lock = redisson.getLock(keyUtil.likeLock(id, no, userId));
         try{
             lock.lock();
             if(!findContLikeFromRedis(id, no, userId)) {
                 redis.opsForSet().add(keyUtil.LIKE_NEW, isLike);
                 redis.opsForSet().remove(keyUtil.LIKE_NEW, unLike);
-                contentService.updateContentLikesFromRedis(id, no, 1);
+                isSuccess = true;
             }else{
                 log.error("Already like, skip this time, id={}, no={}, userId={}", id, no, userId);
             }
@@ -84,9 +83,10 @@ public class ContLikeServiceImpl implements ContLikeService {
                 lock.unlock();
             }
         }
+        return isSuccess;
     }
 
-    public void UpdateUnLikeFromRedis(String id, int no, String userId) throws Exception {
+    public boolean UpdateUnLikeFromRedis(String id, int no, String userId) throws Exception {
 //        DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
 //        // 指定 lua 脚本
 //        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("redis/DelKey.lua")));
@@ -98,13 +98,14 @@ public class ContLikeServiceImpl implements ContLikeService {
 
         String isLike = keyUtil.LikeValue(id, no, userId, LIKE);
         String unLike = keyUtil.LikeValue(id, no, userId, UNLIKE);
+        boolean isSuccess = false;
         RLock lock = redisson.getLock(keyUtil.likeLock(id, no, userId));
         try{
             lock.lock();
             if(findContLikeFromRedis(id, no, userId)) {
                 redis.opsForSet().add(keyUtil.LIKE_NEW, unLike);
                 redis.opsForSet().remove(keyUtil.LIKE_NEW, isLike);
-                contentService.updateContentLikesFromRedis(id, no, -1);
+                isSuccess = true;
             }else{
                 log.error("Already unlike, skip this time, id={}, no={}, userId={}", id, no, userId);
             }
@@ -116,11 +117,12 @@ public class ContLikeServiceImpl implements ContLikeService {
                 lock.unlock();
             }
         }
+        return isSuccess;
     }
 
 
     public boolean findIsLike(String id, int no, String userId){
-        return contLikeDAO.existsByIdAndNoAndUserIdIn(id, no, userId);
+        return contLikeDAO.existsByIdAndNoAndUserId(id, no, userId);
     }
 
     /**

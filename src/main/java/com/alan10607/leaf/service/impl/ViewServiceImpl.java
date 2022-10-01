@@ -92,7 +92,7 @@ public class ViewServiceImpl implements ViewService {
             res = redisTemplate.opsForHash().increment(hashKey, countType.getField(), 1);
 
             //Cache Avalanche, 防止緩存雪崩, 設定亂數過期時間
-            redisTemplate.expire(hashKey, redisKeyUtil.getRandomExpire(EXPIRE_TIME), TimeUnit.SECONDS);
+            redisTemplate.expire(hashKey, redisKeyUtil.getRanExp(EXPIRE_TIME), TimeUnit.SECONDS);
         } catch (Exception e) {
             log.error("", e);
         } finally {

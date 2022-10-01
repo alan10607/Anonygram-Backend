@@ -8,5 +8,5 @@ import java.io.Serializable;
 public class ContLikeId implements Serializable {
     private String id;
     private int no;
-    private String like;
+    private String userId;
 }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ContLikeDAO extends JpaRepository<ContLike, ContLikeId> {
     ContLike findByIdAndNoAndUserId(String id, int no, String userId);
-    boolean existsByIdAndNoAndUserIdIn(String id, int no, String userId);
+    boolean existsByIdAndNoAndUserId(String id, int no, String userId);
 
 
 //    @Transactional

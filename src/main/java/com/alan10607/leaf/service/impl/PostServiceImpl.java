@@ -143,8 +143,10 @@ public class PostServiceImpl implements PostService {
         String id = postDTO.getId();
         int no = postDTO.getNo();
         String userId = postDTO.getUserId();
-        articleService.findArticleFromRedis(Arrays.asList(id));//必需確認存在於redis
-        contLikeService.UpdateIsLikeFromRedis(id, no, userId);
+        contentService.findContentFromRedis(id, no, no, userId);//必需確認存在於redis
+        boolean isSuccess = contLikeService.UpdateIsLikeFromRedis(id, no, userId);
+        if(isSuccess)
+            contentService.updateContentLikesFromRedis(id, no, 1);
     }
 
     public void unlikeContent(PostDTO postDTO) throws Exception {
@@ -156,7 +158,9 @@ public class PostServiceImpl implements PostService {
         int no = postDTO.getNo();
         String userId = postDTO.getUserId();
         articleService.findArticleFromRedis(Arrays.asList(id));//必需確認存在於redis
-        contLikeService.UpdateUnLikeFromRedis(id, no, userId);
+        boolean isSuccess = contLikeService.UpdateUnLikeFromRedis(id, no, userId);
+        if(isSuccess)
+            contentService.updateContentLikesFromRedis(id, no, -1);
     }
 
 
