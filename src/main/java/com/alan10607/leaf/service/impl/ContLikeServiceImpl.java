@@ -22,41 +22,40 @@ import java.util.stream.Collectors;
 public class ContLikeServiceImpl implements ContLikeService {
     private ContentDAO contentDAO;
     private ContLikeDAO contLikeDAO;
-    private final RedisTemplate redis;
+    private final RedisTemplate redisTemplate;
     private final RedisKeyUtil keyUtil;
     private final RedissonClient redisson;
     private final static int LIKE = 1;
     private final static int UNLIKE = 0;
-
 
     public boolean findContLikeFromRedis(String id, int no, String userId){
         String isLike = keyUtil.LikeValue(id, no, userId, LIKE);
         String unLike = keyUtil.LikeValue(id, no, userId, UNLIKE);
 
         //順序: LIKE_NEW > LIKE_BATCH > LIKE_STATIC > DB
-        if(redis.opsForSet().isMember(keyUtil.LIKE_NEW, isLike))
+        if(redisTemplate.opsForSet().isMember(keyUtil.LIKE_NEW, isLike))
             return true;
 
-        if(redis.opsForSet().isMember(keyUtil.LIKE_NEW, unLike))
+        if(redisTemplate.opsForSet().isMember(keyUtil.LIKE_NEW, unLike))
             return false;
 
-        if(redis.opsForSet().isMember(keyUtil.LIKE_BATCH, isLike))
+        if(redisTemplate.opsForSet().isMember(keyUtil.LIKE_BATCH, isLike))
             return true;
 
-        if(redis.opsForSet().isMember(keyUtil.LIKE_BATCH, unLike))
+        if(redisTemplate.opsForSet().isMember(keyUtil.LIKE_BATCH, unLike))
             return false;
 
-        if(redis.opsForSet().isMember(keyUtil.LIKE_STATIC, isLike))
+        if(redisTemplate.opsForSet().isMember(keyUtil.LIKE_STATIC, isLike))
             return true;
 
-        if(redis.opsForSet().isMember(keyUtil.LIKE_STATIC, unLike))
+        if(redisTemplate.opsForSet().isMember(keyUtil.LIKE_STATIC, unLike))
             return false;
 
         if(findIsLike(id, no, userId)) {
-            redis.opsForSet().add(keyUtil.LIKE_STATIC, isLike);
+            redisTemplate.opsForSet().add(keyUtil.LIKE_STATIC, isLike);
             return true;
         }else {
-            redis.opsForSet().add(keyUtil.LIKE_STATIC, unLike);
+            redisTemplate.opsForSet().add(keyUtil.LIKE_STATIC, unLike);
             return false;
         }
     }
@@ -69,8 +68,8 @@ public class ContLikeServiceImpl implements ContLikeService {
         try{
             lock.lock();
             if(!findContLikeFromRedis(id, no, userId)) {
-                redis.opsForSet().add(keyUtil.LIKE_NEW, isLike);
-                redis.opsForSet().remove(keyUtil.LIKE_NEW, unLike);
+                redisTemplate.opsForSet().add(keyUtil.LIKE_NEW, isLike);
+                redisTemplate.opsForSet().remove(keyUtil.LIKE_NEW, unLike);
                 isSuccess = true;
             }else{
                 log.error("Already like, skip this time, id={}, no={}, userId={}", id, no, userId);
@@ -103,8 +102,8 @@ public class ContLikeServiceImpl implements ContLikeService {
         try{
             lock.lock();
             if(findContLikeFromRedis(id, no, userId)) {
-                redis.opsForSet().add(keyUtil.LIKE_NEW, unLike);
-                redis.opsForSet().remove(keyUtil.LIKE_NEW, isLike);
+                redisTemplate.opsForSet().add(keyUtil.LIKE_NEW, unLike);
+                redisTemplate.opsForSet().remove(keyUtil.LIKE_NEW, isLike);
                 isSuccess = true;
             }else{
                 log.error("Already unlike, skip this time, id={}, no={}, userId={}", id, no, userId);
@@ -131,10 +130,10 @@ public class ContLikeServiceImpl implements ContLikeService {
     public void saveContLikeToDB() {
         try{
             //1 移動到batch後再慢慢處理
-            redis.rename(keyUtil.LIKE_NEW, keyUtil.LIKE_BATCH);
+            redisTemplate.rename(keyUtil.LIKE_NEW, keyUtil.LIKE_BATCH);
 
             //2 取出資料
-            Set<String> values = redis.opsForSet().members(keyUtil.LIKE_BATCH);
+            Set<String> values = redisTemplate.opsForSet().members(keyUtil.LIKE_BATCH);
             if(values.isEmpty()){
                 log.info("No data to save contLike");
                 return;
@@ -179,8 +178,8 @@ public class ContLikeServiceImpl implements ContLikeService {
             saveContLikeToDBTxn(createList, deleteList);
 
             //5 更新成功後刪除redis資料
-            redis.delete(keyUtil.LIKE_BATCH);
-            redis.delete(keyUtil.LIKE_STATIC);
+            redisTemplate.delete(keyUtil.LIKE_BATCH);
+            redisTemplate.delete(keyUtil.LIKE_STATIC);
 
             //6 更新content事務
             updateContentLikesTxn(createCount, deleteCount);

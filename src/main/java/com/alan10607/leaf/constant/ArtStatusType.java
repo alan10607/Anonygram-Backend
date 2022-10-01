@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 public enum ArtStatusType {
     NEW("new"),
     NORMAL("normal"),
-    DELETED("deleted");
+    DELETED("deleted"),
+    UNKNOWN("unknown");
     private String name;
 }

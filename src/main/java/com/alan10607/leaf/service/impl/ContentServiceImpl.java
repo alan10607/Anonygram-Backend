@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class ContentServiceImpl implements ContentService {
     private ContLikeService contLikeService;
     private ContentDAO contentDAO;
-    private final RedisTemplate redis;
+    private final RedisTemplate redisTemplate;
     private final RedisKeyUtil keyUtil;
     private final TimeUtil timeUtil;
     private final static int CONT_EXPIRE = 3600;
@@ -33,7 +33,7 @@ public class ContentServiceImpl implements ContentService {
     public List<PostDTO> findContentFromRedis(String id, int start, int end, String userId) {
         List<PostDTO> contList = new ArrayList<>();
         for(int no = start; no < end; no++){
-            Map<String, Object> contMap = redis.opsForHash().entries(keyUtil.cont(id, no));
+            Map<String, Object> contMap = redisTemplate.opsForHash().entries(keyUtil.cont(id, no));
             if(contMap.isEmpty()) {
                 PostDTO postDTO = pullContentToRedis(id, no);
                 postDTO.setIsUserLike(contLikeService.findContLikeFromRedis(id, no, userId));
@@ -42,7 +42,7 @@ public class ContentServiceImpl implements ContentService {
                 contList.add(processContentRedis(id, no, userId, contMap));
             }
 
-            redis.expire(keyUtil.cont(id, no), keyUtil.getRanExp(CONT_EXPIRE), TimeUnit.SECONDS);
+            redisTemplate.expire(keyUtil.cont(id, no), keyUtil.getRanExp(CONT_EXPIRE), TimeUnit.SECONDS);
         }
 
         return contList;
@@ -53,7 +53,9 @@ public class ContentServiceImpl implements ContentService {
         try {
             postDTO = findContent(id, no);
         }catch (Exception e){
-            log.error("Pull Content failed, id={}, no={}, put empty data to redis: {}", id, no, e);
+            redisTemplate.opsForHash().putAll(keyUtil.cont(id, no), Map.of("status", ArtStatusType.UNKNOWN));
+            log.error("Pull Content failed, id={}, no={}, put empty data to redis", id, no);
+            throw new IllegalStateException(String.format("Content not found, id: %s, no: %s", id, no));
         }
 
         Map<String, Object> toRedis = Map.of(
@@ -64,43 +66,47 @@ public class ContentServiceImpl implements ContentService {
                 "updateDate", timeUtil.format(postDTO.getUpdateDate()),
                 "createDate", timeUtil.format(postDTO.getCreateDate())
         );
-        redis.opsForHash().putAll(keyUtil.cont(id, no), toRedis);
+        redisTemplate.opsForHash().putAll(keyUtil.cont(id, no), toRedis);
         log.info("Pull cont to redis succeed, id={}, no={}", id, no);
         return postDTO;
     }
 
     private PostDTO processContentRedis(String id, int no, String userId, Map<String, Object> contMap) {
-        if(!ArtStatusType.DELETED.equals(contMap.get("status"))){
-            return new PostDTO(id,
-                    no,
-                    (String) contMap.get("author"),
-                    (String) contMap.get("word"),
-                    ((Number) contMap.get("likes")).longValue(),
-                    (ArtStatusType) contMap.get("status"),
-                    timeUtil.parseStr((String) contMap.get("updateDate")),
-                    timeUtil.parseStr((String) contMap.get("createDate")),
-                    contLikeService.findContLikeFromRedis(id, no, userId)
-            );
-        }else{
-            return new PostDTO(id,
-                    no,
-                    (ArtStatusType) contMap.get("status")
-            );
+        ArtStatusType status = (ArtStatusType) contMap.get("status");
+        switch(status){
+            case UNKNOWN :
+                throw new IllegalStateException(String.format("Content not found, id: %s, no: %s", id, no));
+            case DELETED :
+                return new PostDTO(id,
+                        no,
+                        (ArtStatusType) contMap.get("status")
+                );
+            default :
+                return new PostDTO(id,
+                        no,
+                        (String) contMap.get("author"),
+                        (String) contMap.get("word"),
+                        ((Number) contMap.get("likes")).longValue(),
+                        (ArtStatusType) contMap.get("status"),
+                        timeUtil.parseStr((String) contMap.get("updateDate")),
+                        timeUtil.parseStr((String) contMap.get("createDate")),
+                        contLikeService.findContLikeFromRedis(id, no, userId)
+                );
         }
     }
 
     public void deleteContentFromRedis(String id, int no) {
-        redis.delete(keyUtil.cont(id, no));
+        redisTemplate.delete(keyUtil.cont(id, no));
         log.info("Delete cont from redis succeed");
     }
 
     public void updateContentLikesFromRedis(String id, int no, long incr) {
-        redis.opsForHash().increment(keyUtil.cont(id, no), "likes", incr);
+        redisTemplate.opsForHash().increment(keyUtil.cont(id, no), "likes", incr);
     }
 
     public PostDTO findContent(String id, int no) {
-        Content content = contentDAO.findByIdAndNo(id, no).orElseThrow(()
-                -> new IllegalStateException("Content not found"));
+        Content content = contentDAO.findByIdAndNo(id, no)
+                .orElseThrow(() -> new IllegalStateException("Content not found"));
 
         return new PostDTO(content.getId(),
                 content.getNo(),

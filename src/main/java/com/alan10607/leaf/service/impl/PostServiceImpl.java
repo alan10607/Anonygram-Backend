@@ -2,6 +2,8 @@ package com.alan10607.leaf.service.impl;
 
 import com.alan10607.leaf.constant.ArtStatusType;
 import com.alan10607.leaf.dto.PostDTO;
+import com.alan10607.leaf.service.ArticleService;
+import com.alan10607.leaf.service.ContentService;
 import com.alan10607.leaf.service.PostService;
 import com.alan10607.leaf.util.TimeUtil;
 import lombok.AllArgsConstructor;
@@ -20,20 +22,21 @@ import java.util.UUID;
 @AllArgsConstructor
 @Slf4j
 public class PostServiceImpl implements PostService {
-    private ArticleServiceImpl articleService;
-    private ContentServiceImpl contentService;
+    private ArticleService articleService;
+    private ContentService contentService;
     private ContLikeServiceImpl contLikeService;
     private final TimeUtil timeUtil;
 
     @Bean
     CommandLineRunner run2(PostService postService) {
         return args -> {
-            for(int i=0; i<10; i++) {
-                PostDTO postDTO = new PostDTO();
-                postDTO.setAuthor("alan" + i);
-                postDTO.setTitle("標題拉" + i);
-                postDTO.setWord(i + "內文內文內文內文內文內文內文內文內文12345678978apple");
-                createPost(postDTO);
+            for(int i=0; i<100; i++) {
+//                PostDTO postDTO = new PostDTO();
+//                postDTO.setId("185ca5d5-b5d6-4131-b15f-085c30afe484");
+//                postDTO.setAuthor("alan" + i);
+//                postDTO.setTitle("標題拉" + i);
+//                postDTO.setWord(i + "回文回文abcabc123回文回文abcabc123回文回文abcabc123回文回文abcabc123回文回文abcabc123回文回文abcabc123回文回文abcabc123123");
+//                replyPost(postDTO);
             }
         };
     }
@@ -53,13 +56,13 @@ public class PostServiceImpl implements PostService {
 
     public List<PostDTO> findPosts(PostDTO postDTO) {
         if(Strings.isBlank(postDTO.getUserId())) throw new IllegalStateException("UserId can't be blank");
-        if(postDTO.getIdList().isEmpty() || postDTO.getIdList().size() > 10) throw new IllegalStateException("IdList size should be 1 ~ 10");
+        if(postDTO.getIdList() == null || postDTO.getIdList().isEmpty() || postDTO.getIdList().size() > 10) throw new IllegalStateException("IdList size should be 1 ~ 10");
 
         String userId = postDTO.getUserId();
         List<String> idList = postDTO.getIdList();
         List<PostDTO> artList = articleService.findArticleFromRedis(idList);
         for(PostDTO art : artList){
-            art.setContList(contentService.findContentFromRedis(art.getId(), 0, 5, userId));
+            art.setContList(contentService.findContentFromRedis(art.getId(), 0, 0, userId));
         }
         return artList;
     }
@@ -102,6 +105,7 @@ public class PostServiceImpl implements PostService {
                 postDTO.getWord(),
                 createAndUpdateTime);
 
+        articleService.deleteArticleFromRedis(id);
         articleService.updateArtSetFromRedis(id, createAndUpdateTime);
     }
 
@@ -112,7 +116,8 @@ public class PostServiceImpl implements PostService {
 
         String id = postDTO.getId();
         LocalDateTime updateTime = timeUtil.now();
-        articleService.createContAndUpdateArt(id, postDTO.getAuthor(), postDTO.getWord(), updateTime);
+        int no = articleService.createContAndUpdateArt(id, postDTO.getAuthor(), postDTO.getWord(), updateTime);
+        contentService.deleteContentFromRedis(id, no);
         articleService.deleteArticleFromRedis(id);
         articleService.updateArtSetFromRedis(id, updateTime);
     }
@@ -135,6 +140,7 @@ public class PostServiceImpl implements PostService {
         contentService.deleteContentFromRedis(id, no);
     }
 
+    //TEST to DO below ---
     public void likeContent(PostDTO postDTO) throws Exception {
         if(Strings.isBlank(postDTO.getId())) throw new IllegalStateException("Id can't be blank");
         if(Strings.isBlank(postDTO.getUserId())) throw new IllegalStateException("UserId can't be blank");

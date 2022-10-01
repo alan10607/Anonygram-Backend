@@ -24,6 +24,7 @@ public class Article {
     private int contNum;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private ArtStatusType status;
 
     @Column(nullable = false)

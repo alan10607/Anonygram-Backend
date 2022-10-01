@@ -5,10 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,6 +31,7 @@ public class Content {
     private long likes;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private ArtStatusType status;
 
     @Column(nullable = false)

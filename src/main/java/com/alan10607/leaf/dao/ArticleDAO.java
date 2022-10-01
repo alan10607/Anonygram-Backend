@@ -13,12 +13,11 @@ import java.util.Optional;
 @Repository
 public interface ArticleDAO extends JpaRepository<Article, String> {
     Optional<Article> findById(String id);
-    List<Article> findByIdIn(List<String> ids);
 
-    @Query(nativeQuery = true, value = "SELECT a.id FROM Article a WHERE a.createDate > (NOW() - INTERVAL 30 DAY) ORDER BY a.updateDate DESC LIMIT 100")
+    @Query(nativeQuery = true, value = "SELECT a.id FROM article a WHERE a.create_date > (NOW() - INTERVAL 30 DAY) ORDER BY a.update_date DESC LIMIT 100")
     List<String> findLatest100Id();
 
-    @Query(nativeQuery = true, value = "SELECT a.contNum FROM Article WHERE a.id = ?1 LOCK IN SHARE MODE")
+    @Query(nativeQuery = true, value = "SELECT a.cont_num FROM article a WHERE a.id = ?1 LOCK IN SHARE MODE")
     Optional<Integer> findContNumByIdWithLock(String id);
 
     @Transactional

@@ -56,7 +56,7 @@ public class RedisKeyUtil {
     }
 
     public String cont(String contId, int no){
-        return String.format(CONT_PREFIX, contId, no);
+        return String.format("data:cont:%s:%s", contId, no);
     }
 
     public String likeLock(String contId, int no, String userId){
