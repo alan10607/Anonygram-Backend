@@ -32,30 +32,34 @@ public class ContentServiceImpl implements ContentService {
 
     public List<PostDTO> findContentFromRedis(String id, int start, int end, String userId) {
         List<PostDTO> contList = new ArrayList<>();
-        for(int no = start; no < end; no++){
+        for(int no = start; no <= end; no++){
             Map<String, Object> contMap = redisTemplate.opsForHash().entries(keyUtil.cont(id, no));
+            PostDTO cont = new PostDTO();
             if(contMap.isEmpty()) {
-                PostDTO postDTO = pullContentToRedis(id, no);
-                postDTO.setIsUserLike(contLikeService.findContLikeFromRedis(id, no, userId));
-                contList.add(postDTO);
+                cont = pullContentToRedis(id, no, userId);
             }else{
-                contList.add(processContentRedis(id, no, userId, contMap));
+                cont = processContentRedis(id, no, userId, contMap);
             }
-
             redisTemplate.expire(keyUtil.cont(id, no), keyUtil.getRanExp(CONT_EXPIRE), TimeUnit.SECONDS);
+
+            if(cont.getStatus() == ArtStatusType.UNKNOWN)
+                throw new IllegalStateException(String.format("Content not found, id: %s, no: %s", id, no));
+
+            contList.add(cont);
         }
 
         return contList;
     }
 
-    private PostDTO pullContentToRedis(String id, int no) {
+    private PostDTO pullContentToRedis(String id, int no, String userId) {
         PostDTO postDTO = new PostDTO();
         try {
             postDTO = findContent(id, no);
         }catch (Exception e){
-            redisTemplate.opsForHash().putAll(keyUtil.cont(id, no), Map.of("status", ArtStatusType.UNKNOWN));
+            postDTO.setStatus(ArtStatusType.UNKNOWN);
+            redisTemplate.opsForHash().putAll(keyUtil.cont(id, no), Map.of("status", postDTO.getStatus()));
             log.error("Pull Content failed, id={}, no={}, put empty data to redis", id, no);
-            throw new IllegalStateException(String.format("Content not found, id: %s, no: %s", id, no));
+            return postDTO;
         }
 
         Map<String, Object> toRedis = Map.of(
@@ -68,6 +72,8 @@ public class ContentServiceImpl implements ContentService {
         );
         redisTemplate.opsForHash().putAll(keyUtil.cont(id, no), toRedis);
         log.info("Pull cont to redis succeed, id={}, no={}", id, no);
+
+        postDTO.setIsUserLike(contLikeService.findContLikeFromRedis(id, no, userId));
         return postDTO;
     }
 
@@ -75,7 +81,6 @@ public class ContentServiceImpl implements ContentService {
         ArtStatusType status = (ArtStatusType) contMap.get("status");
         switch(status){
             case UNKNOWN :
-                throw new IllegalStateException(String.format("Content not found, id: %s, no: %s", id, no));
             case DELETED :
                 return new PostDTO(id,
                         no,

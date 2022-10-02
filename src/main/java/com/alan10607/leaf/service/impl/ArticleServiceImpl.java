@@ -7,6 +7,7 @@ import com.alan10607.leaf.dto.PostDTO;
 import com.alan10607.leaf.model.Article;
 import com.alan10607.leaf.model.Content;
 import com.alan10607.leaf.service.ArticleService;
+import com.alan10607.leaf.service.TxnService;
 import com.alan10607.leaf.util.RedisKeyUtil;
 import com.alan10607.leaf.util.TimeUtil;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Slf4j
 public class ArticleServiceImpl implements ArticleService {
+    private TxnService txnService;
     private ArticleDAO articleDAO;
     private ContentDAO contentDAO;
     private final RedisTemplate redisTemplate;
@@ -72,13 +74,18 @@ public class ArticleServiceImpl implements ArticleService {
         List<PostDTO> artList = new ArrayList<>();
         for(String id : idList){
             Map<String, Object> artMap = redisTemplate.opsForHash().entries(keyUtil.art(id));
+            PostDTO art = new PostDTO();
             if(artMap.isEmpty()) {
-                artList.add(pullArticleToRedis(id));
+                art = pullArticleToRedis(id);
             }else {
-                artList.add(processArticleRedis(id, artMap));
+                art = processArticleRedis(id, artMap);
             }
-
             redisTemplate.expire(keyUtil.art(id), keyUtil.getRanExp(ART_EXPIRE), TimeUnit.SECONDS);
+
+            if(art.getStatus() == ArtStatusType.UNKNOWN)
+                throw new IllegalStateException(String.format("Article not found, id: %s", id));
+
+            artList.add(art);
         }
         return artList;
     }
@@ -88,9 +95,10 @@ public class ArticleServiceImpl implements ArticleService {
         try {
             postDTO = findArticle(id);
         }catch (Exception e){
-            redisTemplate.opsForHash().putAll(keyUtil.art(id), Map.of("status", ArtStatusType.UNKNOWN));
+            postDTO.setStatus(ArtStatusType.UNKNOWN);
+            redisTemplate.opsForHash().putAll(keyUtil.art(id), Map.of("status", postDTO.getStatus()));
             log.error("Pull Article failed, id={}, put empty data to redis", id);
-            throw new IllegalStateException(String.format("Article not found, id: %s", id));
+            return postDTO;
         }
 
         Map<String, Object> toRedis = Map.of(
@@ -110,7 +118,6 @@ public class ArticleServiceImpl implements ArticleService {
         ArtStatusType status = (ArtStatusType) artMap.get("status");
         switch(status){
             case UNKNOWN :
-                throw new IllegalStateException(String.format("Article not found, id: %s", id));
             case DELETED :
                 return new PostDTO(id,
                         (ArtStatusType) artMap.get("status")
@@ -148,7 +155,6 @@ public class ArticleServiceImpl implements ArticleService {
                 article.getCreateDate());
     }
 
-    @Transactional
     public void createArtAndCont(String id, int no, String title, String author, String word, LocalDateTime createAndUpdateTime) {
         articleDAO.findById(id).ifPresent((a) -> {
             throw new IllegalStateException("Article id already exist");
@@ -174,19 +180,9 @@ public class ArticleServiceImpl implements ArticleService {
                 createAndUpdateTime,
                 createAndUpdateTime);
 
-        articleDAO.save(article);
-        contentDAO.save(content);
-
-//        articleService.createArtAndContTxn(article, content);
+        txnService.createArtAndContTxn(article, content);
     }
 
-    @Transactional
-    public void createArtAndContTxn(Article article, Content content) {
-        articleDAO.save(article);
-        contentDAO.save(content);
-    }
-
-    @Transactional
     public int createContAndUpdateArt(String id, String author, String word, LocalDateTime createAndUpdateTime) {
         Content content = new Content(id,
                 author,
@@ -196,26 +192,7 @@ public class ArticleServiceImpl implements ArticleService {
                 createAndUpdateTime,
                 createAndUpdateTime);
 
-        int contNum = articleDAO.findContNumByIdWithLock(id)
-                .orElseThrow(() -> new IllegalStateException("Article not found"));
-
-        content.setNo(contNum);//會剛好是contNum
-        contentDAO.save(content);
-        articleDAO.incrContNum(id);
-        return contNum;
-
-//        return createContAndUpdateArtTxn(id, content);
-    }
-
-    @Transactional
-    public int createContAndUpdateArtTxn(String id, Content content) {
-        int contNum = articleDAO.findContNumByIdWithLock(id)
-                .orElseThrow(() -> new IllegalStateException("Article not found"));
-
-        content.setNo(contNum);//會剛好是contNum
-        contentDAO.save(content);
-        articleDAO.incrContNum(id);
-        return contNum;
+        return txnService.createContAndUpdateArtTxn(id, content);
     }
 
     public void updateArticleStatus(String id, ArtStatusType status) {

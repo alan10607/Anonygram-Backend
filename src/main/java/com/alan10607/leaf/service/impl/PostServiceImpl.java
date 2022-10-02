@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -74,8 +73,8 @@ public class PostServiceImpl implements PostService {
 
         String id = postDTO.getId();
         String userId = postDTO.getUserId();
-        int openStart = postDTO.getNo() + 1;
-        int size = 10;
+        int openStart = postDTO.getNo();
+        int size = 1;
         return contentService.findContentFromRedis(id, openStart, openStart + size - 1, userId);
     }
 
@@ -163,7 +162,7 @@ public class PostServiceImpl implements PostService {
         String id = postDTO.getId();
         int no = postDTO.getNo();
         String userId = postDTO.getUserId();
-        articleService.findArticleFromRedis(Arrays.asList(id));//必需確認存在於redis
+        contentService.findContentFromRedis(id, no, no, userId);//必需確認存在於redis
         boolean isSuccess = contLikeService.UpdateUnLikeFromRedis(id, no, userId);
         if(isSuccess)
             contentService.updateContentLikesFromRedis(id, no, -1);

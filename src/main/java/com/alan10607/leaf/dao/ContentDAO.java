@@ -17,5 +17,5 @@ public interface ContentDAO extends JpaRepository<Content, ContentId> {
     @Transactional
     @Modifying
     @Query(value = "UPDATE Content c SET c.likes = c.likes + ?3 WHERE c.id = ?1 AND c.no = ?2")
-    int incrLikes(String id, int no, int incrBy);
+    int incrLikes(String id, int no, long incrBy);
 }

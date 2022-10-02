@@ -2,6 +2,7 @@ package com.alan10607.leaf.controller;
 
 import com.alan10607.leaf.dto.LeafDTO;
 import com.alan10607.leaf.dto.PostDTO;
+import com.alan10607.leaf.service.ContLikeService;
 import com.alan10607.leaf.service.PostService;
 import com.alan10607.leaf.util.ResponseUtil;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,9 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
     private final ResponseUtil responseUtil;
+
+
+    private final ContLikeService contLikeService;
 
     @PostMapping("/findArtSet")
     public ResponseEntity findArtSet(@RequestBody PostDTO postDTO, HttpSession session){
@@ -138,7 +142,7 @@ public class PostController {
     @PostMapping("/t")
     public ResponseEntity t(@RequestBody LeafDTO leafDTO){
         try{
-
+            contLikeService.saveContLikeToDB();
             return responseUtil.ok();
         }catch (Exception e){
             log.error(e.getMessage());
