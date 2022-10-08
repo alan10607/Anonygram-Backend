@@ -1,6 +1,8 @@
 package com.alan10607.leaf.controller;
 
+import com.alan10607.leaf.constant.AutoUserId;
 import com.alan10607.leaf.dto.LeafDTO;
+import com.alan10607.leaf.dto.PostDTO;
 import com.alan10607.leaf.service.LeafService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +23,20 @@ import javax.servlet.http.HttpServletResponse;
 public class WebPageController {
     private final LeafService leafService;
 
+    @RequestMapping("/hub")
+    @AutoUserId
+    public String hub(PostDTO postDTO, Model model){
+        try{
+            model.addAttribute("userId", postDTO.getUserId());
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
+        return "hub.html";//應對templates下的檔案
+    }
+
     @RequestMapping("/")
     public String root(Model model){
-        return index(model);
+        return hub(new PostDTO(), model);
     }
 
     @RequestMapping("/index")

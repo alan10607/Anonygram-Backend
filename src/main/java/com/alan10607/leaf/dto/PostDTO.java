@@ -20,16 +20,15 @@ public class PostDTO {
     private ArtStatusType status;
     private LocalDateTime updateDate;
     private LocalDateTime createDate;
-    private List<String> idList;
-    private List<PostDTO> contList;
-
     private Integer no;
     private String author;
     private String word;
     private Long likes;
-
-    private String userId;
     private Boolean isUserLike;
+    private List<PostDTO> contList;
+    private List<String> idList;
+    private String userId;
+    private Boolean success;
 
     /* --- for Article --- */
     public PostDTO(String id,

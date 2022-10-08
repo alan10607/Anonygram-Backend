@@ -6,13 +6,13 @@ import java.util.List;
 
 public interface PostService {
     List<String> findArtSet();
-    List<PostDTO> findPosts(PostDTO postDTO);
-    List<PostDTO> openTop(PostDTO postDTO);
-    List<PostDTO> openBot(PostDTO postDTO);
+    List<PostDTO> findPost(PostDTO postDTO);
+    List<PostDTO> findTopCont(PostDTO postDTO);
+    List<PostDTO> findBotCont(PostDTO postDTO);
     void createPost(PostDTO postDTO);
     void replyPost(PostDTO postDTO);
     void deletePost(PostDTO postDTO);
     void deleteContent(PostDTO postDTO);
-    void likeContent(PostDTO postDTO) throws Exception;
-    void unlikeContent(PostDTO postDTO) throws Exception;
+    PostDTO likeContent(PostDTO postDTO);
+    PostDTO unlikeContent(PostDTO postDTO);
 }

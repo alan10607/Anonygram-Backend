@@ -1,5 +1,6 @@
 package com.alan10607.leaf.controller;
 
+import com.alan10607.leaf.constant.AutoUserId;
 import com.alan10607.leaf.dto.LeafDTO;
 import com.alan10607.leaf.dto.PostDTO;
 import com.alan10607.leaf.service.ContLikeService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
@@ -28,9 +30,8 @@ public class PostController {
     private final ContLikeService contLikeService;
 
     @PostMapping("/findArtSet")
-    public ResponseEntity findArtSet(@RequestBody PostDTO postDTO, HttpSession session){
+    public ResponseEntity findArtSet(@RequestBody PostDTO postDTO, HttpSession session, HttpServletRequest request){
         try{
-            session.getId();//寫成AOP??
             List<String> idList = postService.findArtSet();
             return responseUtil.ok(idList);
         }catch (Exception e){
@@ -39,10 +40,11 @@ public class PostController {
         }
     }
 
-    @PostMapping("/findPosts")
-    public ResponseEntity findPosts(@RequestBody PostDTO postDTO){
+    @PostMapping("/findPost")
+    @AutoUserId
+    public ResponseEntity findPost(@RequestBody PostDTO postDTO){
         try{
-            List<PostDTO> postList = postService.findPosts(postDTO);
+            List<PostDTO> postList = postService.findPost(postDTO);
             return responseUtil.ok(postList);
         }catch (Exception e){
             log.error(e.getMessage());
@@ -50,10 +52,11 @@ public class PostController {
         }
     }
 
-    @PostMapping("/openTop")
-    public ResponseEntity openTop(@RequestBody PostDTO postDTO){
+    @PostMapping("/findTopCont")
+    @AutoUserId
+    public ResponseEntity findTopCont(@RequestBody PostDTO postDTO){
         try{
-            List<PostDTO> contList = postService.openTop(postDTO);
+            List<PostDTO> contList = postService.findTopCont(postDTO);
             return responseUtil.ok(contList);
         }catch (Exception e){
             log.error(e.getMessage());
@@ -61,10 +64,11 @@ public class PostController {
         }
     }
 
-    @PostMapping("/openBot")
-    public ResponseEntity openBot(@RequestBody PostDTO postDTO){
+    @PostMapping("/findBotCont")
+    @AutoUserId
+    public ResponseEntity findBotCont(@RequestBody PostDTO postDTO){
         try{
-            List<PostDTO> contList = postService.openTop(postDTO);
+            List<PostDTO> contList = postService.findBotCont(postDTO);
             return responseUtil.ok(contList);
         }catch (Exception e){
             log.error(e.getMessage());
@@ -73,6 +77,7 @@ public class PostController {
     }
 
     @PostMapping("/createPost")
+    @AutoUserId
     public ResponseEntity createPost(@RequestBody PostDTO postDTO){
         try{
             postService.createPost(postDTO);
@@ -84,6 +89,7 @@ public class PostController {
     }
 
     @PostMapping("/replyPost")
+    @AutoUserId
     public ResponseEntity replyPost(@RequestBody PostDTO postDTO){
         try{
             postService.replyPost(postDTO);
@@ -95,6 +101,7 @@ public class PostController {
     }
 
     @PostMapping("/deletePost")
+    @AutoUserId
     public ResponseEntity deletePost(@RequestBody PostDTO postDTO){
         try{
             postService.deletePost(postDTO);
@@ -106,6 +113,7 @@ public class PostController {
     }
 
     @PostMapping("/deleteContent")
+    @AutoUserId
     public ResponseEntity deleteContent(@RequestBody PostDTO postDTO){
         try{
             postService.deleteContent(postDTO);
@@ -117,10 +125,11 @@ public class PostController {
     }
 
     @PostMapping("/likeContent")
+    @AutoUserId
     public ResponseEntity likeContent(@RequestBody PostDTO postDTO){
         try{
-            postService.likeContent(postDTO);
-            return responseUtil.ok();
+            postDTO = postService.likeContent(postDTO);
+            return responseUtil.ok(postDTO);
         }catch (Exception e){
             log.error(e.getMessage());
             return responseUtil.err(e);
@@ -128,10 +137,11 @@ public class PostController {
     }
 
     @PostMapping("/unlikeContent")
+    @AutoUserId
     public ResponseEntity unlikeContent(@RequestBody PostDTO postDTO){
         try{
-            postService.unlikeContent(postDTO);
-            return responseUtil.ok();
+            postDTO = postService.unlikeContent(postDTO);
+            return responseUtil.ok(postDTO);
         }catch (Exception e){
             log.error(e.getMessage());
             return responseUtil.err(e);
@@ -140,6 +150,7 @@ public class PostController {
 
 
     @PostMapping("/t")
+    @AutoUserId
     public ResponseEntity t(@RequestBody LeafDTO leafDTO){
         try{
             contLikeService.saveContLikeToDB();

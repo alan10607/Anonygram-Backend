@@ -1,6 +1,6 @@
 package com.alan10607.leaf.schedule;
 
-import com.alan10607.leaf.service.ViewService;
+import com.alan10607.leaf.service.ContLikeService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
@@ -11,15 +11,15 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 @Slf4j
 public class RedisSchedule extends QuartzJobBean {
 
-    private ViewService viewService;
+    private ContLikeService contLikeService;
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         try {
-            viewService.saveCountToDB();
-            log.info("Schedule saveCountToDB succeeded");
+            contLikeService.saveContLikeToDB();
+            log.info("Schedule saveContLikeToDB succeeded");
         } catch (Exception e) {
-            log.error("Schedule saveCountToDB fail");
+            log.error("Schedule saveContLikeToDB fail");
             throw new JobExecutionException(e);
         }
     }

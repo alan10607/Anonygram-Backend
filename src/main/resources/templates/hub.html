@@ -9,139 +9,64 @@
     <link rel="shortcut icon" th:href="@{~/pic/favicon.png}" type="image/x-icon">
     <link rel="icon" th:href="@{~/pic/favicon.png}" type="image/x-icon">
     <link rel="stylesheet" th:href="@{~/css/hub.css}">
-    <link rel="stylesheet" href="../static/css/hub.css">
     <script type="text/JavaScript" th:src="@{~/js/main.js}"></script>
-    <script type="text/JavaScript" th:src="@{~/js/admin.js}"></script>
+    <script type="text/JavaScript" th:src="@{~/js/hub.js}"></script>
     <script type="text/JavaScript" th:src="@{~/js/jquery-3.6.1.min.js}"></script>
 </head>
 <script th:inline="javascript">
+//啟用thymeleaf 內聯
+/*<![CDATA[*/
+    const ICON_USER = /*[[@{~/pic/user.png}]]*/ "";
+    const ICON_LIKE = /*[[@{~/pic/like.svg}]]*/ "";
+    const USER_ID = /*[[${userId}]]*/ "";
+/*]]>*/
 </script>
-<body>
-<h2>LEAF MANAGER</h2>
-<form method="post" action="logoutProcessing">
-    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-    <button type="submit">Logout</button>
-</form>
-<hr>
-<p>
-    <span>LeafName:</span>
-    <input id="leaf-textbox" type="text">
-</p>
-<p>
-    <button id="find-leaf-btn" type="button" onclick="findLeaf();">Find</button>
-    <button id="create-leaf-btn" type="button" onclick="createLeaf();">Create</button>
-    <button id="delete-leaf-btn" type="button" onclick="deleteLeaf();">Delete</button>
-</p>
-<table>
-    <tbody id="leafTBody">
-    </tbody>
-</table>
-<hr>
-<p>
-    <span>Email:</span>
-    <input id="user-textbox" type="text">
-</p>
-<p>
-    <span>Password(for create only):</span>
-    <input id="user-pw-textbox" type="password">
-</p>
-<p>
-    <span>UserName(for create only):</span>
-    <input id="user-userName-textbox" type="text">
-</p>
-<p>
-    <button id="find-user-btn" type="button" onclick="findUser();">Find</button>
-    <button id="create-user-btn" type="button" onclick="createUser();">Create</button>
-    <button id="delete-user-btn" type="button" onclick="deleteUser();">Delete</button>
-</p>
-<table>
-    <tbody id="userTBody">
-    </tbody>
-</table>
-<span id="admin-console" type="text"></span>
+<body onload="init();">
+<div id="header"></div>
+<div id="art-box"></div>
+<div id="footer">
+</div>
 
-<div class="art">
-    <p class="author">alan123</p>
-    <p class="title">標題123</p>
-    <p class="word">內文1111111111111111111111111111113</p>
-    <p class="info">
-        <span class="likes">102說讚</span>
-        <span class="time">14小時前</span>
-    </p>
-    <p class="move">
-        <span class="open">查看全部72則留言</span>
-        <span class="reply">回覆</span>
-    </p>
-    <div class="cont-box">
-        <div class="cont">
-            <p class="word">內文1111111111111111111111111111113</p>
-            <p class="info">
-                <span class="no">B1</span>
-                <span class="time">14小時前</span>
-            </p>
-            <div class="likes-in">123讚</div>
-        </div>
-        <div class="cont">
-            <p class="word">內文1111111111111111111111111111113</p>
-            <p class="info">
-                <span class="no">B1</span>
-                <span class="time">14小時前</span>
-            </p>
-            <div class="likes-in">123讚</div>
-        </div>
-        <div class="cont">
-            <p class="word">內文1111111111111111111111111111113</p>
-            <p class="info">
-                <span class="no">B1</span>
-                <span class="time">14小時前</span>
-            </p>
-            <div class="likes-in">123讚</div>
-        </div>
-    </div>
+<div id="top-box">
+    <span id="top-user">
+        <span>匿名</span>
+        <span th:if="${userId != null}" th:text="'(' + ${userId} + ')'"></span>
+    </span>
+    <img th:src="@{~/pic/add.png}" onclick="openNewBox();">
+    <img th:src="@{~/pic/option.png}">
 </div>
 
 
-<div class="art">
-    <p class="author">alan123</p>
-    <p class="title">標題123</p>
-    <p class="word">內文1111111111111111111111111111113</p>
-    <p class="info">
-        <span class="likes">102說讚</span>
-        <span class="time">14小時前</span>
-    </p>
-    <p class="move">
-        <span class="open">查看全部72則留言</span>
-        <span class="reply">回覆</span>
-    </p>
-    <div class="cont-box">
-        <div class="cont">
-            <p class="word">內文1111111111111111111111111111113</p>
-            <p class="info">
-                <span class="no">B1</span>
-                <span class="time">14小時前</span>
-            </p>
-            <div class="likes-in">123讚</div>
-        </div>
-        <div class="cont">
-            <p class="word">內文1111111111111111111111111111113</p>
-            <p class="info">
-                <span class="no">B1</span>
-                <span class="time">14小時前</span>
-            </p>
-            <div class="likes-in">123讚</div>
-        </div>
-        <div class="cont">
-            <p class="word">內文1111111111111111111111111111113</p>
-            <p class="info">
-                <span class="no">B1</span>
-                <span class="time">14小時前</span>
-            </p>
-            <div class="likes-in">123讚</div>
-        </div>
+<div id="reply-box" class="reply-close">
+    <div class="bar">
+        <img class="bar-head" th:src="@{~/pic/user.png}">
+        <span class="author">匿名</span>
     </div>
+    <p id="reply-info">
+        <span id="reply-no"></span>
+        <span class="splitter">, </span>
+        <span id="reply-time"></span>
+    </p>
+    <textarea id="reply-textarea"placeholder="留言..."></textarea>
+    <p id="reply-summit" onclick="replyPost();">送出</p>
 </div>
+
+<div id="new-box" class="new-close">
+    <div id="new-bar">
+        <img th:src="@{~/pic/close.png}" onclick="closeNewBox();">
+        <span>發文</span>
+        <span onclick="createPost();">送出</span>
+    </div>
+    <div class="bar">
+        <img class="bar-head" th:src="@{~/pic/user.png}">
+        <span class="author">匿名</span>
+    </div>
+    <input id="new-title" type="text" placeholder="標題">
+    <textarea id="new-textarea"placeholder="本版提供匿名發文..."></textarea>
+</div>
+
+<div id="console-box" class="console-close">
+</div>
+
 </body>
 </html>
-
-
-

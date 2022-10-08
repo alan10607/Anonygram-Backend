@@ -3,11 +3,14 @@ package com.alan10607.leaf.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.scripting.support.ResourceScriptSource;
 
 @Configuration
 @Slf4j
@@ -58,6 +61,22 @@ public class RedisConfig {
 
         log.info("RedisTemplate config succeeded");
         return template;
+    }
+
+    @Bean
+    public DefaultRedisScript<Long> checkLikeScript() {
+        DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
+        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/check_like.lua")));
+        redisScript.setResultType(Long.class);
+        return redisScript;
+    }
+
+    @Bean
+    public DefaultRedisScript<Long> toggleLikeScript() {
+        DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
+        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/toggle_like.lua")));
+        redisScript.setResultType(Long.class);
+        return redisScript;
     }
 
 }

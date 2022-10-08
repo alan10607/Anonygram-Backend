@@ -44,6 +44,7 @@ public class RedisKeyUtil {
 
 
     public static final String ART_SET = "data:artSet";
+    public static final String ART_SET_STR = "data:artSetStr";
     public static final String ART_PREFIX = "data:art:%s";
     public static final String CONT_PREFIX = "data:cont:%s:$s";
     public static final String LIKE_STATIC = "data:like:static";

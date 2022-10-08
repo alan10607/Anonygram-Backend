@@ -29,24 +29,33 @@ public class ContentServiceImpl implements ContentService {
     private final TimeUtil timeUtil;
     private final static int CONT_EXPIRE = 3600;
 
+    /**
+     * 查詢cont文章留言, 若沒有則到DB查詢, 並設置過期時間
+     * @param id
+     * @param no
+     * @param userId
+     * @return
+     */
+    public PostDTO findContentFromRedis(String id, int no, String userId) {
+        Map<String, Object> contMap = redisTemplate.opsForHash().entries(keyUtil.cont(id, no));
+        PostDTO cont = new PostDTO();
+        if(contMap.isEmpty()) {
+            cont = pullContentToRedis(id, no, userId);
+        }else{
+            cont = processContentRedis(id, no, userId, contMap);
+        }
+        redisTemplate.expire(keyUtil.cont(id, no), keyUtil.getRanExp(CONT_EXPIRE), TimeUnit.SECONDS);
+
+        if(cont.getStatus() == ArtStatusType.UNKNOWN)
+            throw new IllegalStateException(String.format("Content not found, id: %s, no: %s", id, no));
+
+        return cont;
+    }
 
     public List<PostDTO> findContentFromRedis(String id, int start, int end, String userId) {
         List<PostDTO> contList = new ArrayList<>();
-        for(int no = start; no <= end; no++){
-            Map<String, Object> contMap = redisTemplate.opsForHash().entries(keyUtil.cont(id, no));
-            PostDTO cont = new PostDTO();
-            if(contMap.isEmpty()) {
-                cont = pullContentToRedis(id, no, userId);
-            }else{
-                cont = processContentRedis(id, no, userId, contMap);
-            }
-            redisTemplate.expire(keyUtil.cont(id, no), keyUtil.getRanExp(CONT_EXPIRE), TimeUnit.SECONDS);
-
-            if(cont.getStatus() == ArtStatusType.UNKNOWN)
-                throw new IllegalStateException(String.format("Content not found, id: %s, no: %s", id, no));
-
-            contList.add(cont);
-        }
+        for(int no = start; no <= end; no++)
+            contList.add(findContentFromRedis(id, no, userId));
 
         return contList;
     }
@@ -105,6 +114,12 @@ public class ContentServiceImpl implements ContentService {
         log.info("Delete cont from redis succeed");
     }
 
+    /**
+     * 更新按讚數量, 使用這個方法前要先確認key已經存在
+     * @param id
+     * @param no
+     * @param incr
+     */
     public void updateContentLikesFromRedis(String id, int no, long incr) {
         redisTemplate.opsForHash().increment(keyUtil.cont(id, no), "likes", incr);
     }
@@ -123,9 +138,12 @@ public class ContentServiceImpl implements ContentService {
                 content.getCreateDate());
     }
 
-    public void updateContentStatus(String id, int no, ArtStatusType status) {
+    public void updateContentStatus(String id, int no, String userId, ArtStatusType status) {
         Content content = contentDAO.findByIdAndNo(id, no)
                 .orElseThrow(() -> new IllegalStateException("Content not found"));
+
+        if(!userId.equals(content.getAuthor()))
+            throw new IllegalStateException("No authority to modify");
 
         content.setStatus(status);
         content.setUpdateDate(timeUtil.now());
@@ -138,6 +156,5 @@ public class ContentServiceImpl implements ContentService {
 
         contentDAO.delete(content);
     }
-
 
 }
