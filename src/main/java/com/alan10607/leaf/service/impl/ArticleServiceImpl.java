@@ -13,13 +13,11 @@ import com.alan10607.leaf.util.TimeUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -31,6 +29,7 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleDAO articleDAO;
     private ContentDAO contentDAO;
     private final RedisTemplate redisTemplate;
+    private final DefaultRedisScript createIdSetScript;
     private final RedisKeyUtil keyUtil;
     private final TimeUtil timeUtil;
     private final static int ART_SET_EXPIRE = 3600;
@@ -87,13 +86,38 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     /**
+     * 新增新的id到set, 如果超出文章數量限制會zpopmax減少大小
+     * @param id
+     * @param updateTime
+     */
+    public void createArtSetFromRedis(String id, LocalDateTime updateTime) {
+        if(!redisTemplate.hasKey(keyUtil.ART_SET)){
+            pullArtSetToRedis();
+        }
+        Long res = (Long) redisTemplate.execute(createIdSetScript,
+                Arrays.asList(keyUtil.ART_SET),
+                id,
+                Long.toString(timeUtil.getRedisScore(updateTime)),
+                Integer.toString(keyUtil.MAX_ID_SIZE));
+        log.info("Create artSet score succeed, id={}, popSet={}", id, res == 1);
+    }
+
+    /**
      * 更新使最新留言置頂, zSet的score採用時間倒敘, 新的時間會是較小, 使zadd從O(log(N))變為O(1)
      * @param id
      * @param updateTime
      */
     public void updateArtSetFromRedis(String id, LocalDateTime updateTime) {
+        if(!redisTemplate.hasKey(keyUtil.ART_SET)){
+            pullArtSetToRedis();
+        }
         redisTemplate.opsForZSet().add(keyUtil.ART_SET, id, timeUtil.getRedisScore(updateTime));
         log.info("Update artSet score succeed, id={}", id);
+    }
+
+    public void deleteArtSetValueFromRedis(String id) {
+        redisTemplate.opsForZSet().remove(keyUtil.ART_SET, id);
+        log.info("Delete artSet id={} from redis succeed", id);
     }
 
     public void deleteArtSetFromRedis() {
@@ -197,7 +221,7 @@ public class ArticleServiceImpl implements ArticleService {
      * @return
      */
     public List<String> findArtSet() {
-        return articleDAO.findLatest100Id();
+        return articleDAO.findLatest100Id(ArtStatusType.NEW.name());
     }
 
     public PostDTO findArticle(String id) {

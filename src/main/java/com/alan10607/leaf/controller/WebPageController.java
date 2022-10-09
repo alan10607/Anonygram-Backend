@@ -35,8 +35,9 @@ public class WebPageController {
     }
 
     @RequestMapping("/")
-    public String root(Model model){
-        return hub(new PostDTO(), model);
+    @AutoUserId
+    public String root(PostDTO postDTO, Model model){
+        return hub(postDTO, model);
     }
 
     @RequestMapping("/index")

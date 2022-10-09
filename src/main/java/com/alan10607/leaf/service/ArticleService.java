@@ -10,7 +10,9 @@ public interface ArticleService {
     String findArtSetStrFromRedis();
     void deleteArtSetStrFromRedis();
     List<String> findArtSetFromRedis(long start, long end);
+    void createArtSetFromRedis(String id, LocalDateTime updateTime);
     void updateArtSetFromRedis(String id, LocalDateTime updateTime);
+    void deleteArtSetValueFromRedis(String id);
     void deleteArtSetFromRedis();
     PostDTO findArticleFromRedis(String id);
     List<PostDTO> findArticleFromRedis(List<String> idList);

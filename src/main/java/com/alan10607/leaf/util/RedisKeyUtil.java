@@ -50,6 +50,7 @@ public class RedisKeyUtil {
     public static final String LIKE_STATIC = "data:like:static";
     public static final String LIKE_NEW = "data:like:new";
     public static final String LIKE_BATCH = "data:like:batch";
+    public static final int MAX_ID_SIZE = 100;
 
 
     public String art(String artId){

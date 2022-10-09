@@ -3,6 +3,7 @@ body{
     background-color: #e0e0e0;
     max-width: 430px;
     margin: 0 auto;
+    color: #262626;
 }
 
 p{
@@ -32,6 +33,7 @@ body textarea {
     background-color: #fafafa;
     border: 0;
     padding: 4px 5px 3px 5px;
+    font-family: Microsoft JhengHei;
 }
 
 body button{
@@ -99,7 +101,7 @@ table td{
     height: 8px;
     margin-bottom: 7px;
     content: "";
-    border-bottom: 0.5px solid #ddd;
+    border-bottom: 0.5px solid #8e8e8e;
 }
 
 .bar{
@@ -113,7 +115,6 @@ table td{
     width: 24px;
     height: 24px;
     margin-right: 8px;
-    border-bottom: 0.5px solid #ddd;
 }
 
 .title{
@@ -158,6 +159,7 @@ table td{
     font-size: 12px;
     color: #545454;
     padding-left: 10px;
+    font-weight: normal;
 }
 
 .cont[is-user-like = "true"] .likes-icon{
@@ -172,9 +174,9 @@ table td{
 
 .bar-in-head {
     flex: 0 1 auto;
-    width: 14px;
-    height: 14px;
-    padding: 6px 6px 5px 0px;
+    width: 16px;
+    height: 16px;
+    padding: 4px 6px 4px 0px;
 }
 
 .author{
@@ -187,7 +189,7 @@ table td{
     display: flex;
     align-items: center;
     font-size: 14px;
-    color: #545454;
+    color: #8e8e8e;
     padding: 0px 4px 7px 4px;
 }
 
@@ -240,7 +242,7 @@ table td{
 
 #reply-box{
     position: fixed;
-    bottom: 0;
+    top: 0;
     left: 0;
     right: 0;
     background-color: #fafafa;
@@ -249,15 +251,15 @@ table td{
     transition-duration: 0.5s;
     display: flex;
     flex-direction: column;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid #8e8e8e;
 }
 
 .reply-open{
-    top: 75vh;
+    bottom: 60vh;
 }
 
 .reply-close{
-    top: 100vh;
+    bottom: 100vh;
     visibility: hidden;
     overflow: hidden;
 }
@@ -272,13 +274,13 @@ table td{
 #reply-summit{
     text-align: right;
     font-size: 14px;
-    color: #545454;
+    color: #262626;
 }
 
 #reply-info{
     font-size: 12px;
     font-weight: 600;
-    color: #545454;
+    color: #262626;
 }
 
 #new-box{
@@ -292,6 +294,7 @@ table td{
     display: flex;
     flex-direction: column;
     padding: 9px 9px 13px 9px;
+    color: #262626;
 }
 
 .new-open{
@@ -323,7 +326,7 @@ table td{
 #new-box p{
     text-align: right;
     font-size: 16px;
-    color: #545454;
+    color: #8e8e8e;
     flex: 0 1 auto;
     margin: 10px 0;
 }
@@ -353,7 +356,7 @@ table td{
     position: fixed;
     left: 0;
     right: 0;
-    background-color: #ddd;
+    background-color: #8e8e8e;
     transition-timing-function: ease-in-out;
     transition-duration: 0.2s;
     padding: 30px;

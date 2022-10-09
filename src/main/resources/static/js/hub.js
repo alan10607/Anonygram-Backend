@@ -138,6 +138,14 @@ function findTopContError(){
 
 /* --- 新增文章 --- */
 function createPost(){
+    if($("#new-title").val().trim() == ""){
+        showConsoleBox("文章標題不能為空白!!");
+        return;
+    }
+    if($("#new-textarea").val().trim() == ""){
+        showConsoleBox("文章內容不能為空白!!");
+        return;
+    }
     var data = {
         "title" : $("#new-title").val(),
         "word" : $("#new-textarea").val()
@@ -159,6 +167,10 @@ function createPostError(postDTO){
 
 /* --- 新增留言 --- */
 function replyPost(){
+    if($("#reply-textarea").val().trim() == ""){
+        showConsoleBox("留言內容不能為空白!!");
+        return;
+    }
     var data = {
         "id" : $("#reply-textarea").attr("reply-id"),
         "word" : $("#reply-textarea").val()
@@ -341,7 +353,7 @@ function makeArt(postDTO){
     //文章內文
     var cont = $("<div>", {class : "cont", "no" : c.no,
         "is-user-like" : c.isUserLike, "likes" : c.likes}).appendTo(art);
-    $("<p>", {class : "word", text : c.word}).appendTo(cont);
+    $("<pre>", {class : "word", text : c.word}).appendTo(cont);
 
     //訊息列
     var info = $("<p>" , {class : "info"}).appendTo(cont);
@@ -370,7 +382,7 @@ function makeCont(c){
         $("<img>", {class: "bar-in-head", src : ICON_USER}).appendTo(barIn);
         $("<div>", {class : "author", text : DEL_AUTHOR}).appendTo(barIn);
 
-        $("<p>", {class : "word", text : DEL_WORD}).appendTo(cont);
+        $("<pre>", {class : "word", text : DEL_WORD}).appendTo(cont);
 
         var info = $("<p>" , {class : "info"}).appendTo(cont);
         $("<span>", {class : "no", text : getNoStr(c.no)}).appendTo(info);
@@ -389,7 +401,7 @@ function makeCont(c){
     $("<div>", {class : "likes likes-in", text : c.likes}).appendTo(barIn);
 
     //留言
-    $("<p>", {class : "word", text : c.word}).appendTo(cont);
+    $("<pre>", {class : "word", text : c.word}).appendTo(cont);
 
     //訊息列
     var info = $("<p>" , {class : "info"}).appendTo(cont);

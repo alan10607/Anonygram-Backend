@@ -121,7 +121,7 @@ public class PostServiceImpl implements PostService {
 
         //新增成功後刪除緩存
         articleService.deleteArticleFromRedis(id);
-        articleService.updateArtSetFromRedis(id, createAndUpdateTime);
+        articleService.createArtSetFromRedis(id, createAndUpdateTime);
         articleService.deleteArtSetStrFromRedis();
     }
 
@@ -157,6 +157,8 @@ public class PostServiceImpl implements PostService {
         String userId = postDTO.getUserId();
         articleService.updateArticleStatus(id, userId, ArtStatusType.DELETED);
         articleService.deleteArticleFromRedis(id);
+        articleService.deleteArtSetValueFromRedis(id);
+        articleService.deleteArtSetStrFromRedis();
     }
 
     /**

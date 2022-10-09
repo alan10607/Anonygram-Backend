@@ -21,9 +21,9 @@ public class ContLikeServiceImpl implements ContLikeService {
     private TxnService txnService;
     private ContLikeDAO contLikeDAO;
     private final RedisTemplate redisTemplate;
-    private final RedisKeyUtil keyUtil;
     private final DefaultRedisScript checkLikeScript;
     private final DefaultRedisScript toggleLikeScript;
+    private final RedisKeyUtil keyUtil;
     private final static int LIKE = 1;
     private final static int UNLIKE = 0;
 
@@ -190,7 +190,5 @@ public class ContLikeServiceImpl implements ContLikeService {
             throw new RuntimeException(e);
         }
     }
-
-
 
 }

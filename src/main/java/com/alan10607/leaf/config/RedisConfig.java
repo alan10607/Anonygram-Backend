@@ -79,4 +79,12 @@ public class RedisConfig {
         return redisScript;
     }
 
+    @Bean
+    public DefaultRedisScript<Long> createIdSetScript() {
+        DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
+        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/create_id_set.lua")));
+        redisScript.setResultType(Long.class);
+        return redisScript;
+    }
+
 }
