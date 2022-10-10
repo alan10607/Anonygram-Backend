@@ -452,26 +452,36 @@ function getTimeFromStr(dateStr){
 
     var date = new Date(dateStr);
     var now = new Date();
-    var gap = 0;
-    if((gap = now.getYear() - date.getYear()) > 0)
-        return gap + "年前";
+    var gap = now - date;
+    var s = 1000;
+    var m = 60000;
+    var h = 3600000;
+    var day = 86400000;
 
-    if((gap = now.getMonth() - date.getMonth()) > 0)
-        return gap + "個月前";
+    //超過一個月採另一種計算方式, 忽略時間部分計算
+    var countMonth = (now.getYear() - date.getYear()) * 12
+                    + now.getMonth() - date.getMonth()
+                    + (now.getDate() < date.getDate() ? -1 : 0);//補回不足的月
 
-    if((gap = now.getDate() - date.getDate()) > 0)
-        return gap + "天前";
+    if(countMonth >= 12)
+        return Math.floor(countMonth / 12) + "年前";
 
-    if((gap = now.getHours() - date.getHours()) > 0)
-        return gap + "小時前";
+    if(countMonth > 0)
+        return countMonth + "個月前";
 
-    if((gap = now.getMinutes() - date.getMinutes()) > 0)
-        return gap + "分鐘前";
+    if(gap >= day)
+        return Math.floor(gap / day) + "天前";
 
-    if((gap = now.getSeconds() - date.getSeconds()) > 0)
-        return gap + "秒前";
+    if(gap >= h)
+        return Math.floor(gap / h) + "小時前";
 
-    if((gap = now.getSeconds() - date.getSeconds()) == 0)
+    if(gap >= m)
+        return Math.floor(gap / m) + "分鐘前";
+
+    if(gap >= s)
+        return Math.floor(gap / s) + "秒前";
+
+    if(gap >= 0)
         return "剛剛";
 
     return "";
