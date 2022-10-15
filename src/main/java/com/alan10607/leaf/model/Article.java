@@ -1,6 +1,6 @@
 package com.alan10607.leaf.model;
 
-import com.alan10607.leaf.constant.ArtStatusType;
+import com.alan10607.leaf.constant.StatusType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +25,7 @@ public class Article {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private ArtStatusType status;
+    private StatusType status;
 
     @Column(nullable = false)
     private LocalDateTime updateDate;

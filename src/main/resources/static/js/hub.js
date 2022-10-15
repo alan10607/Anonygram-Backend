@@ -1,7 +1,7 @@
-var ART_LIST = [];
-var FIND_ART_START = 0;//用來記錄從哪個ART_LIST查起
+var ID_LIST = [];
+var FIND_ID_START = 0;//用來記錄從哪個ID_LIST查起
+var ALREADY_FIND_ID = false;
 var FIND_ART_LOCK = false;
-var ALREADY_FIND_SET = false;
 const DEL_AUTHOR = "這則留言已被本人刪除";
 const DEL_WORD = "已經刪除的內容就像青春一樣回不去了";
 const STATUS_TYPE = {"NORMAL" : "NORMAL", "DELETED" : "DELETED"};
@@ -12,7 +12,7 @@ function scrollDown(){
         console.log("FIND_ART_LOCK=true, skip find art");
         return;
     }
-    if(FIND_ART_START >= ART_LIST.length){
+    if(FIND_ID_START >= ID_LIST.length){
         console.log("Already find all arts, skip find art");
         return;
     }
@@ -29,20 +29,19 @@ function scrollDown(){
 /* --- 往上滑動重新整理 --- */
 function scrollUp(){
     var scrollTop = document.documentElement.scrollTop;
-    if(ALREADY_FIND_SET && scrollTop > 30){
-        console.log("Can load art set again");
-        ALREADY_FIND_SET = false;
+    if(ALREADY_FIND_ID && scrollTop > 30){
+        console.log("Can load id set again");
+        ALREADY_FIND_ID = false;
     }
-    if(!ALREADY_FIND_SET && scrollTop < 20){
+    if(!ALREADY_FIND_ID && scrollTop < 20){
 //        location = location;
     }
 }
 
-//$(window).off("scroll");
 function init(){
     //回覆視窗控制
     $("body").click(function(e) {
-        var box = $("#reply-box");
+        var box = $(".reply-box");
         var btn = $(".reply");
         if(!box.is(e.target) && !box.has(e.target).length > 0
             && !btn.is(e.target) && !btn.has(e.target).length > 0){
@@ -60,22 +59,22 @@ function init(){
     var barHeight = $("#top-box")[0].offsetHeight;
     $("#header").css("height", barHeight + "px");
 
-    findArtSet();
+    findIdSet();
     findPost();
 }
 
 /* --- 查詢所有文章id --- */
-function findArtSet(){
-    ALREADY_FIND_SET = true;
-    post("/post/findArtSet", {}, findArtSetAfter, findArtSetError);
+function findIdSet(){
+    ALREADY_FIND_ID = true;
+    post("/post/findIdSet", {}, findIdSetAfter, findIdSetError);
 }
 
-function findArtSetAfter(returnList){
-    ART_LIST = returnList;
-    console.log("ArtSet size=" + ART_LIST.length);
+function findIdSetAfter(returnList){
+    ID_LIST = returnList;
+    console.log("ID_LIST size=" + ID_LIST.length);
 }
 
-function findArtSetError(){
+function findIdSetError(){
     showConsoleBox("看起來泡麵打翻機台了, 請稍後再進來試試");
 }
 
@@ -83,14 +82,14 @@ function findArtSetError(){
 function findPost(){
     FIND_ART_LOCK = true;
     var data = {
-        "idList" : ART_LIST.slice(FIND_ART_START, FIND_ART_START + 10)
+        "idList" : ID_LIST.slice(FIND_ID_START, FIND_ID_START + 10)
     }
 
     post("/post/findPost", data, findPostAfter, findPostError);
 }
 
 function findPostAfter(postDTO){
-    FIND_ART_START += postDTO.length;
+    FIND_ID_START += postDTO.length;
     for(let art of postDTO){
         $("#art-box").append(makeArt(art));
     }
@@ -128,6 +127,9 @@ function findTopContAfter(contList, art){
     }
 
     //更新字句
+    if(contNum > 1 && contNum == startNo)
+        art.find(".open").attr("onclick", "");
+
     art.find(".open").text(getOpenStr(contNum, startNo));
     art.find(".reply").removeClass("disable");
 }
@@ -154,11 +156,13 @@ function createPost(){
 }
 
 function createPostAfter(postDTO){
-    //不做處理給user重整
     closeNewBox();
     $("#new-title").val("");
     $("#new-textarea").val("");
     showConsoleBox("文章發布成功!!");
+    setInterval(function(){
+            location = location;
+        }, 1000);
 }
 
 function createPostError(postDTO){
@@ -166,23 +170,23 @@ function createPostError(postDTO){
 }
 
 /* --- 新增留言 --- */
-function replyPost(){
-    if($("#reply-textarea").val().trim() == ""){
+function replyPost(e){
+    var art = $(e).closest(".art")
+    if(art.find(".reply-textarea").val().trim() == ""){
         showConsoleBox("留言內容不能為空白!!");
         return;
     }
     var data = {
-        "id" : $("#reply-textarea").attr("reply-id"),
-        "word" : $("#reply-textarea").val()
+        "id" : art.attr("reply-id"),
+        "word" : art.find(".reply-textarea").val()
     }
-    replyArt = $("#" + $("#reply-textarea").attr("reply-id"));
-    post("/post/replyPost", data, replyPostAfter, replyPostError, replyArt);
+    post("/post/replyPost", data, replyPostAfter, replyPostError, art);
 }
 
-function replyPostAfter(postDTO, replyArt){
-    closeReplyBox();
-    $("#reply-textarea").val("");
-    findTopCont(replyArt[0]);
+function replyPostAfter(postDTO, art){
+    closeReplyBox(art);
+    art.find(".reply-textarea").val("");
+    findTopCont(art[0]);
 }
 
 function replyPostError(postDTO){
@@ -296,18 +300,20 @@ function changeLike(isUserLike, cont){
 /* --- 新增留言視窗 --- */
 function openReplyBox(e){
     var now = new Date();
-    var nowStr = `${now.getFullYear()}/${now.getMonth()}/${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
+    var nowStr = `${now.getFullYear()}/${now.getMonth().padStart(2, "0")}/${now.getDate().padStart(2, "0")}`
+            + ` ${now.getHours().padStart(2, "0")}:${now.getMinutes().padStart(2, "0")}`;
     var art = $(e).closest(".art")
-    $("#reply-textarea").attr("reply-id", art.attr("id"));
-    $("#reply-no").text(getNoStr(art.attr("cont-num")));
-    $("#reply-time").text(nowStr);
-    $("#reply-box").addClass("reply-open");
-    $("#reply-box").removeClass("reply-close");
+    art.find(".reply-no").text(getNoStr(art.attr("cont-num")));
+    art.find(".reply-time").text(nowStr);
+    art.find(".reply-box").removeClass("disable");
 }
 
-function closeReplyBox(){
-    $("#reply-box").addClass("reply-close");
-    $("#reply-box").removeClass("reply-open");
+function closeReplyBox(art){
+    if(art != null){
+        art.find(".reply-box").addClass("disable");
+    }else{//如果沒定義, 就關閉全部
+        $(".reply-box").addClass("disable");
+    }
 }
 
 /* --- 新增文章視窗 --- */
@@ -343,17 +349,18 @@ function makeArt(postDTO){
     var c = postDTO.contList[0];
     var art = $("<div>", {id : a.id, class : "art", "cont-num" : a.contNum, "start-no" : 1});
 
-    //作者與標題
+    //作者
     var bar = $("<div>", {class : "bar"}).appendTo(art);
     $("<img>", {class: "bar-head", src : ICON_USER}).appendTo(bar);
     $("<span>", {class : "author", text : c.author}).appendTo(bar);
     if(USER_ID == c.author) $("<div>", {class : "del", text : "刪除", onclick : "deletePost(this);"}).appendTo(bar);
-    $("<p>", {class : "title", text : a.title}).appendTo(art);
 
     //文章內文
     var cont = $("<div>", {class : "cont", "no" : c.no,
         "is-user-like" : c.isUserLike, "likes" : c.likes}).appendTo(art);
-    $("<pre>", {class : "word", text : c.word}).appendTo(cont);
+    $("<p>", {class : "title", text : a.title}).appendTo(cont);
+    var word = $("<div>", {class : "word"}).appendTo(cont);
+    getWordHtml(word, c.word);
 
     //訊息列
     var info = $("<p>" , {class : "info"}).appendTo(cont);
@@ -368,15 +375,28 @@ function makeArt(postDTO){
     //操作列
     var move = $("<div>" , {class : "move"}).appendTo(art);
     $("<p>", {class : "open", text : getOpenStr(a.contNum, 1), onclick : "findTopCont(this);"}).appendTo(move);
-    $("<p>", {class : "open-bot disable", text : "查看最新留言", onclick : "findBotCont(this);"}).appendTo(move);
-    $("<p>", {class : (a.contNum > 1 ? "reply disable" : "reply"), text : "回覆", onclick : "openReplyBox(this);"}).appendTo(move);
+    $("<p>", {class : (a.contNum > 1 ? "reply disable" : "reply"), text : "新增留言", onclick : "openReplyBox(this);"}).appendTo(move);
+
+    //回覆視窗
+    var replyBox = $("<div>", {class : "reply-box disable"}).appendTo(art);
+    var replyBar = $("<div>", {class : "bar"}).appendTo(replyBox);
+    $("<img>", {class : "bar-head", src : ICON_USER}).appendTo(replyBar);
+    $("<span>", {class : "author", text : "匿名"}).appendTo(replyBar);
+
+    var replyInfo = $("<p>" , {class : "reply-info"}).appendTo(replyBox);
+    $("<span>", {class : "reply-no"}).appendTo(replyInfo);
+    $("<span>", {class : "splitter", text : getSplitter()}).appendTo(replyInfo);
+    $("<span>", {class : "reply-time"}).appendTo(replyInfo);
+
+    $("<textarea>", {class : "reply-textarea", placeholder : "留言..."}).appendTo(replyBox);
+    $("<p>", {class : "reply-summit", text : "送出", onclick : "replyPost();"}).appendTo(replyBox);
 
     return art;
 };
 
 function makeCont(c){
     if(c.status == STATUS_TYPE.DELETED){
-        var cont = $("<div>", {class : "cont", "art-id" : c.id, "no" : c.no});
+        var cont = $("<div>", {class : "cont", "no" : c.no});
 
         var barIn = $("<div>" , {class : "bar-in"}).appendTo(cont);
         $("<img>", {class: "bar-in-head", src : ICON_USER}).appendTo(barIn);
@@ -401,7 +421,8 @@ function makeCont(c){
     $("<div>", {class : "likes likes-in", text : c.likes}).appendTo(barIn);
 
     //留言
-    $("<pre>", {class : "word", text : c.word}).appendTo(cont);
+    var word = $("<div>", {class : "word"}).appendTo(cont);
+    getWordHtml(word, c.word);
 
     //訊息列
     var info = $("<p>" , {class : "info"}).appendTo(cont);
@@ -418,7 +439,7 @@ function getNoStr(no){
 }
 
 function getSplitter(){
-    return " ,  ";
+    return ", ";
 }
 
 function getLikeStr(isUserLike, likes){
@@ -439,7 +460,7 @@ function getOpenStr(contNum, startNo){
     var remain = contNum - startNo;
 
     if(remain == 0)//已全部展開
-        return "";
+        return "已展開全部留言";
 
     if(startNo == 1)//尚未展開
         return `查看全部${contNum - startNo}則留言`;
@@ -485,4 +506,64 @@ function getTimeFromStr(dateStr){
         return "剛剛";
 
     return "";
+}
+
+function getWordHtml(e, word){
+    var url = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi;
+    var bx = /b\d+(?=$| )/gi;
+    var urlExp = new RegExp(url);
+    var bxExp = new RegExp(bx);
+    var mark = 0xf490;//私人區間, 不太可能出現
+
+    var map = new Map();
+    var lines = word.split("/n");
+    for(let line of lines){
+        //兩個分隔符好不會重疊
+        line = line.replace(urlExp, function (url){
+                var key = String.fromCharCode(mark);
+                map.set(mark, $("<a>", {href : url, text : url, target : "_blank"}));
+                mark++;
+                return key;
+            }).replace(bxExp, function (bx){
+                var key = String.fromCharCode(mark);
+                var no = bx.substr(1);
+                map.set(mark, $("<span>", {class : "bx", text : bx, onclick : `goToBx(this, ${no});`}));
+                mark++;
+                return key;
+            });
+
+        var last = 0;
+        for(let i = 0; i < line.length; i++){
+            if(map.has(line.charCodeAt(i))){
+                $("<span>", {text : line.substring(last, i)}).appendTo(e);
+                last = i + 1;//跳過這個替換元
+
+                map.get(line.charCodeAt(i)).appendTo(e);
+            }
+        }
+
+        if(last < line.length){
+            $("<span>", {text : line.substring(last, line.length)}).appendTo(e);
+        }
+
+        $("<br>").appendTo(e);
+    }
+
+    return e;
+}
+
+function goToBx(e, no){
+    var contEle = $(e).closest(".art").find(`[no=${no}]`)[0]
+    if(contEle == null) return;
+
+    goTo(contEle);
+}
+
+function goTo(element = "body"){
+	var tobBoxHeight = $("#top-box")[0].offsetHeight;//取得tobBox高度
+
+	//給上方留空格
+    $("html, body").animate({
+		scrollTop: $(element).offset().top - tobBoxHeight
+	}, 500);
 }

@@ -4,18 +4,15 @@ import com.alan10607.leaf.constant.AutoUserId;
 import com.alan10607.leaf.dto.LeafDTO;
 import com.alan10607.leaf.dto.PostDTO;
 import com.alan10607.leaf.service.ContLikeService;
+import com.alan10607.leaf.service.ImgurService;
 import com.alan10607.leaf.service.PostService;
 import com.alan10607.leaf.util.ResponseUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
@@ -24,15 +21,16 @@ import java.util.List;
 @Slf4j
 public class PostController {
     private final PostService postService;
+    private final ImgurService imgurService;
     private final ResponseUtil responseUtil;
 
 
     private final ContLikeService contLikeService;
 
-    @PostMapping("/findArtSet")
-    public ResponseEntity findArtSet(@RequestBody PostDTO postDTO, HttpSession session, HttpServletRequest request){
+    @PostMapping("/findIdSet")
+    public ResponseEntity findIdSet(@RequestBody PostDTO postDTO){
         try{
-            List<String> idList = postService.findArtSet();
+            List<String> idList = postService.findIdSet();
             return responseUtil.ok(idList);
         }catch (Exception e){
             log.error(e.getMessage());
@@ -86,6 +84,20 @@ public class PostController {
             log.error(e.getMessage());
             return responseUtil.err(e);
         }
+    }
+
+    @PostMapping("/image")
+    @AutoUserId
+    //可能要用RequestParam了...
+    public ResponseEntity uploadFileMulti(@RequestParam("image") MultipartFile image) {
+        try{
+            imgurService.upload(image);
+            return responseUtil.ok();
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return responseUtil.err(e);
+        }
+
     }
 
     @PostMapping("/replyPost")

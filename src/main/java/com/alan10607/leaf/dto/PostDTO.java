@@ -1,10 +1,11 @@
 package com.alan10607.leaf.dto;
 
-import com.alan10607.leaf.constant.ArtStatusType;
+import com.alan10607.leaf.constant.StatusType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,11 +18,12 @@ public class PostDTO {
     private String id;
     private String title;
     private Integer contNum;
-    private ArtStatusType status;
+    private StatusType status;
     private LocalDateTime updateDate;
     private LocalDateTime createDate;
     private Integer no;
     private String author;
+    private String authorName;
     private String word;
     private Long likes;
     private Boolean isUserLike;
@@ -29,12 +31,13 @@ public class PostDTO {
     private List<String> idList;
     private String userId;
     private Boolean success;
+    private MultipartFile image;
 
     /* --- for Article --- */
     public PostDTO(String id,
                    String title,
                    Integer contNum,
-                   ArtStatusType status,
+                   StatusType status,
                    LocalDateTime updateDate,
                    LocalDateTime createDate) {
         this.id = id;
@@ -46,7 +49,7 @@ public class PostDTO {
     }
 
     public PostDTO(String id,
-                   ArtStatusType status) {
+                   StatusType status) {
         this.id = id;
         this.status = status;
     }
@@ -57,10 +60,11 @@ public class PostDTO {
                    String author,
                    String word,
                    Long likes,
-                   ArtStatusType status,
+                   StatusType status,
                    LocalDateTime updateDate,
                    LocalDateTime createDate,
-                   Boolean isUserLike) {
+                   Boolean isUserLike,
+                   String authorName) {
         this.id = id;
         this.status = status;
         this.createDate = createDate;
@@ -70,6 +74,7 @@ public class PostDTO {
         this.likes = likes;
         this.updateDate = updateDate;
         this.isUserLike = isUserLike;
+        this.authorName = authorName;
     }
 
     public PostDTO(String id,
@@ -77,7 +82,7 @@ public class PostDTO {
                    String author,
                    String word,
                    Long likes,
-                   ArtStatusType status,
+                   StatusType status,
                    LocalDateTime updateDate,
                    LocalDateTime createDate) {
         this.id = id;
@@ -92,7 +97,7 @@ public class PostDTO {
 
     public PostDTO(String id,
                    Integer no,
-                   ArtStatusType status) {
+                   StatusType status) {
         this.id = id;
         this.status = status;
         this.no = no;

@@ -1,6 +1,6 @@
 package com.alan10607.leaf.service.impl;
 
-import com.alan10607.leaf.constant.ArtStatusType;
+import com.alan10607.leaf.constant.StatusType;
 import com.alan10607.leaf.dto.PostDTO;
 import com.alan10607.leaf.service.ArticleService;
 import com.alan10607.leaf.service.ContentService;
@@ -28,27 +28,12 @@ public class PostServiceImpl implements PostService {
     private final TimeUtil timeUtil;
     private final static int FIND_CONT_SIZE = 10;
 
-    @Bean
-    CommandLineRunner run2(PostService postService) {
-        return args -> {
-            for(int i=0; i<100; i++) {
-//                PostDTO postDTO = new PostDTO();
-//                postDTO.setId("185ca5d5-b5d6-4131-b15f-085c30afe484");
-//                postDTO.setAuthor("alan" + i);
-//                postDTO.setTitle("標題拉" + i);
-//                postDTO.setWord(i + "回文回文abcabc123回文回文abcabc123回文回文abcabc123回文回文abcabc123回文回文abcabc123回文回文abcabc123回文回文abcabc123123");
-//                replyPost(postDTO);
-            }
-        };
-    }
-
-
     /**
      * 依最新留言順序查詢所有文章id
      * @return
      */
-    public List<String> findArtSet(){
-        return Arrays.asList(articleService.findArtSetStrFromRedis().split(","));
+    public List<String> findIdSet(){
+        return Arrays.asList(articleService.findIdStrFromRedis().split(","));
     }
 
     /**
@@ -65,7 +50,7 @@ public class PostServiceImpl implements PostService {
         List<String> idList = postDTO.getIdList();
         List<PostDTO> artList = articleService.findArticleFromRedis(idList);
         for(PostDTO art : artList) {
-            if(art.getStatus() == ArtStatusType.NEW)//正常狀態才要查詢
+            if(art.getStatus() == StatusType.NEW)//正常狀態才要查詢
                 art.setContList(Arrays.asList(contentService.findContentFromRedis(art.getId(), 0, userId)));
         }
 
@@ -121,8 +106,8 @@ public class PostServiceImpl implements PostService {
 
         //新增成功後刪除緩存
         articleService.deleteArticleFromRedis(id);
-        articleService.createArtSetFromRedis(id, createAndUpdateTime);
-        articleService.deleteArtSetStrFromRedis();
+        articleService.createIdSetFromRedis(id, createAndUpdateTime);
+        articleService.deleteIdStrFromRedis();
     }
 
     /**
@@ -141,8 +126,8 @@ public class PostServiceImpl implements PostService {
         //新增成功後刪除緩存
         contentService.deleteContentFromRedis(id, no);
         articleService.deleteArticleFromRedis(id);
-        articleService.updateArtSetFromRedis(id, updateTime);
-        articleService.deleteArtSetStrFromRedis();
+        articleService.updateIdSetFromRedis(id, updateTime);
+        articleService.deleteIdStrFromRedis();
     }
 
     /**
@@ -155,10 +140,10 @@ public class PostServiceImpl implements PostService {
 
         String id = postDTO.getId();
         String userId = postDTO.getUserId();
-        articleService.updateArticleStatus(id, userId, ArtStatusType.DELETED);
+        articleService.updateArticleStatus(id, userId, StatusType.DELETED);
         articleService.deleteArticleFromRedis(id);
-        articleService.deleteArtSetValueFromRedis(id);
-        articleService.deleteArtSetStrFromRedis();
+        articleService.deleteIdSetValueFromRedis(id);
+        articleService.deleteIdStrFromRedis();
     }
 
     /**
@@ -173,7 +158,7 @@ public class PostServiceImpl implements PostService {
         String id = postDTO.getId();
         int no = postDTO.getNo();
         String userId = postDTO.getUserId();
-        contentService.updateContentStatus(id, no, userId, ArtStatusType.DELETED);
+        contentService.updateContentStatus(id, no, userId, StatusType.DELETED);
         contentService.deleteContentFromRedis(id, no);
     }
 

@@ -2,12 +2,16 @@ package com.alan10607.leaf.config;
 
 import com.alan10607.leaf.constant.AutoUserId;
 import com.alan10607.leaf.dto.PostDTO;
+import com.alan10607.leaf.model.LeafUser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpSession;
@@ -34,9 +38,18 @@ public class AutoUserIdAspect {
         if(!autoUserId.enable()) return;
 
         PostDTO postDTO = (PostDTO) jp.getArgs()[0];
-        String sessionId = session.getId();//HttpSession is thread safe
-        String base64Id = Base64.getEncoder().encodeToString(hashTo6Bytes(sessionId.getBytes()));
-        postDTO.setUserId(base64Id);
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication auth = context.getAuthentication();//取得Authentication
+        if(auth != null){
+            long id = ((LeafUser) auth.getPrincipal()).getId();
+            postDTO.setUserId(Long.toString(id));
+        }else{
+            String sessionId = session.getId();//HttpSession is thread safe
+            String base64Id = Base64.getEncoder().encodeToString(hashTo6Bytes(sessionId.getBytes()));
+            postDTO.setUserId(base64Id);
+        }
+
+
     }
 
     /**

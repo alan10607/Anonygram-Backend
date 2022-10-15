@@ -1,11 +1,12 @@
 package com.alan10607.leaf.service.impl;
 
-import com.alan10607.leaf.constant.ArtStatusType;
+import com.alan10607.leaf.constant.StatusType;
 import com.alan10607.leaf.dao.ContentDAO;
 import com.alan10607.leaf.dto.PostDTO;
 import com.alan10607.leaf.model.Content;
 import com.alan10607.leaf.service.ContLikeService;
 import com.alan10607.leaf.service.ContentService;
+import com.alan10607.leaf.service.UserService;
 import com.alan10607.leaf.util.RedisKeyUtil;
 import com.alan10607.leaf.util.TimeUtil;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ContentServiceImpl implements ContentService {
     private ContLikeService contLikeService;
+    private UserService userService;
     private ContentDAO contentDAO;
     private final RedisTemplate redisTemplate;
     private final RedisKeyUtil keyUtil;
@@ -46,7 +48,7 @@ public class ContentServiceImpl implements ContentService {
         }
         redisTemplate.expire(keyUtil.cont(id, no), keyUtil.getRanExp(CONT_EXPIRE), TimeUnit.SECONDS);
 
-        if(cont.getStatus() == ArtStatusType.UNKNOWN)
+        if(cont.getStatus() == StatusType.UNKNOWN)
             throw new IllegalStateException(String.format("Content not found, id: %s, no: %s", id, no));
 
         return cont;
@@ -65,7 +67,7 @@ public class ContentServiceImpl implements ContentService {
         try {
             postDTO = findContent(id, no);
         }catch (Exception e){
-            postDTO.setStatus(ArtStatusType.UNKNOWN);
+            postDTO.setStatus(StatusType.UNKNOWN);
             redisTemplate.opsForHash().putAll(keyUtil.cont(id, no), Map.of("status", postDTO.getStatus()));
             log.error("Pull Content failed, id={}, no={}, put empty data to redis", id, no);
             return postDTO;
@@ -83,17 +85,18 @@ public class ContentServiceImpl implements ContentService {
         log.info("Pull cont to redis succeed, id={}, no={}", id, no);
 
         postDTO.setIsUserLike(contLikeService.findContLikeFromRedis(id, no, userId));
+        postDTO.setAuthorName(userService.findUserNameFromRedis(postDTO.getAuthor()));
         return postDTO;
     }
 
     private PostDTO processContentRedis(String id, int no, String userId, Map<String, Object> contMap) {
-        ArtStatusType status = (ArtStatusType) contMap.get("status");
+        StatusType status = (StatusType) contMap.get("status");
         switch(status){
             case UNKNOWN :
             case DELETED :
                 return new PostDTO(id,
                         no,
-                        (ArtStatusType) contMap.get("status")
+                        (StatusType) contMap.get("status")
                 );
             default :
                 return new PostDTO(id,
@@ -101,10 +104,11 @@ public class ContentServiceImpl implements ContentService {
                         (String) contMap.get("author"),
                         (String) contMap.get("word"),
                         ((Number) contMap.get("likes")).longValue(),
-                        (ArtStatusType) contMap.get("status"),
+                        (StatusType) contMap.get("status"),
                         timeUtil.parseStr((String) contMap.get("updateDate")),
                         timeUtil.parseStr((String) contMap.get("createDate")),
-                        contLikeService.findContLikeFromRedis(id, no, userId)
+                        contLikeService.findContLikeFromRedis(id, no, userId),
+                        userService.findUserNameFromRedis((String) contMap.get("author"))
                 );
         }
     }
@@ -138,7 +142,7 @@ public class ContentServiceImpl implements ContentService {
                 content.getCreateDate());
     }
 
-    public void updateContentStatus(String id, int no, String userId, ArtStatusType status) {
+    public void updateContentStatus(String id, int no, String userId, StatusType status) {
         Content content = contentDAO.findByIdAndNo(id, no)
                 .orElseThrow(() -> new IllegalStateException("Content not found"));
 

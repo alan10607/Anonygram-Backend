@@ -1,5 +1,6 @@
 package com.alan10607.leaf.controller;
 
+import com.alan10607.leaf.constant.LeafRoleType;
 import com.alan10607.leaf.dto.LeafUserDTO;
 import com.alan10607.leaf.service.UserService;
 import com.alan10607.leaf.util.ResponseUtil;
@@ -24,7 +25,7 @@ public class UserController {
     @PostMapping("/findUser")
     public ResponseEntity findUser(@RequestBody LeafUserDTO leafUserDTO){
         try{
-            leafUserDTO = userService.findUser(leafUserDTO);
+            leafUserDTO = userService.findUser(leafUserDTO.getEmail());
             return responseUtil.ok(leafUserDTO);
         }catch (Exception e){
             log.error(e.getMessage());
@@ -46,7 +47,11 @@ public class UserController {
     @PostMapping("/createUser")
     public ResponseEntity createUser(@RequestBody LeafUserDTO leafUserDTO){
         try{
-            userService.createUser(leafUserDTO);
+            userService.createUser(leafUserDTO.getEmail(),
+                    leafUserDTO.getUserName(),
+                    leafUserDTO.getPw(),
+                    LeafRoleType.NORMAL
+            );
             return responseUtil.ok();
         }catch (Exception e){
             log.error(e.getMessage());
@@ -57,7 +62,7 @@ public class UserController {
     @PostMapping("/deleteUser")
     public ResponseEntity deleteUser(@RequestBody LeafUserDTO leafUserDTO){
         try{
-            userService.deleteUser(leafUserDTO);
+            userService.deleteUser(leafUserDTO.getEmail());
             return responseUtil.ok();
         }catch (Exception e){
             log.error(e.getMessage());

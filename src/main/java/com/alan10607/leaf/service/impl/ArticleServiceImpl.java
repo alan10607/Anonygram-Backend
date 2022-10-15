@@ -1,6 +1,6 @@
 package com.alan10607.leaf.service.impl;
 
-import com.alan10607.leaf.constant.ArtStatusType;
+import com.alan10607.leaf.constant.StatusType;
 import com.alan10607.leaf.dao.ArticleDAO;
 import com.alan10607.leaf.dao.ContentDAO;
 import com.alan10607.leaf.dto.PostDTO;
@@ -32,7 +32,6 @@ public class ArticleServiceImpl implements ArticleService {
     private final DefaultRedisScript createIdSetScript;
     private final RedisKeyUtil keyUtil;
     private final TimeUtil timeUtil;
-    private final static int ART_SET_EXPIRE = 3600;
     private final static int ART_EXPIRE = 3600;
     private final static int POST_SIZE = 100;
 
@@ -40,24 +39,24 @@ public class ArticleServiceImpl implements ArticleService {
      * 依照更新流言順率列出文章id, string格式, 在jvm做split減少redis每次查詢zset的負擔
      * @return
      */
-    public String findArtSetStrFromRedis() {
-        if(!redisTemplate.hasKey(keyUtil.ART_SET_STR)){
-            setArtSetStrToRedis();
+    public String findIdStrFromRedis() {
+        if(!redisTemplate.hasKey(keyUtil.ID_STR)){
+            setIdStrToRedis();
         }
 
-        return (String) redisTemplate.opsForValue().get(keyUtil.ART_SET_STR);
+        return (String) redisTemplate.opsForValue().get(keyUtil.ID_STR);
     }
 
-    private void setArtSetStrToRedis() {
-        List<String> artList = findArtSetFromRedis(0, POST_SIZE - 1);
+    private void setIdStrToRedis() {
+        List<String> artList = findIdSetFromRedis(0, POST_SIZE - 1);
         String str = artList.stream().collect(Collectors.joining(","));
-        redisTemplate.opsForValue().set(keyUtil.ART_SET_STR, str);
-        log.info("Set artSetStr to redis succeed, join size={}", artList.size());
+        redisTemplate.opsForValue().set(keyUtil.ID_STR, str);
+        log.info("Set idStr to redis succeed, join size={}", artList.size());
     }
 
-    public void deleteArtSetStrFromRedis() {
-        redisTemplate.delete(keyUtil.ART_SET_STR);
-        log.info("Delete artSetStr from redis succeed");
+    public void deleteIdStrFromRedis() {
+        redisTemplate.delete(keyUtil.ID_STR);
+        log.info("Delete idStr from redis succeed");
     }
 
     /**
@@ -67,22 +66,21 @@ public class ArticleServiceImpl implements ArticleService {
      * @param end
      * @return
      */
-    public List<String> findArtSetFromRedis(long start, long end) {
-        if(!redisTemplate.hasKey(keyUtil.ART_SET)){
-            pullArtSetToRedis();
+    public List<String> findIdSetFromRedis(long start, long end) {
+        if(!redisTemplate.hasKey(keyUtil.ID_SET)){
+            pullIdSetToRedis();
         }
 
-        Set<String> zSet = redisTemplate.opsForZSet().range(keyUtil.ART_SET, start, end);
+        Set<String> zSet = redisTemplate.opsForZSet().range(keyUtil.ID_SET, start, end);
         return zSet.stream().collect(Collectors.toList());
     }
 
-    private void pullArtSetToRedis() {
-        List<String> idList = findArtSet();
+    private void pullIdSetToRedis() {
+        List<String> idList = findLatestId();
         for(int i = 0; i < idList.size(); i++)
-            redisTemplate.opsForZSet().add(keyUtil.ART_SET, idList.get(i),timeUtil.BATCH_START + i);
+            redisTemplate.opsForZSet().add(keyUtil.ID_SET, idList.get(i),timeUtil.BATCH_START + i);
 
-        redisTemplate.expire(keyUtil.ART_SET, keyUtil.getRanExp(ART_SET_EXPIRE), TimeUnit.SECONDS);
-        log.info("Pull artSet to redis succeed, artSet size={}", idList.size());
+        log.info("Pull idSet to redis succeed, idSet size={}", idList.size());
     }
 
     /**
@@ -90,16 +88,16 @@ public class ArticleServiceImpl implements ArticleService {
      * @param id
      * @param updateTime
      */
-    public void createArtSetFromRedis(String id, LocalDateTime updateTime) {
-        if(!redisTemplate.hasKey(keyUtil.ART_SET)){
-            pullArtSetToRedis();
+    public void createIdSetFromRedis(String id, LocalDateTime updateTime) {
+        if(!redisTemplate.hasKey(keyUtil.ID_SET)){
+            pullIdSetToRedis();
         }
         Long res = (Long) redisTemplate.execute(createIdSetScript,
-                Arrays.asList(keyUtil.ART_SET),
+                Arrays.asList(keyUtil.ID_SET),
                 id,
                 Long.toString(timeUtil.getRedisScore(updateTime)),
                 Integer.toString(keyUtil.MAX_ID_SIZE));
-        log.info("Create artSet score succeed, id={}, popSet={}", id, res == 1);
+        log.info("Create idSet from redis succeed, id={}, popSet={}", id, res == 1);
     }
 
     /**
@@ -107,22 +105,22 @@ public class ArticleServiceImpl implements ArticleService {
      * @param id
      * @param updateTime
      */
-    public void updateArtSetFromRedis(String id, LocalDateTime updateTime) {
-        if(!redisTemplate.hasKey(keyUtil.ART_SET)){
-            pullArtSetToRedis();
+    public void updateIdSetFromRedis(String id, LocalDateTime updateTime) {
+        if(!redisTemplate.hasKey(keyUtil.ID_SET)){
+            pullIdSetToRedis();
         }
-        redisTemplate.opsForZSet().add(keyUtil.ART_SET, id, timeUtil.getRedisScore(updateTime));
-        log.info("Update artSet score succeed, id={}", id);
+        redisTemplate.opsForZSet().add(keyUtil.ID_SET, id, timeUtil.getRedisScore(updateTime));
+        log.info("Update idSet score succeed, id={}", id);
     }
 
-    public void deleteArtSetValueFromRedis(String id) {
-        redisTemplate.opsForZSet().remove(keyUtil.ART_SET, id);
-        log.info("Delete artSet id={} from redis succeed", id);
+    public void deleteIdSetValueFromRedis(String id) {
+        redisTemplate.opsForZSet().remove(keyUtil.ID_SET, id);
+        log.info("Delete idSet id={} from redis succeed", id);
     }
 
-    public void deleteArtSetFromRedis() {
-        redisTemplate.delete(keyUtil.ART_SET);
-        log.info("Delete artSet from redis succeed");
+    public void deleteIdSetFromRedis() {
+        redisTemplate.delete(keyUtil.ID_SET);
+        log.info("Delete idSet from redis succeed");
     }
 
     /**
@@ -140,7 +138,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
         redisTemplate.expire(keyUtil.art(id), keyUtil.getRanExp(ART_EXPIRE), TimeUnit.SECONDS);
 
-        if(art.getStatus() == ArtStatusType.UNKNOWN)
+        if(art.getStatus() == StatusType.UNKNOWN)
             throw new IllegalStateException(String.format("Article not found, id: %s", id));
 
         return art;
@@ -159,7 +157,7 @@ public class ArticleServiceImpl implements ArticleService {
         try {
             postDTO = findArticle(id);
         }catch (Exception e){
-            postDTO.setStatus(ArtStatusType.UNKNOWN);
+            postDTO.setStatus(StatusType.UNKNOWN);
             redisTemplate.opsForHash().putAll(keyUtil.art(id), Map.of("status", postDTO.getStatus()));
             log.error("Pull Article failed, id={}, put empty data to redis", id);
             return postDTO;
@@ -179,18 +177,18 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     private PostDTO processArticleRedis(String id, Map<String, Object> artMap) {
-        ArtStatusType status = (ArtStatusType) artMap.get("status");
+        StatusType status = (StatusType) artMap.get("status");
         switch(status){
             case UNKNOWN :
             case DELETED :
                 return new PostDTO(id,
-                        (ArtStatusType) artMap.get("status")
+                        (StatusType) artMap.get("status")
                 );
             default :
                 return new PostDTO(id,
                         (String) artMap.get("title"),
                         ((Number) artMap.get("contNum")).intValue(),
-                        (ArtStatusType) artMap.get("status"),
+                        (StatusType) artMap.get("status"),
                         timeUtil.parseStr((String) artMap.get("updateDate")),
                         timeUtil.parseStr((String) artMap.get("createDate"))
                 );
@@ -217,11 +215,11 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     /**
-     * 獲得最近一個月內前100筆最新更新資料
+     * 獲得最近一個月內最新更新資料
      * @return
      */
-    public List<String> findArtSet() {
-        return articleDAO.findLatest100Id(ArtStatusType.NEW.name());
+    public List<String> findLatestId() {
+        return articleDAO.findLatest100Id(StatusType.NEW.name());
     }
 
     public PostDTO findArticle(String id) {
@@ -248,7 +246,7 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = new Article(id,
                 title,
                 1,
-                ArtStatusType.NEW,
+                StatusType.NEW,
                 createAndUpdateTime,
                 createAndUpdateTime);
 
@@ -257,7 +255,7 @@ public class ArticleServiceImpl implements ArticleService {
                 author,
                 word,
                 0L,
-                ArtStatusType.NEW,
+                StatusType.NEW,
                 createAndUpdateTime,
                 createAndUpdateTime);
 
@@ -269,14 +267,14 @@ public class ArticleServiceImpl implements ArticleService {
                 author,
                 word,
                 0L,
-                ArtStatusType.NEW,
+                StatusType.NEW,
                 createAndUpdateTime,
                 createAndUpdateTime);
 
         return txnService.createContAndUpdateArtTxn(id, content);
     }
 
-    public void updateArticleStatus(String id, String userId, ArtStatusType status) {
+    public void updateArticleStatus(String id, String userId, StatusType status) {
         Article article = articleDAO.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Article not found"));
 
