@@ -140,7 +140,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
             userName = leafUser.getUsername();
         }catch (Exception e){
             userName = id;
-            log.error("Pull user name to redis failed, id={}, put id to redis instead", id);
+            log.info("Pull user name to redis failed, id={}, put id to redis instead", id);
         }
 
         redisTemplate.opsForValue().set(keyUtil.user(id), userName);
