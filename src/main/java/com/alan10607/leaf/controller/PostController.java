@@ -86,19 +86,6 @@ public class PostController {
         }
     }
 
-    @PostMapping("/image")
-    //可能要用RequestParam了...
-    public ResponseEntity uploadFileMulti(@RequestParam("image") MultipartFile image) {
-        try{
-            imgurService.upload(image);
-            return responseUtil.ok();
-        }catch (Exception e){
-            log.error(e.getMessage());
-            return responseUtil.err(e);
-        }
-
-    }
-
     @PostMapping("/replyPost")
     @AutoUserId
     public ResponseEntity replyPost(@RequestBody PostDTO postDTO){

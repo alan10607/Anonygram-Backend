@@ -1,27 +1,25 @@
 package com.alan10607.leaf.config;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 
+@Data
 @Configuration
+@ConfigurationProperties(prefix = "spring.redis")
 @Slf4j
 public class RedissonConfig {
+    public String host;
+    public String port;
     public String address;
     public String password;
-
-    public RedissonConfig(@Value("${spring.redis.host}") String hostname,
-                          @Value("${spring.redis.port}") String port,
-                          @Value("${spring.redis.password}") String password) {
-        this.address = String.format("redis://%s:%s", hostname, port);
-        this.password = password;
-    }
 
     /**
      * 設定並建立 RedissonClient
@@ -30,6 +28,7 @@ public class RedissonConfig {
      */
     @Bean(destroyMethod = "shutdown")
     public RedissonClient redisson() throws IOException {
+        this.address = String.format("redis://%s:%s", host, port);
         log.info("RedissonConfig config address={}", address);
         Config config = new Config();
         config.useSingleServer().setAddress(address).setPassword(password);
