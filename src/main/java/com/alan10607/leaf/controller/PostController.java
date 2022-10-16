@@ -87,7 +87,6 @@ public class PostController {
     }
 
     @PostMapping("/image")
-    @AutoUserId
     //可能要用RequestParam了...
     public ResponseEntity uploadFileMulti(@RequestParam("image") MultipartFile image) {
         try{
@@ -154,19 +153,6 @@ public class PostController {
         try{
             postDTO = postService.unlikeContent(postDTO);
             return responseUtil.ok(postDTO);
-        }catch (Exception e){
-            log.error(e.getMessage());
-            return responseUtil.err(e);
-        }
-    }
-
-
-    @PostMapping("/t")
-    @AutoUserId
-    public ResponseEntity t(@RequestBody LeafDTO leafDTO){
-        try{
-            contLikeService.saveContLikeToDB();
-            return responseUtil.ok();
         }catch (Exception e){
             log.error(e.getMessage());
             return responseUtil.err(e);

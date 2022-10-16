@@ -177,7 +177,7 @@ function replyPost(e){
         return;
     }
     var data = {
-        "id" : art.attr("reply-id"),
+        "id" : art.attr("id"),
         "word" : art.find(".reply-textarea").val()
     }
     post("/post/replyPost", data, replyPostAfter, replyPostError, art);
@@ -300,8 +300,8 @@ function changeLike(isUserLike, cont){
 /* --- 新增留言視窗 --- */
 function openReplyBox(e){
     var now = new Date();
-    var nowStr = `${now.getFullYear()}/${now.getMonth().padStart(2, "0")}/${now.getDate().padStart(2, "0")}`
-            + ` ${now.getHours().padStart(2, "0")}:${now.getMinutes().padStart(2, "0")}`;
+    var nowStr = `${now.getFullYear()}/${String(now.getMonth()).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}`
+            + ` ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
     var art = $(e).closest(".art")
     art.find(".reply-no").text(getNoStr(art.attr("cont-num")));
     art.find(".reply-time").text(nowStr);
@@ -389,7 +389,7 @@ function makeArt(postDTO){
     $("<span>", {class : "reply-time"}).appendTo(replyInfo);
 
     $("<textarea>", {class : "reply-textarea", placeholder : "留言..."}).appendTo(replyBox);
-    $("<p>", {class : "reply-summit", text : "送出", onclick : "replyPost();"}).appendTo(replyBox);
+    $("<p>", {class : "reply-summit", text : "送出", onclick : "replyPost(this);"}).appendTo(replyBox);
 
     return art;
 };
@@ -459,8 +459,8 @@ function getOpenStr(contNum, startNo){
 
     var remain = contNum - startNo;
 
-    if(remain == 0)//已全部展開
-        return "已展開全部留言";
+    if(remain == 0)//已展開全部留言
+        return "";
 
     if(startNo == 1)//尚未展開
         return `查看全部${contNum - startNo}則留言`;
@@ -516,7 +516,7 @@ function getWordHtml(e, word){
     var mark = 0xf490;//私人區間, 不太可能出現
 
     var map = new Map();
-    var lines = word.split("/n");
+    var lines = word.split("\n");
     for(let line of lines){
         //兩個分隔符好不會重疊
         line = line.replace(urlExp, function (url){
