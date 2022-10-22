@@ -15,4 +15,5 @@ public interface PostService {
     void deleteContent(PostDTO postDTO);
     PostDTO likeContent(PostDTO postDTO);
     PostDTO unlikeContent(PostDTO postDTO);
+    PostDTO uploadImg(PostDTO postDTO);
 }

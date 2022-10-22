@@ -31,7 +31,8 @@ public class PostDTO {
     private List<String> idList;
     private String userId;
     private Boolean success;
-    private MultipartFile image;
+    private String imgBase64;
+    private String imgUrl;
 
     /* --- for Article --- */
     public PostDTO(String id,

@@ -75,6 +75,11 @@ public class WebPageController {
         return "login.html";
     }
 
+    @RequestMapping("/register")
+    public String register(Model model) {
+        return "register.html";
+    }
+
     @RequestMapping("/admin")
     public String manager(Model model) {
         return "admin/admin.html";

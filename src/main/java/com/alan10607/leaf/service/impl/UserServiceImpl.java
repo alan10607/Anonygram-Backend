@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,8 +70,16 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         if(Strings.isBlank(userName)) throw new IllegalStateException("UserName can't be blank");
         if(Strings.isBlank(pw)) throw new IllegalStateException("Password can't be blank");
 
+        String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]+$";
+        if(!Pattern.matches(emailRegex, email))
+            throw new IllegalStateException("Email format not correct");
+
         leafUserDAO.findByEmail(email).ifPresent((l) -> {
             throw new IllegalStateException("Email already exist");
+        });
+
+        leafUserDAO.findByUserName(userName).ifPresent((l) -> {
+            throw new IllegalStateException("UserName already exist");
         });
 
         LeafRole leafRole = leafRoleDAO.findByRoleName(roleType.name());
@@ -154,7 +163,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     }
 
     @Bean
-    CommandLineRunner run(UserService userService){
+    public CommandLineRunner userCommand(UserService userService){
         return args -> {
             userService.saveRole(new LeafRole(1L, LeafRoleType.ADMIN.name()));
             userService.saveRole(new LeafRole(2L, LeafRoleType.NORMAL.name()));
@@ -167,7 +176,6 @@ public class UserServiceImpl implements UserService, UserDetailsService{
                         Arrays.asList(leafRole),
                         timeUtil.now()));
             }
-
         };
     }
 }

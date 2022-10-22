@@ -21,23 +21,14 @@
 <body>
 <div id="login" class="center">
     <div>
-        <form method="post" action="loginProcessing">
+        <form>
             <img class="logo" src="../static/pic/logo.svg">
-            <input type="text" name="username" placeholder="Email" required autofocus/>
-            <input type="password" name="password" placeholder="密碼" required/>
-            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}"  th:value="${_csrf.token}" />
-            <input type="submit" value="登入" />
-            <p class="info">
-                <span>還沒有帳號?</span>
-                <a class="register" href="register">註冊</a>
-            </p>
-            <p class="error">
-                <span th:if="${param.error != null}">登入失敗</span>
-                <span th:if="${param.logout != null}">登出成功</span>
-            </p>
-            <div class="line-word">或</div>
-            <input type="button" value="以匿名登入" onclick="toHub();"/>
-
+            <h4>用戶註冊</h4>
+            <input type="text" id="email" placeholder="Email" required autofocus/>
+            <input type="text" id="username" placeholder="用戶暱稱(可為中文)" required/>
+            <input type="password" id="password" placeholder="用戶密碼" required/>
+            <input type="button" value="註冊" onclick="createUser();"/>
+            <p class="error"></p>
         </form>
     </div>
 </div>

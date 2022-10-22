@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface LeafUserDAO extends JpaRepository<LeafUser, Long> {
     Optional<LeafUser> findByEmail(String email);
+    Optional<LeafUser> findByUserName(String userName);
 }

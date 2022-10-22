@@ -146,4 +146,16 @@ public class PostController {
         }
     }
 
+    @PostMapping("/uploadImg")
+    @AutoUserId
+    public ResponseEntity uploadImg(@RequestBody PostDTO postDTO){
+        try{
+            postDTO = postService.uploadImg(postDTO);
+            return responseUtil.ok(postDTO);
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return responseUtil.err(e);
+        }
+    }
+
 }

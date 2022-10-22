@@ -74,7 +74,7 @@ function findIdSetAfter(returnList){
     console.log("ID_LIST size=" + ID_LIST.length);
 }
 
-function findIdSetError(){
+function findIdSetError(xhr){
     showConsoleBox("看起來泡麵打翻機台了, 請稍後再進來試試");
 }
 
@@ -96,7 +96,7 @@ function findPostAfter(postDTO){
     FIND_ART_LOCK = false;
 }
 
-function findPostError(){
+function findPostError(xhr){
     showConsoleBox("讀取文章異常");
     FIND_ART_LOCK = false;
 }
@@ -134,7 +134,7 @@ function findTopContAfter(contList, art){
     art.find(".reply").removeClass("disable");
 }
 
-function findTopContError(){
+function findTopContError(xhr){
     showConsoleBox("讀取留言異常");
 }
 
@@ -165,7 +165,7 @@ function createPostAfter(postDTO){
         }, 1000);
 }
 
-function createPostError(postDTO){
+function createPostError(xhr){
     showConsoleBox("文章發布失敗, 請稍後再試");
 }
 
@@ -189,7 +189,7 @@ function replyPostAfter(postDTO, art){
     findTopCont(art[0]);
 }
 
-function replyPostError(postDTO){
+function replyPostError(xhr){
     showConsoleBox("留言失敗, 請稍後再試");
 }
 
@@ -215,7 +215,7 @@ function deletePostAfter(res, art){
     showConsoleBox("刪除文章成功");
 }
 
-function deletePostError(res){
+function deletePostError(xhr){
     showConsoleBox("文章刪除失敗, 刪除權限已過期");
 }
 
@@ -238,7 +238,7 @@ function deleteContentAfter(res, cont){
     showConsoleBox("刪除留言成功");
 }
 
-function deleteContentError(res){
+function deleteContentError(xhr){
     showConsoleBox("留言刪除失敗, 刪除權限已過期");
 }
 
@@ -297,6 +297,105 @@ function changeLike(isUserLike, cont){
     }
 }
 
+/* --- 影像上傳 --- */
+function uploadImg(e){
+    var art = $(e).closest(".art");
+    var imgBase64 = art.find(".upload-img").attr("src");
+    if(imgBase64 == null || imgBase64 == "") return;
+
+    var data = {
+        "id" : art.attr("id"),
+        "imgBase64" : imgBase64
+    };
+    post("/post/uploadImg", data, uploadImgAfter, uploadImgError, art);
+}
+
+function uploadImgAfter(PostDTO, art){
+    var word = art.find(".reply-textarea").val();
+    art.find(".reply-textarea").val(word + "\n" + PostDTO.imgUrl);
+    $(e).closest(".art").find(".reply-img-view").empty();
+    $(e).closest(".art").find(".reply-img-upload").addClass("disable");
+}
+
+function uploadImgError(xhr){
+    showConsoleBox("上傳圖片失敗, 請稍後再試");
+}
+
+/* --- 影像壓鎖與預覽 --- */
+function replyImg(e){
+    if(e.files == null || e.files.length == 0 || e.files[0] == null){
+        return;
+    }
+
+    var file = e.files[0];
+    var fileName = /image\/\w+/g;
+    if(!fileName.test(file.type)){//MIME iMAGE
+        showConsoleBox("圖片格式錯誤");
+        return;
+    }
+
+    var imgView = $(e).closest(".art").find(".reply-img-view");
+    var imgUpload = $(e).closest(".art").find(".reply-img-upload");
+    imgView.empty();
+    imgUpload.addClass("disable");
+
+    convertToBase64(file).then(base64 => {
+            console.log(base64);
+            buildImg(base64).then(newBase64 => {
+                    $("<img>", {class : "upload-img", src : newBase64, name : "preview"}).appendTo(imgView);
+                    imgUpload.removeClass("disable");
+                }).catch(e => {
+                    console.log(e);
+                    showConsoleBox("圖片壓縮失敗:" + e);
+                });
+        }).catch(e => {
+            console.log(e);
+            showConsoleBox("圖片讀取失敗:" + e);
+        });
+}
+
+function convertToBase64(file) {
+    return new Promise((resolve, reject) => {
+        let reader = new FileReader()
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);//轉換成Base64
+    });
+}
+
+function buildImg(base64) {
+    return new Promise((resolve, reject) => {
+        var image = new Image();//先不設定寬度px
+        image.src = base64;//img中src可以直接接Base64
+        image.onload = () => resolve(compressImg(image, 0.8, 450));
+    });
+}
+
+function compressImg(image, quality, maxWidth){
+    var width = image.width;
+    var height = image.height;
+    if(width > maxWidth){
+        var scale = maxWidth / width;
+        width *= scale;
+        height *= scale;
+    }
+    console.log("Resize img from (width/height) " + image.width + "/" + image.height
+                                        + " => " + width + "/" + height);
+
+    var canvas = document.createElement("canvas");
+    var context = canvas.getContext("2d");
+    canvas.width = width;
+    canvas.height = height;
+    context.drawImage(image, 0, 0, width, height);
+    newImg = canvas.toDataURL("image/jpeg", quality);//壓縮比例, 1表示無損壓縮
+    console.log("After compressed, image size=" + Math.round(0.75 * newImg.length / 1000) + "kb");//byte約為base64編碼的0.75
+    return newImg;
+};
+
+function showPreview(src, fileName) {
+    $("#previewDiv").append(image);
+}
+
 /* --- 新增留言視窗 --- */
 function openReplyBox(e){
     var now = new Date();
@@ -306,6 +405,7 @@ function openReplyBox(e){
     art.find(".reply-no").text(getNoStr(art.attr("cont-num")));
     art.find(".reply-time").text(nowStr);
     art.find(".reply-box").removeClass("disable");
+    art.find(".reply-textarea").focus();
 }
 
 function closeReplyBox(art){
@@ -318,13 +418,33 @@ function closeReplyBox(art){
 
 /* --- 新增文章視窗 --- */
 function openNewBox(){
-    $("#new-box").addClass("new-open");
-    $("#new-box").removeClass("new-close");
+    $("#new-box").addClass("big-box-open");
+    $("#new-box").removeClass("big-box-close");
+    $("#new-title").focus();
 }
 
 function closeNewBox(){
-    $("#new-box").addClass("new-close");
-    $("#new-box").removeClass("new-open");
+    $("#new-box").addClass("big-box-close");
+    $("#new-box").removeClass("big-box-open");
+}
+
+/* --- 設定視窗 --- */
+function openSettingBox(){
+    $("#setting-box").addClass("big-box-open");
+    $("#setting-box").removeClass("big-box-close");
+}
+
+function closeSettingBox(){
+    $("#setting-box").addClass("big-box-close");
+    $("#setting-box").removeClass("big-box-open");
+}
+
+function logout(){
+    $("#logout").submit();
+}
+
+function login(){
+    location = "login";
 }
 
 /* --- Console視窗 --- */
@@ -389,7 +509,13 @@ function makeArt(postDTO){
     $("<span>", {class : "reply-time"}).appendTo(replyInfo);
 
     $("<textarea>", {class : "reply-textarea", placeholder : "留言..."}).appendTo(replyBox);
-    $("<p>", {class : "reply-summit", text : "送出", onclick : "replyPost(this);"}).appendTo(replyBox);
+    var replyMove = $("<div>" , {class : "move"}).appendTo(replyBox);
+    var replyImgLabel = $("<label>", {class : "reply-img"}).appendTo(replyMove);
+    $("<img>", {src : ICON_USER}).appendTo(replyImgLabel);
+    $("<input>", {type : "file", accept : "image/*", onchange : "replyImg(this);"}).appendTo(replyImgLabel);
+    $("<div>", {class : "reply-summit", text : "送出", onclick : "replyPost(this);"}).appendTo(replyMove);
+    $("<div>", {class : "reply-img-view"}).appendTo(replyBox);
+    $("<p>", {class : "reply-img-upload disable", text : "確定圖片", onclick : "uploadImg(this);"}).appendTo(replyBox);
 
     return art;
 };
@@ -478,17 +604,22 @@ function getTimeFromStr(dateStr){
     var m = 60000;
     var h = 3600000;
     var day = 86400000;
+    var week = 604800000;
 
-    //超過一個月採另一種計算方式, 忽略時間部分計算
-    var countMonth = (now.getYear() - date.getYear()) * 12
-                    + now.getMonth() - date.getMonth()
-                    + (now.getDate() < date.getDate() ? -1 : 0);//補回不足的月
+//超過一個月採另一種計算方式, 忽略時間部分計算
+//    var countMonth = (now.getYear() - date.getYear()) * 12
+//                    + now.getMonth() - date.getMonth()
+//                    + (now.getDate() < date.getDate() ? -1 : 0);//補回不足的月
+//
+//    if(countMonth >= 12)
+//        return Math.floor(countMonth / 12) + "年前";
+//
+//    if(countMonth > 0)
+//        return countMonth + "個月前";
 
-    if(countMonth >= 12)
-        return Math.floor(countMonth / 12) + "年前";
-
-    if(countMonth > 0)
-        return countMonth + "個月前";
+    if(gap >= week)//超過一周直接顯示日期
+        return (now.getYear() > date.getYear() ? date.getYear() + "年 " : "")
+                + date.getMonth() + "月 " + date.getDate() + "日";
 
     if(gap >= day)
         return Math.floor(gap / day) + "天前";
@@ -509,17 +640,23 @@ function getTimeFromStr(dateStr){
 }
 
 function getWordHtml(e, word){
-    var url = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi;
-    var bx = /b\d+(?=$| )/gi;
-    var urlExp = new RegExp(url);
-    var bxExp = new RegExp(bx);
-    var mark = 0xf490;//私人區間, 不太可能出現
+    var urlExp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi;
+    var bxExp = /b\d+(?=$| )/gi;
+    var imgExp = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)/gi;
 
     var map = new Map();
     var lines = word.split("\n");
     for(let line of lines){
-        //兩個分隔符好不會重疊
-        line = line.replace(urlExp, function (url){
+        var mark = 0xf490;//私人區間, 不太可能出現, 分隔符剛好不會重疊
+
+        line = line.replace(imgExp, function (imgUrl){
+                var key = String.fromCharCode(mark);
+                var span = $("<span>", {class : "word-img", text : imgUrl});
+                $("<img>", {src : imgUrl, alt : imgUrl}).appendTo(span);
+                map.set(mark, span);
+                mark++;
+                return key;
+            }).replace(urlExp, function (url){
                 var key = String.fromCharCode(mark);
                 map.set(mark, $("<a>", {href : url, text : url, target : "_blank"}));
                 mark++;
@@ -552,6 +689,7 @@ function getWordHtml(e, word){
     return e;
 }
 
+/* --- 連結位置移動 --- */
 function goToBx(e, no){
     var contEle = $(e).closest(".art").find(`[no=${no}]`)[0]
     if(contEle == null) return;

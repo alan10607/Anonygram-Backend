@@ -13,31 +13,35 @@
     <script type="text/JavaScript" th:src="@{~/js/jquery-3.6.1.min.js}"></script>
 </head>
 <script th:inline="javascript">
-
 function init(){
     // First, parse the query string
     var data = {};
     var queryString = location.hash.substring(1)
-    var regex = /([^&=]+)=([^&]*)/g, m;
+    var dataExp = /([^&=]+)=([^&]*)/g;
 
     if(queryString == "")
-        return initError();
+        return showConsole("Failed because no data return!!");
 
-    while (m = regex.exec(queryString)) {
+    while (m = dataExp.exec(queryString)) {
       data[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
     }
-    post("/imgur/getRedirect", data, initAfter, initError);
+    post("/imgur/saveToken", data, initAfter, initError);
 }
 
 function initAfter(postDTO){
-    alert("good");
+    showConsole("Succeeded");
 }
 
-function initError(postDTO){
-    alert("gg");
+function initError(xhr){
+    showConsole("Failed: " + xhr.result);
+}
+
+function showConsole(str){
+    $("#console").text(str);
 }
 </script>
 <body onload="init();">
-<h2>Redirect...</h2>
+<h2>Save access token & refresh token ...</h2>
+<p id="console"></p>
 </body>
 </html>

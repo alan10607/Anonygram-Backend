@@ -55,9 +55,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable();//跨域請求偽造, 測試時禁用
         //http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);//不使用session
-        http.formLogin().loginPage("/login").loginProcessingUrl("/loginProcessing").defaultSuccessUrl("/admin").failureForwardUrl("/login?error");
+        http.formLogin().loginPage("/login").loginProcessingUrl("/loginProcessing").defaultSuccessUrl("/hub").failureForwardUrl("/login?error");
         http.logout().logoutUrl("/logoutProcessing").logoutSuccessUrl("/login?logout");
-        http.authorizeRequests().antMatchers("/", "/imgur/**", "/hub", "/post/**", "/test/**", "/index/**", "/css/**", "/js/**", "/pic/**", "/view/**", "/login").permitAll();//公開葉面
+        http.authorizeRequests().antMatchers("/", "/imgur/**", "/hub", "/user/createUser", "/post/**", "/test/**", "/index/**", "/css/**", "/js/**", "/pic/**", "/view/**", "/login").permitAll();//公開葉面
         http.authorizeRequests().anyRequest().hasAuthority(LeafRoleType.ADMIN.name());//限制為admin權限訪問
         http.exceptionHandling().accessDeniedPage("/err");
         return http.build();

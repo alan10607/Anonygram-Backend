@@ -14,7 +14,8 @@ public class ImgurConfig {
     private String clientSecret;
     private String authorizeUrl;
     private String accessTokenUrl;
-    private String responseType;
+    private String uploadUrl;
+    private String albumId;
     private String accessToken;
     private String refreshToken;
 }

@@ -34,9 +34,8 @@ public class ImgurController {
         StringBuffer url = new StringBuffer();
         try{
             url.append(imgurConfig.getAuthorizeUrl())
-                .append("?client_id=").append(imgurConfig.getClientId())
-                .append("&response_type=").append(imgurConfig.getResponseType())
-                .toString();
+                    .append("?client_id=").append(imgurConfig.getClientId())
+                    .append("&response_type=token");
         }catch (Exception e){
             log.error(e.getMessage());
         }
@@ -45,44 +44,23 @@ public class ImgurController {
 
     @GetMapping("/redirect")
     public String redirect(HttpServletRequest request) {
-
-//        http://localhost:8080/imgur/redirect
-//        // #access_token=6502979e123ca1c03d0d8caaa4608781288bbb07
-//        // &expires_in=315360000
-//        // &token_type=bearer
-//        // &refresh_token=bd2bc63d5fcdb5294c1dae67109b5644222cc119
-//        // &account_username=alan10607
-//        // &account_id=166067797
         return "redirect.html";
     }
 
-
-    @PostMapping("/getRedirect")
+    @PostMapping("/saveToken")
     @ResponseBody
-    public ResponseEntity getRedirect(@RequestBody Map<String,String> data){
+    public ResponseEntity saveToken(@RequestBody Map<String,String> data){
         try{
-            imgurConfig.setAccessToken(data.get("access_token"));
-            imgurConfig.setRefreshToken(data.get("refresh_token"));
+            imgurService.saveToken(data.get("access_token"), data.get("refresh_token"));
             return responseUtil.ok();
         }catch (Exception e){
             log.error(e.getMessage());
             return responseUtil.err(e);
         }
     }
-
-    @PostMapping("/upload")
-    public ResponseEntity upload(@RequestParam("image") MultipartFile image) {
-        try{
-            imgurService.upload(image, imgurConfig.getAccessToken());
-            return responseUtil.ok();
-        }catch (Exception e){
-            log.error(e.getMessage());
-            return responseUtil.err(e);
-        }
-    }
-
 
     @PostMapping("/refreshToken")
+    @ResponseBody
     public ResponseEntity refreshToken() {
         try{
             imgurService.refreshToken();
@@ -92,7 +70,5 @@ public class ImgurController {
             return responseUtil.err(e);
         }
     }
-
-
 
 }
