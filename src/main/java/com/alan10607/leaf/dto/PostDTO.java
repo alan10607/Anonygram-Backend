@@ -30,6 +30,7 @@ public class PostDTO {
     private List<PostDTO> contList;
     private List<String> idList;
     private String userId;
+    private String userName;
     private Boolean success;
     private String imgBase64;
     private String imgUrl;

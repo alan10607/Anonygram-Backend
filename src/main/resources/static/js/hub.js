@@ -159,10 +159,10 @@ function createPostAfter(postDTO){
     closeNewBox();
     $("#new-title").val("");
     $("#new-textarea").val("");
-    showConsoleBox("文章發布成功!!");
+    showConsoleBox("文章發佈成功!!");
     setInterval(function(){
             location = location;
-        }, 1000);
+        }, 800);
 }
 
 function createPostError(xhr){
@@ -300,7 +300,8 @@ function changeLike(isUserLike, cont){
 /* --- 影像上傳 --- */
 function uploadImg(e){
     var art = $(e).closest(".art");
-    var imgBase64 = art.find(".upload-img").attr("src");
+    var imgBase64 = art.find(".img-src").attr("src");
+    imgBase64 = imgBase64.replace(/^data:image\/\w+;base64,/g, "");
     if(imgBase64 == null || imgBase64 == "") return;
 
     var data = {
@@ -311,10 +312,10 @@ function uploadImg(e){
 }
 
 function uploadImgAfter(PostDTO, art){
-    var word = art.find(".reply-textarea").val();
-    art.find(".reply-textarea").val(word + "\n" + PostDTO.imgUrl);
-    $(e).closest(".art").find(".reply-img-view").empty();
-    $(e).closest(".art").find(".reply-img-upload").addClass("disable");
+    var word = art.find(".img-target").val();
+    art.find(".img-target").val(word + "\n" + PostDTO.imgUrl + "\n");
+    closeImgView(art);
+    art.find(".reply-textarea").focus();
 }
 
 function uploadImgError(xhr){
@@ -324,6 +325,7 @@ function uploadImgError(xhr){
 /* --- 影像壓鎖與預覽 --- */
 function replyImg(e){
     if(e.files == null || e.files.length == 0 || e.files[0] == null){
+        showConsoleBox("選擇圖片為空");
         return;
     }
 
@@ -334,16 +336,15 @@ function replyImg(e){
         return;
     }
 
-    var imgView = $(e).closest(".art").find(".reply-img-view");
-    var imgUpload = $(e).closest(".art").find(".reply-img-upload");
-    imgView.empty();
-    imgUpload.addClass("disable");
+    var art = $(e).closest(".art");
+    closeImgView(art);
 
     convertToBase64(file).then(base64 => {
             console.log(base64);
             buildImg(base64).then(newBase64 => {
-                    $("<img>", {class : "upload-img", src : newBase64, name : "preview"}).appendTo(imgView);
-                    imgUpload.removeClass("disable");
+                    var imgSrc = $("<img>", {class : "img-src", src : newBase64, alt : "預覽"});
+                    art.find(".img-view").append(imgSrc);
+                    openImgView(art, imgSrc);
                 }).catch(e => {
                     console.log(e);
                     showConsoleBox("圖片壓縮失敗:" + e);
@@ -460,6 +461,16 @@ function closeConsoleBox(){
     $("#console-box").removeClass("console-open");
 }
 
+/* --- 圖片預覽視窗 --- */
+function openImgView(art){
+    art.find(".img-upload").removeClass("disable");
+}
+
+function closeImgView(art){
+    art.find(".img-view").empty();
+    art.find(".img-upload").addClass("disable");
+}
+
 /* --- 文章與留言生成共用 --- */
 function makeArt(postDTO){
     var a = postDTO;
@@ -472,7 +483,7 @@ function makeArt(postDTO){
     //作者
     var bar = $("<div>", {class : "bar"}).appendTo(art);
     $("<img>", {class: "bar-head", src : ICON_USER}).appendTo(bar);
-    $("<span>", {class : "author", text : c.author}).appendTo(bar);
+    $("<span>", {class : "author", text : c.authorName}).appendTo(bar);
     if(USER_ID == c.author) $("<div>", {class : "del", text : "刪除", onclick : "deletePost(this);"}).appendTo(bar);
 
     //文章內文
@@ -501,21 +512,21 @@ function makeArt(postDTO){
     var replyBox = $("<div>", {class : "reply-box disable"}).appendTo(art);
     var replyBar = $("<div>", {class : "bar"}).appendTo(replyBox);
     $("<img>", {class : "bar-head", src : ICON_USER}).appendTo(replyBar);
-    $("<span>", {class : "author", text : "匿名"}).appendTo(replyBar);
+    $("<span>", {class : "author", text : getUserName()}).appendTo(replyBar);
 
     var replyInfo = $("<p>" , {class : "reply-info"}).appendTo(replyBox);
     $("<span>", {class : "reply-no"}).appendTo(replyInfo);
     $("<span>", {class : "splitter", text : getSplitter()}).appendTo(replyInfo);
     $("<span>", {class : "reply-time"}).appendTo(replyInfo);
 
-    $("<textarea>", {class : "reply-textarea", placeholder : "留言..."}).appendTo(replyBox);
+    $("<textarea>", {class : "reply-textarea img-target", placeholder : "留言..."}).appendTo(replyBox);
     var replyMove = $("<div>" , {class : "move"}).appendTo(replyBox);
     var replyImgLabel = $("<label>", {class : "reply-img"}).appendTo(replyMove);
-    $("<img>", {src : ICON_USER}).appendTo(replyImgLabel);
+    $("<img>", {src : ICON_UPLOAD_IMG}).appendTo(replyImgLabel);
     $("<input>", {type : "file", accept : "image/*", onchange : "replyImg(this);"}).appendTo(replyImgLabel);
     $("<div>", {class : "reply-summit", text : "送出", onclick : "replyPost(this);"}).appendTo(replyMove);
-    $("<div>", {class : "reply-img-view"}).appendTo(replyBox);
-    $("<p>", {class : "reply-img-upload disable", text : "確定圖片", onclick : "uploadImg(this);"}).appendTo(replyBox);
+    $("<div>", {class : "img-view"}).appendTo(replyBox);
+    $("<p>", {class : "img-upload disable", text : "確定圖片", onclick : "uploadImg(this);"}).appendTo(replyBox);
 
     return art;
 };
@@ -528,7 +539,7 @@ function makeCont(c){
         $("<img>", {class: "bar-in-head", src : ICON_USER}).appendTo(barIn);
         $("<div>", {class : "author", text : DEL_AUTHOR}).appendTo(barIn);
 
-        $("<pre>", {class : "word", text : DEL_WORD}).appendTo(cont);
+        $("<div>", {class : "word", text : DEL_WORD}).appendTo(cont);
 
         var info = $("<p>" , {class : "info"}).appendTo(cont);
         $("<span>", {class : "no", text : getNoStr(c.no)}).appendTo(info);
@@ -542,7 +553,7 @@ function makeCont(c){
     //作者與讚
     var barIn = $("<div>" , {class : "bar-in"}).appendTo(cont);
     $("<img>", {class: "bar-in-head", src : ICON_USER}).appendTo(barIn);
-    $("<div>", {class : "author", text : c.author}).appendTo(barIn);
+    $("<div>", {class : "author", text : c.authorName}).appendTo(barIn);
     $("<img>", {class : "likes-icon", src : ICON_LIKE, onclick : "toggleLike(this);"}).appendTo(barIn);
     $("<div>", {class : "likes likes-in", text : c.likes}).appendTo(barIn);
 
@@ -566,6 +577,10 @@ function getNoStr(no){
 
 function getSplitter(){
     return ", ";
+}
+
+function getUserName(){
+    return USER_NAME == null ? `匿名 (${USER_ID})` : USER_NAME;
 }
 
 function getLikeStr(isUserLike, likes){
@@ -642,7 +657,7 @@ function getTimeFromStr(dateStr){
 function getWordHtml(e, word){
     var urlExp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi;
     var bxExp = /b\d+(?=$| )/gi;
-    var imgExp = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)/gi;
+    var imgExp = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)/gi;
 
     var map = new Map();
     var lines = word.split("\n");
@@ -651,9 +666,7 @@ function getWordHtml(e, word){
 
         line = line.replace(imgExp, function (imgUrl){
                 var key = String.fromCharCode(mark);
-                var span = $("<span>", {class : "word-img", text : imgUrl});
-                $("<img>", {src : imgUrl, alt : imgUrl}).appendTo(span);
-                map.set(mark, span);
+                map.set(mark, $("<img>", {class : "word-img", src : imgUrl, alt : imgUrl}));
                 mark++;
                 return key;
             }).replace(urlExp, function (url){

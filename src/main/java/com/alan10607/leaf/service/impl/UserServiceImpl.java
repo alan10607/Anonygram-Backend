@@ -168,9 +168,8 @@ public class UserServiceImpl implements UserService, UserDetailsService{
             userService.saveRole(new LeafRole(1L, LeafRoleType.ADMIN.name()));
             userService.saveRole(new LeafRole(2L, LeafRoleType.NORMAL.name()));
             LeafRole leafRole = leafRoleDAO.findByRoleName(LeafRoleType.ADMIN.name());
-            if(!leafUserDAO.findById(1L).isPresent()){
-                leafUserDAO.save(new LeafUser(1L,
-                        "alan",
+            if(!leafUserDAO.findByEmail("alan").isPresent()){
+                leafUserDAO.save(new LeafUser("alan",
                         "alan",
                         bCryptPasswordEncoder.encode("alan"),
                         Arrays.asList(leafRole),

@@ -22,7 +22,7 @@
 <div id="login" class="center">
     <div>
         <form method="post" action="loginProcessing">
-            <img class="logo" src="../static/pic/logo.svg">
+            <img class="logo" th:src="@{~/pic/logo.svg}">
             <input type="text" name="username" placeholder="Email" required autofocus/>
             <input type="password" name="password" placeholder="密碼" required/>
             <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}"  th:value="${_csrf.token}" />
@@ -32,7 +32,7 @@
                 <a class="register" href="register">註冊</a>
             </p>
             <p class="error">
-                <span th:if="${param.error != null}">登入失敗</span>
+                <span th:if="${param.error != null}">Email或用戶密碼錯誤</span>
                 <span th:if="${param.logout != null}">登出成功</span>
             </p>
             <div class="line-word">或</div>

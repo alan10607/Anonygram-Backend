@@ -46,8 +46,9 @@ public class AutoUserIdAspect {
             String base64Id = Base64.getEncoder().encodeToString(hashTo6Bytes(sessionId.getBytes()));
             postDTO.setUserId(base64Id);
         }else{
-            long id = ((LeafUser) auth.getPrincipal()).getId();
-            postDTO.setUserId(Long.toString(id));
+            LeafUser leafUser = (LeafUser) auth.getPrincipal();
+            postDTO.setUserId(Long.toString(leafUser.getId()));
+            postDTO.setUserName(leafUser.getUsername());
         }
 
 

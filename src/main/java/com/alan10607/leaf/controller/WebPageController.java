@@ -28,6 +28,7 @@ public class WebPageController {
     public String hub(PostDTO postDTO, Model model){
         try{
             model.addAttribute("userId", postDTO.getUserId());
+            model.addAttribute("userName", postDTO.getUserName());
         }catch (Exception e){
             log.error(e.getMessage());
         }
@@ -35,9 +36,8 @@ public class WebPageController {
     }
 
     @RequestMapping("/")
-    @AutoUserId
     public String root(PostDTO postDTO, Model model){
-        return hub(postDTO, model);
+        return "login.html";
     }
 
     @RequestMapping("/index")

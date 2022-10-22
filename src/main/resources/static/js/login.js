@@ -19,10 +19,7 @@ function createUser(){
 }
 
 function createUserAfter(userDTO){
-    showConsole("註冊成功!! 3秒後自動轉導...");
-    setInterval(function(){
-            location = "login";
-        }, 3000);
+    waitThenGo(3);
 }
 
 function createUserError(xhr){
@@ -46,4 +43,16 @@ function checkUserData(email, userName, pw){
 
 function showConsole(str){
     $(".error").text(str);
+}
+
+function waitThenGo(sec){
+    if(sec < 0){
+        location = "login";
+        return;
+    }
+
+    showConsole(`註冊成功!! ${sec}秒後自動轉導...`);
+    setInterval(function(){
+            waitThenGo(sec - 1);
+        }, 1000);
 }

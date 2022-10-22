@@ -48,13 +48,13 @@
 }
 
 .word{
-    font-size: 11px;
+    font-size: 16px;
     line-height: 24px;
-    margin: 20px 0;
+    margin: 15px 0;
     font-family: Microsoft JhengHei;
 }
 
-.word pre, .word a, .word span{
+.word, .word pre, .word a, .word span{
     font-size: 16px;
     line-height: 24px;
     font-family: Microsoft JhengHei;
@@ -73,11 +73,7 @@
     color: #0f00ee;
 }
 
-.word .word-img{
-    display: inline-block;
-}
-
-.word .word-img img{
+.word-img{
     max-width: 100%;
 }
 
@@ -187,6 +183,7 @@
     flex: 1 1 auto;
     font-size: 22px;
     font-weight: 600;
+    margin-left: 15px;
 }
 
 #top-box img{
@@ -241,14 +238,14 @@
     color: #262626;
 }
 
-.reply-img-view{
+.img-view{
 }
 
-.reply-img-view img{
+.img-view img{
     max-width: 100%;
 }
 
-.reply-img-upload{
+.img-upload{
     text-align: right;
     padding: 1px 4px 3px 4px;
     font-size: 14px;
@@ -290,6 +287,23 @@
     overflow: hidden;
 }
 
+.flex-empty{
+    flex: 1 1 auto;
+}
+
+#new-img{
+    flex: 0 1 auto;
+}
+
+#new-img img{
+    width: 24px;
+    height: 24px;
+}
+
+#new-img input{
+    display: none;
+}
+
 #new-title{
     margin: 16px 0 8px 0;
     flex: 0 1 auto;
@@ -305,7 +319,7 @@
 #new-box p{
     text-align: right;
     font-size: 16px;
-    color: #8e8e8e;
+    color: #262626;
     flex: 0 1 auto;
     margin: 10px 0;
 }
@@ -337,7 +351,6 @@
 #setting-list{
     display: flex;
     flex-direction: column;
-    border-top: 0.5px solid #8e8e8e;
     padding: 5px 9px;
 }
 

@@ -1,17 +1,16 @@
 package com.alan10607.leaf.controller;
 
 import com.alan10607.leaf.constant.AutoUserId;
-import com.alan10607.leaf.dto.LeafDTO;
 import com.alan10607.leaf.dto.PostDTO;
-import com.alan10607.leaf.service.ContLikeService;
-import com.alan10607.leaf.service.ImgurService;
 import com.alan10607.leaf.service.PostService;
 import com.alan10607.leaf.util.ResponseUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -21,11 +20,7 @@ import java.util.List;
 @Slf4j
 public class PostController {
     private final PostService postService;
-    private final ImgurService imgurService;
     private final ResponseUtil responseUtil;
-
-
-    private final ContLikeService contLikeService;
 
     @PostMapping("/findIdSet")
     public ResponseEntity findIdSet(@RequestBody PostDTO postDTO){

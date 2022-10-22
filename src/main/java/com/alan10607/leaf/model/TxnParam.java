@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class TxnParam {
 
     @Id
-    private String key;
+    private String param;
 
     @Column(nullable = false)
     private String value;
