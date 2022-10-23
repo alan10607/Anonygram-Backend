@@ -299,6 +299,16 @@ function changeLike(isUserLike, cont){
 
 /* --- 影像上傳 --- */
 function uploadImg(e){
+    //ajax在async=false時會不更改ui直到ajax完成, 先用setTimeout強制等待
+    //ajax的async=false已過時
+    showLoading();
+
+    setTimeout(function () {
+        uploadImgStart(e)
+    }, 10);
+}
+
+function uploadImgStart(e){
     var art = $(e).closest(".art");
     var imgBase64 = art.find(".img-src").attr("src");
     imgBase64 = imgBase64.replace(/^data:image\/\w+;base64,/g, "");
@@ -316,10 +326,12 @@ function uploadImgAfter(PostDTO, art){
     art.find(".img-target").val(word + "\n" + PostDTO.imgUrl + "\n");
     closeImgView(art);
     art.find(".reply-textarea").focus();
+    closeLoading();
 }
 
 function uploadImgError(xhr){
     showConsoleBox("上傳圖片失敗, 請稍後再試");
+    closeLoading();
 }
 
 /* --- 影像壓鎖與預覽 --- */
@@ -469,6 +481,15 @@ function openImgView(art){
 function closeImgView(art){
     art.find(".img-view").empty();
     art.find(".img-upload").addClass("disable");
+}
+
+/* --- Loading視窗 --- */
+function showLoading(){
+    $("#loading").removeClass("disable");
+}
+
+function closeLoading(){
+    $("#loading").addClass("disable");
 }
 
 /* --- 文章與留言生成共用 --- */

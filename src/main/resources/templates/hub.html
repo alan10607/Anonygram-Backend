@@ -92,6 +92,16 @@
     </div>
 </div>
 
+<div id="loading" class="full-screan center disable">
+    <div>
+        <div class="loading-icon">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+
 <div id="console-box" class="console-close">
 </div>
 
@@ -99,5 +109,7 @@
     <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
     <button type="submit">Logout</button>
 </form>
+
+
 </body>
 </html>

@@ -54,9 +54,9 @@
     font-family: Microsoft JhengHei;
 }
 
-.word, .word pre, .word a, .word span{
+.word pre, .word a, .word span{
     font-size: 16px;
-    line-height: 24px;
+    line-height: 28px;
     font-family: Microsoft JhengHei;
     white-space: pre-wrap;
     word-break: break-all;
@@ -239,6 +239,8 @@
 }
 
 .img-view{
+    max-height: 45vh;
+    overflow: scroll;
 }
 
 .img-view img{
@@ -389,6 +391,52 @@
 #footer{
     height: 40vh;
 }
+
+#loading{
+    background-color: #8d8d8c80;
+}
+
+.loading-icon {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.loading-icon div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+    border: 8px solid #fff;
+    border-radius: 50%;
+    animation: loading-icon 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: #fff transparent transparent transparent;
+}
+
+.loading-icon div:nth-child(1) {
+    animation-delay: -0.45s;
+}
+
+.loading-icon div:nth-child(2) {
+    animation-delay: -0.3s;
+}
+
+.loading-icon div:nth-child(3) {
+    animation-delay: -0.15s;
+}
+
+@keyframes loading-icon {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 
 .disable{
     display: none;

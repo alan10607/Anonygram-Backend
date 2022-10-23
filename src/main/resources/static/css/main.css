@@ -53,6 +53,9 @@ input{
     border: 0.5px solid #d1d1d1;
     outline-width: 0px;
     padding: 4px 10px 4px 10px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
 table{
