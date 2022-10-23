@@ -29,7 +29,7 @@ public class ImgurServiceImpl implements ImgurService {
     private TimeUtil timeUtil;
     private static final String DB_ACCESS_TOKEN = "accessToken";
     private static final String DB_REFRESH_TOKEN = "refreshToken";
-    private static final String IMG_DESCRIPTION = "Leaf hub user upload";
+    private static final String IMG_DESCRIPTION = "User upload";
 
     public String upload(String id, String userId, String imgBase64) {
         String imgUrl = "";

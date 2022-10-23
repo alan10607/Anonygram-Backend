@@ -29,13 +29,13 @@ function createUserError(xhr){
 function checkUserData(email, userName, pw){
     var emailExp = /^[\w-\.]+@([\w-]+\.)+[\w-]+$/g;
     var pwExp = /^[\w-.@$!%*#?&]{6,}$/g;
-    if(!(new RegExp(emailExp).test(email)))
+    if(!emailExp.test(email))
         return "email格式錯誤";
 
     if(userName == "")
         return "用戶暱稱不可為空";
 
-    if(!(new RegExp(pwExp).test(pw)))
+    if(!pwExp.test(pw))
         return "密碼未滿6位字母或格式錯誤";
 
     return "";

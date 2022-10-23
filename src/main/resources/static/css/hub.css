@@ -35,8 +35,8 @@
 
 .bar-head{
     flex: 0 1 auto;
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     margin-right: 8px;
 }
 
@@ -125,8 +125,8 @@
 
 .bar-in-head {
     flex: 0 1 auto;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     padding: 2px 6px 2px 0px;
 }
 
@@ -220,7 +220,7 @@
 }
 
 .reply-img{
-    flex: 1 1 auto;
+    flex: 0 1 auto;
 }
 
 .reply-img img{
@@ -273,7 +273,7 @@
     transition-duration: 0.2s;
     display: flex;
     flex-direction: column;
-    padding: 9px 9px 13px 9px;
+    padding: 15px;
     color: #262626;
 }
 
@@ -312,7 +312,7 @@
 }
 
 #new-textarea{
-    margin: 10px 0 30px 0;
+    margin: 10px 0 10px 0;
     flex: 1 1 auto;
 }
 
@@ -334,6 +334,7 @@
     flex: 0 1 auto;
     width: 24px;
     height: 24px;
+    margin-right: 5px;
 }
 
 #new-bar > span:nth-child(2), #setting-bar > span:nth-child(2){
@@ -357,6 +358,7 @@
 #setting-list div{
     padding: 15px 10px;
     flex: 0 1 auto;
+    background-color: #ececec;
 }
 
 #setting-box div + #setting-box div{

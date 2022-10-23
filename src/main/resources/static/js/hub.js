@@ -330,8 +330,8 @@ function replyImg(e){
     }
 
     var file = e.files[0];
-    var fileName = /image\/\w+/g;
-    if(!fileName.test(file.type)){//MIME iMAGE
+    var fileTypeExp = /image\/\w+/g;
+    if(!fileTypeExp.test(file.type)){//MIME iMAGE
         showConsoleBox("圖片格式錯誤");
         return;
     }
@@ -524,6 +524,7 @@ function makeArt(postDTO){
     var replyImgLabel = $("<label>", {class : "reply-img"}).appendTo(replyMove);
     $("<img>", {src : ICON_UPLOAD_IMG}).appendTo(replyImgLabel);
     $("<input>", {type : "file", accept : "image/*", onchange : "replyImg(this);"}).appendTo(replyImgLabel);
+    $("<div>", {class : "flex-empty"}).appendTo(replyMove);
     $("<div>", {class : "reply-summit", text : "送出", onclick : "replyPost(this);"}).appendTo(replyMove);
     $("<div>", {class : "img-view"}).appendTo(replyBox);
     $("<p>", {class : "img-upload disable", text : "確定圖片", onclick : "uploadImg(this);"}).appendTo(replyBox);

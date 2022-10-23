@@ -1,4 +1,4 @@
-# Leaf
+# Anonygram
 <p align="center">
 	<a href="http://35.201.171.165:8081/" target="_blank">
         <img src="https://img.shields.io/badge/Demo-GCP-orange">

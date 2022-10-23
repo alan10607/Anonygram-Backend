@@ -14,7 +14,7 @@ function post(url, data, afterFunc, afterError, ...args){
 		},
 		error: function (xhr, status) {
 			if(afterError != null)
-		        afterError(xhr);
+		        afterError(xhr.responseJSON);
 
 			console.log("Status:" + status + ",xhr:" + JSON.stringify(xhr));
 		}
@@ -43,7 +43,7 @@ formData.append('image', $('input[type=file]')[0].files[0]);
 		},
 		error: function (xhr, status) {
 			if(afterError != null)
-		        afterError(xhr);
+		        afterError(xhr.responseJSON);
 
 			console.log("Status:" + status + ",xhr:" + JSON.stringify(xhr));
 		}
