@@ -238,22 +238,6 @@
     color: #262626;
 }
 
-.img-view{
-    max-height: 45vh;
-    overflow: scroll;
-}
-
-.img-view img{
-    max-width: 100%;
-}
-
-.img-upload{
-    text-align: right;
-    padding: 1px 4px 3px 4px;
-    font-size: 14px;
-    color: #262626;
-}
-
 .reply-info{
     font-size: 13px;
     color: #262626;

@@ -298,21 +298,9 @@ function changeLike(isUserLike, cont){
 }
 
 /* --- 影像上傳 --- */
-function uploadImg(e){
-    //ajax在async=false時會不更改ui直到ajax完成, 先用setTimeout強制等待
-    //ajax的async=false已過時
-    showLoading();
-
-    setTimeout(function () {
-        uploadImgStart(e)
-    }, 10);
-}
-
-function uploadImgStart(e){
+function uploadImg(e, imgBase64){
     var art = $(e).closest(".art");
-    var imgBase64 = art.find(".img-src").attr("src");
     imgBase64 = imgBase64.replace(/^data:image\/\w+;base64,/g, "");
-    if(imgBase64 == null || imgBase64 == "") return;
 
     var data = {
         "id" : art.attr("id"),
@@ -322,11 +310,9 @@ function uploadImgStart(e){
 }
 
 function uploadImgAfter(PostDTO, art){
-    var word = art.find(".img-target").val();
-    art.find(".img-target").val(word + "\n" + PostDTO.imgUrl + "\n");
-    closeImgView(art);
-    art.find(".reply-textarea").focus();
+    art.find(".img-target").val(art.find(".img-target").val() + "\n" + PostDTO.imgUrl + "\n");
     closeLoading();
+    setTimeout(function(){ art.find(".reply-textarea").focus(); }, 50);//onclick會造成失焦
 }
 
 function uploadImgError(xhr){
@@ -348,15 +334,12 @@ function replyImg(e){
         return;
     }
 
-    var art = $(e).closest(".art");
-    closeImgView(art);
+    //ajax在async=false時會不更改ui直到ajax完成, 只能用setTimeout強制等待, ajax的async=false已過時
+    showLoading();
 
     convertToBase64(file).then(base64 => {
-            console.log(base64);
             buildImg(base64).then(newBase64 => {
-                    var imgSrc = $("<img>", {class : "img-src", src : newBase64, alt : "預覽"});
-                    art.find(".img-view").append(imgSrc);
-                    openImgView(art, imgSrc);
+                    uploadImg(e, newBase64);
                 }).catch(e => {
                     console.log(e);
                     showConsoleBox("圖片壓縮失敗:" + e);
@@ -380,7 +363,7 @@ function buildImg(base64) {
     return new Promise((resolve, reject) => {
         var image = new Image();//先不設定寬度px
         image.src = base64;//img中src可以直接接Base64
-        image.onload = () => resolve(compressImg(image, 0.8, 450));
+        image.onload = () => resolve(compressImg(image, 0.92, 450));
     });
 }
 
@@ -404,10 +387,6 @@ function compressImg(image, quality, maxWidth){
     console.log("After compressed, image size=" + Math.round(0.75 * newImg.length / 1000) + "kb");//byte約為base64編碼的0.75
     return newImg;
 };
-
-function showPreview(src, fileName) {
-    $("#previewDiv").append(image);
-}
 
 /* --- 新增留言視窗 --- */
 function openReplyBox(e){
@@ -433,7 +412,7 @@ function closeReplyBox(art){
 function openNewBox(){
     $("#new-box").addClass("big-box-open");
     $("#new-box").removeClass("big-box-close");
-    $("#new-title").focus();
+    setTimeout(function(){ $('#new-title').focus(); }, 50);//onclick會造成失焦
 }
 
 function closeNewBox(){
@@ -471,16 +450,6 @@ function showConsoleBox(str){
 function closeConsoleBox(){
     $("#console-box").addClass("console-close");
     $("#console-box").removeClass("console-open");
-}
-
-/* --- 圖片預覽視窗 --- */
-function openImgView(art){
-    art.find(".img-upload").removeClass("disable");
-}
-
-function closeImgView(art){
-    art.find(".img-view").empty();
-    art.find(".img-upload").addClass("disable");
 }
 
 /* --- Loading視窗 --- */
@@ -547,8 +516,6 @@ function makeArt(postDTO){
     $("<input>", {type : "file", accept : "image/*", onchange : "replyImg(this);"}).appendTo(replyImgLabel);
     $("<div>", {class : "flex-empty"}).appendTo(replyMove);
     $("<div>", {class : "reply-summit", text : "送出", onclick : "replyPost(this);"}).appendTo(replyMove);
-    $("<div>", {class : "img-view"}).appendTo(replyBox);
-    $("<p>", {class : "img-upload disable", text : "確定圖片", onclick : "uploadImg(this);"}).appendTo(replyBox);
 
     return art;
 };
