@@ -123,3 +123,23 @@ Query  Result  Modify
 - 前端框架, 前後分離
 - 消息中間件
 - 資料庫優化
+
+## Demo
+#### 用戶登入
+<img src="https://raw.githubusercontent.com/alan10607/LeafHub/master/docs/demo1.jpg" width="300"/>
+
+###
+#### 用戶註冊
+<img src="https://raw.githubusercontent.com/alan10607/LeafHub/master/docs/demo2.jpg" width="300"/>
+
+###
+#### 文章瀏覽(登入)
+<img src="https://raw.githubusercontent.com/alan10607/LeafHub/master/docs/demo3.jpg" width="300"/>
+
+###
+#### 文章瀏覽(登入)
+<img src="https://raw.githubusercontent.com/alan10607/LeafHub/master/docs/demo5.jpg" width="300"/>
+
+###
+#### 展開留言
+<img src="https://raw.githubusercontent.com/alan10607/LeafHub/master/docs/demo4.jpg" width="300"/>
