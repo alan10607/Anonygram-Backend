@@ -41,7 +41,7 @@ git checkout master  src/main/java/com/alan10607/leaf/model
 -DREDIS_PORT=6380
 -DREDIS_PASSWORD=root
 
-### GCP setting
+## GCP setting
 https://console.cloud.google.com  
 compute engine > create vm
 
@@ -49,18 +49,32 @@ compute engine > create vm
 ```bash
 sudo apt-get -y update
  ```
-2. 在 Docker 加入官方 GPG KEY
+2. 在 Docker 加入官方 GPG KEY https://docs.docker.com/engine/install/ubuntu/
 ```bash
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+```
+OR
+```
+sudo mkdir -m 0755 -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 ```
 3. 新增APP伺服器
 ```bash
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu ${lsb_release -cs} stable"
 ```
+OR
+```
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
 4. 安裝docker-ce
 ```bash
 sudo apt-get install -y docker-ce
 ```
+OR
+```
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
 5. 查看docker
 ```bash
 docker -v
@@ -102,5 +116,64 @@ docker run hello-world
 ```
 
 
+## Swap
+https://klab.tw/2022/06/what-is-linux-swap-and-how-to-add-it/
 
+1. fallocate空間
+```
+sudo fallocate -l 4G /swapfile
+```
 
+2. chmod讀寫權限
+```
+sudo chmod 600 /swapfile
+```
+
+3. 建立Swap空間
+```
+sudo mkswap /swapfile
+# Setting up swapspace version 1, size = 1024 MiB (1073737728 bytes)
+# no label, UUID=b3b91233-6a5b-44d3-9d13-d7c66285a166
+```
+
+4. 建立Swap
+```
+sudo swapon /swapfile
+```
+
+5. check空間
+```
+free
+```
+
+6. check swap
+```
+swapon --show
+```
+
+7. 備份fstab(重要文件)
+```
+sudo cp /etc/fstab /etc/fstab.backup
+```
+
+8. 修改fstab, 之後重開機後自動啟動swap
+```
+sudo nano /etc/fstab
+```
+在最後一行加入：
+```
+/swapfile swap swap defaults 0 0
+```
+
+9. Swap使用頻率, swappiness越大使用率越高
+```
+cat /proc/sys/vm/swappiness
+sudo sysctl vm.swappiness=10
+```
+
+10. 修改swappiness, 之後重開機後自動啟動swap, 可先備份sysctl.conf
+
+在最後一行加入：
+```
+vm.swappiness=10
+```
