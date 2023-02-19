@@ -1,5 +1,5 @@
 FROM openjdk:11
-EXPOSE 8080
+EXPOSE 443
 ADD target/leaf-server.jar /leaf-server.jar
 
 # wait-for-it from: https://github.com/vishnubob/wait-for-it

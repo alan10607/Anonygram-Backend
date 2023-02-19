@@ -19,7 +19,7 @@ mvn -Dmaven.test.skip=true install
 ### docker build / 其他platform
 docker build -f Dockerfile -t alan10607/leaf:0.8.5 .
 docker buildx ls
-docker build --platform linux/amd64 -f Dockerfile -t alan10607/leaf:0.9.0 .
+docker build --platform linux/amd64 -f Dockerfile -t alan10607/leaf_hub:1.2.0 .
 
 ### docker run
 docker run --env-file env/leaf-env -p 8081:8080 -v ~/docker/volume/leaf/log:/log --name leaf-server -d alan10607/leaf:0.8.5 ./wait-for-it.sh leaf-mysql:3306 -- ./wait-for-it.sh leaf-redis:6379 -- java -jar /leaf-server.jar
@@ -176,4 +176,25 @@ sudo sysctl vm.swappiness=10
 在最後一行加入：
 ```
 vm.swappiness=10
+```
+
+## HTTPS keytool
+
+1. 是否安裝keytool
+```
+keytool
+```
+
+2. 生成金鑰對
+
+alias別名, keyalg算法, storetype金鑰庫型別, keystore檔名, validity有效期限(日)
+```
+keytool -genkeypair -alias anonygram_ssl -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore anonygram_ssl.p12 -validity 1000
+```
+3. 匯出證書(安裝後瀏覽器重啟生效)
+```
+keytool -export -keystore anonygram_ssl.p12 -alias anonygram_ssl -file anonygram_cert.crt
+```
+```
+cat anonygram_cert.crt
 ```

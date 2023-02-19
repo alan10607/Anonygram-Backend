@@ -4,7 +4,7 @@ services:
     image: alan10607/leaf
     container_name: leaf-server
     ports:
-      - "8081:8080"
+      - "443:443"
     volumes:
       - "~/docker/volume/leaf/log:/log"
     environment:
