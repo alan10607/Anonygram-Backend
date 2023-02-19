@@ -40,22 +40,6 @@
     <img th:src="@{~/pic/option.png}" onclick="openSettingBox();">
 </div>
 
-<div id="reply-box" class="reply-close">
-    <div class="bar">
-        <img class="bar-head" th:src="@{~/pic/user.png}">
-        <span class="author">匿名</span>
-        <span class="author" th:if="${userName == null}" th:text="'匿名 (' + ${userId} + ')'"></span>
-        <span class="author" th:if="${userName != null}" th:text="${userName}"></span>
-    </div>
-    <p id="reply-info">
-        <span id="reply-no"></span>
-        <span class="splitter">, </span>
-        <span id="reply-time"></span>
-    </p>
-    <textarea id="reply-textarea"placeholder="留言..."></textarea>
-    <p id="reply-summit" onclick="replyPost();">送出</p>
-</div>
-
 <div id="new-box" class="art big-box big-box-close">
     <div id="new-bar">
         <img th:src="@{~/pic/close.png}" onclick="closeNewBox();">
@@ -68,8 +52,8 @@
         <span class="author" th:if="${userName != null}" th:text="${userName}"></span>
     </div>
     <input id="new-title" type="text" placeholder="標題">
-    <textarea id="new-textarea" class="img-target" placeholder="本版提供匿名發文..."></textarea>
-    <div class="bar">
+    <div id="new-textarea" class="reply-textarea" contenteditable="true" onpaste="pasteAsPlain(event);"></div>
+    <div class="move">
         <label id="new-img">
             <img src="/pic/uploadImg.png">
             <input type="file" accept="image/*" onchange="replyImg(this);">

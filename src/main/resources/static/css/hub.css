@@ -44,7 +44,7 @@
     font-size: 20px;
     font-weight: 600;
     white-space: pre-wrap;
-    word-break: break-all;
+    word-break: break-word;
 }
 
 .word{
@@ -59,7 +59,7 @@
     line-height: 28px;
     font-family: Microsoft JhengHei;
     white-space: pre-wrap;
-    word-break: break-all;
+    word-break: break-word;
     display: inline;
 }
 
@@ -142,7 +142,7 @@
     align-items: center;
     font-size: 14px;
     color: #8e8e8e;
-    padding: 0px 4px 7px 4px;
+    padding: 7px 4px 7px 4px;
 }
 
 .open{
@@ -170,13 +170,15 @@
 #top-box{
     position: fixed;
     top: 0;
-    left: 0;
-    right: 0;
+    left: auto;
+    right: auto;
     height: 30px;
     background-color: #fafafa;
     padding: 20px 9px;
     display: flex;
     align-items: center;
+    width: calc(100% - 18px);
+    max-width: 412px;
 }
 
 #top-box > span:nth-child(1){
@@ -206,17 +208,21 @@
     bottom: 60vh;
 }
 
-.reply-close{
-    bottom: 100vh;
-    visibility: hidden;
-    overflow: hidden;
-}
-
 .reply-textarea{
     margin: 9px 0;
     display: block;
     flex: 1 1 auto;
-    height: 180px;
+    height: 250px;
+    line-height: 28px;
+    font-family: Microsoft JhengHei;
+    border: 0.5px solid #d1d1d1;
+    outline-width: 0px;
+    padding: 4px 10px 4px 10px;
+    overflow-x: auto;
+}
+
+.reply-textarea img{
+    max-width: 100%;
 }
 
 .reply-img{
@@ -298,8 +304,6 @@
 }
 
 #new-textarea{
-    margin: 10px 0 10px 0;
-    flex: 1 1 auto;
 }
 
 #new-box p{

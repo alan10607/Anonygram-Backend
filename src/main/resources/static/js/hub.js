@@ -144,13 +144,14 @@ function createPost(){
         showConsoleBox("文章標題不能為空白!!");
         return;
     }
-    if($("#new-textarea").val().trim() == ""){
+    var word = getContentWord($("#new-textarea"));
+    if(word.trim() == ""){
         showConsoleBox("文章內容不能為空白!!");
         return;
     }
     var data = {
         "title" : $("#new-title").val(),
-        "word" : $("#new-textarea").val()
+        "word" : word
     }
     post("/post/createPost", data, createPostAfter, createPostError);
 }
@@ -172,25 +173,90 @@ function createPostError(xhr){
 /* --- 新增留言 --- */
 function replyPost(e){
     var art = $(e).closest(".art")
-    if(art.find(".reply-textarea").val().trim() == ""){
+    var word = getContentWord(art.find(".reply-textarea"));
+    if(word.trim() == ""){
         showConsoleBox("留言內容不能為空白!!");
         return;
     }
     var data = {
         "id" : art.attr("id"),
-        "word" : art.find(".reply-textarea").val()
+        "word" : word
     }
     post("/post/replyPost", data, replyPostAfter, replyPostError, art);
 }
 
 function replyPostAfter(postDTO, art){
     closeReplyBox(art);
-    art.find(".reply-textarea").val("");
+    art.find(".reply-textarea").html("");
     findTopCont(art[0]);
 }
 
 function replyPostError(xhr){
     showConsoleBox("留言失敗, 請稍後再試");
+}
+
+/* --- 讀取文章內容共用 --- */
+function getContentWord(contentEle){
+    contentEle.html(warpAll(contentEle.html().trim()));//修正無div的內容
+
+    var strArr = [];
+    var spanTmp = "";
+    contentEle.children().each(function() {
+        if ($(this).is("img")){
+            strArr.push($(this).attr("src"));
+        }else{//$(this).is("div")
+            strArr.push($(this).text());
+        }
+    });
+
+    console.log("Content children", strArr);
+    return strArr.join("\n");
+}
+
+function warpAll(html){
+    console.log("Before warp", html);
+    var inWarp = false;
+    var i = 0;
+    var s = "<div>", e = "</div>";
+    while(i < html.length){
+        if(html.startsWith("<div>", i)){
+            inWarp = true;
+            i += 5;
+        }else if(html.startsWith("</div>", i)){
+            inWarp = false;
+            i += 6;
+        }else if(html.startsWith("<img", i)){
+            i = html.indexOf(">", i) + 1;
+        }else if(!inWarp){
+            var end = html.indexOf("<div>", i);
+            if(end == -1) html.indexOf("<img", i);
+
+            var target = end == -1 ? html.substring(i) : html.substring(i, end);
+            var newTarget = s + target.trim() + e;
+            html = html.substring(0, i) + newTarget + html.substring(i + target.length);
+            i += newTarget.length;
+        }else{//inWarp
+            ++i;
+        }
+    }
+
+    console.log("After warp ", html);
+    return html;
+}
+
+function pasteAsPlain(e){
+    var text = (e.originalEvent || e).clipboardData.getData("text/plain");
+    //去除所有換行與空白
+    text = text.replaceAll("\n", "");
+    var tmp = "";
+    for(let i=0; i<text.length; ++i){
+        if(text[i] == " " && i > 0 && text[i - 1] == " ") continue;
+        tmp += text[i];
+    }
+    text = tmp;
+    document.execCommand("insertText", false, text);//已過時的方法
+    console.log("Paste as plain", text);
+    e.preventDefault();
 }
 
 /* --- 刪除文章 --- */
@@ -310,7 +376,9 @@ function uploadImg(e, imgBase64){
 }
 
 function uploadImgAfter(PostDTO, art){
-    art.find(".img-target").val(art.find(".img-target").val() + "\n" + PostDTO.imgUrl + "\n");
+    var imgUrl = PostDTO.imgUrl;
+    $("<img>", {src : imgUrl, alt : imgUrl}).appendTo(art.find(".reply-textarea"));
+    $("<div><br></div>").appendTo(art.find(".reply-textarea"));
     closeLoading();
     setTimeout(function(){ art.find(".reply-textarea").focus(); }, 50);//onclick會造成失焦
 }
@@ -363,7 +431,7 @@ function buildImg(base64) {
     return new Promise((resolve, reject) => {
         var image = new Image();//先不設定寬度px
         image.src = base64;//img中src可以直接接Base64
-        image.onload = () => resolve(compressImg(image, 0.92, 450));
+        image.onload = () => resolve(compressImg(image, 0.97, 450));
     });
 }
 
@@ -509,7 +577,7 @@ function makeArt(postDTO){
     $("<span>", {class : "splitter", text : getSplitter()}).appendTo(replyInfo);
     $("<span>", {class : "reply-time"}).appendTo(replyInfo);
 
-    $("<textarea>", {class : "reply-textarea img-target", placeholder : "留言..."}).appendTo(replyBox);
+    $("<div>", {class : "reply-textarea", contenteditable : "true", onpaste: "pasteAsPlain(event);"}).appendTo(replyBox);
     var replyMove = $("<div>" , {class : "move"}).appendTo(replyBox);
     var replyImgLabel = $("<label>", {class : "reply-img"}).appendTo(replyMove);
     $("<img>", {src : ICON_UPLOAD_IMG}).appendTo(replyImgLabel);
