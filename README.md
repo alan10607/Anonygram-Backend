@@ -11,6 +11,8 @@
     <img src="https://img.shields.io/badge/MySql-8.0.30-lightgray">
 </p>
 
+###[Click here](https://13.112.45.117/hub) to the demo page.
+
 ## Article Redis Structure
 #### idStr
 - data:idStr
