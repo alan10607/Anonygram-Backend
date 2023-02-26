@@ -197,63 +197,35 @@ function replyPostError(xhr){
 
 /* --- 讀取文章內容共用 --- */
 function getContentWord(contentEle){
-    contentEle.html(warpAll(contentEle.html().trim()));//修正無div的內容
+    const needWrap = /(?:^|<\/div>|<img[^>]*>)([^>]+)(?=$|<div|<img)/gi;//抓出所有不包在div間的text
+    const imgSrc = /(?:<img\s*src\s*=\s*['"])([^'"]+)(?:['"][^>]*>)/gi;//抓出所有img src
+    const breakLine = /<\/div>|<br>/gi;
+    const allTag = /<[^>]+>/gi;
 
-    var strArr = [];
-    var spanTmp = "";
-    contentEle.children().each(function() {
-        if ($(this).is("img")){
-            strArr.push($(this).attr("src"));
-        }else{//$(this).is("div")
-            strArr.push($(this).text());
-        }
+    var html = contentEle.html().trim();
+    console.log("Get Content:", html);
+
+    html = html.replace(needWrap, function(match, group) {
+        return match.replace(group, "<div>" + group + "</div>");
     });
+    console.log("Wrap texts :", html);
 
-    console.log("Content children", strArr);
-    return strArr.join("\n");
-}
+    html = html.replace(imgSrc, function(match, group) {
+        return "<div>" + group + "</div>";
+    });
+    console.log("Get img src:", html);
 
-function warpAll(html){
-    console.log("Before warp", html);
-    var inWarp = false;
-    var i = 0;
-    var s = "<div>", e = "</div>";
-    while(i < html.length){
-        if(html.startsWith("<div>", i)){
-            inWarp = true;
-            i += 5;
-        }else if(html.startsWith("</div>", i)){
-            inWarp = false;
-            i += 6;
-        }else if(html.startsWith("<img", i)){
-            i = html.indexOf(">", i) + 1;
-        }else if(!inWarp){
-            var end = html.indexOf("<div>", i);
-            if(end == -1) html.indexOf("<img", i);
+    html = html.replaceAll(breakLine, "\n");
+    console.log("Break lines:", html);
 
-            var target = end == -1 ? html.substring(i) : html.substring(i, end);
-            var newTarget = s + target.trim() + e;
-            html = html.substring(0, i) + newTarget + html.substring(i + target.length);
-            i += newTarget.length;
-        }else{//inWarp
-            ++i;
-        }
-    }
+    html = html.replaceAll(allTag, "");
+    console.log("Remove tags:", html);
 
-    console.log("After warp ", html);
     return html;
 }
 
 function pasteAsPlain(e){
     var text = (e.originalEvent || e).clipboardData.getData("text/plain");
-    //去除所有換行與空白
-    text = text.replaceAll("\n", "");
-    var tmp = "";
-    for(let i=0; i<text.length; ++i){
-        if(text[i] == " " && i > 0 && text[i - 1] == " ") continue;
-        tmp += text[i];
-    }
-    text = tmp;
     document.execCommand("insertText", false, text);//已過時的方法
     console.log("Paste as plain", text);
     e.preventDefault();
