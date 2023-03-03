@@ -221,6 +221,9 @@ function getContentWord(contentEle){
     html = html.replaceAll(allTag, "");
     console.log("Remove tags:", html);
 
+    html = html.trimRight()
+    console.log("Trim right :", html);
+
     return html;
 }
 
