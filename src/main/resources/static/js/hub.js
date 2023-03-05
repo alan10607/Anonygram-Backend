@@ -199,6 +199,7 @@ function replyPostError(xhr){
 function getContentWord(contentEle){
     const needWrap = /(?:^|<\/div>|<img[^>]*>)([^>]+)(?=$|<div|<img)/gi;//抓出所有不包在div間的text
     const imgSrc = /(?:<img\s*src\s*=\s*['"])([^'"]+)(?:['"][^>]*>)/gi;//抓出所有img src
+    const breakLineDivBr = /<div><br><\/div>/gi;
     const breakLine = /<\/div>|<br>/gi;
     const allTag = /<[^>]+>/gi;
 
@@ -214,6 +215,9 @@ function getContentWord(contentEle){
         return "<div>" + group + "</div>";
     });
     console.log("Get img src:", html);
+
+    html = html.replaceAll(breakLineDivBr, "\n");
+    console.log("Break divbr:", html);
 
     html = html.replaceAll(breakLine, "\n");
     console.log("Break lines:", html);
