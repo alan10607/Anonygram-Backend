@@ -1,49 +1,34 @@
 package com.alan10607.leaf.config;
 
 import com.alan10607.leaf.constant.LeafRoleType;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.server.ConfigurableWebServerFactory;
 import org.springframework.boot.web.server.ErrorPage;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+@Configuration
 @Slf4j
+@Data
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+    private final JwtFilter jwtFilter;
+    private final AuthenticationProvider authenticationProvider;
 
-    /**
-     * 用於用戶密碼的加密
-     * @return
-     */
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
-
-    /**
-     * 設定驗證方式
-     * @param userDetailsService
-     * @param passwordEncoder
-     * @return
-     */
-    @Bean
-    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, BCryptPasswordEncoder passwordEncoder){
-        DaoAuthenticationProvider dao = new DaoAuthenticationProvider();
-        dao.setUserDetailsService(userDetailsService);
-        dao.setPasswordEncoder(passwordEncoder);//給予應對之加密方式, 否則會There is no PasswordEncoder mapped for the id "null"
-        return new ProviderManager(dao);
-    }
 
     /**
      * Web security, 代替WebSecurityConfigurerAdapter.configure(HttpSecurity http)
@@ -54,13 +39,29 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable();//跨域請求偽造, 測試時禁用
-        //http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);//不使用session
+        http.cors();
         http.formLogin().loginPage("/login").loginProcessingUrl("/loginProcessing").defaultSuccessUrl("/hub").failureForwardUrl("/login?error");
         http.logout().logoutUrl("/logoutProcessing").logoutSuccessUrl("/login?logout");
-        http.authorizeRequests().antMatchers("/", "/hub", "/user/createUser", "/register", "/post/**", "/test/**", "/index/**", "/css/**", "/js/**", "/pic/**", "/view/**", "/login").permitAll();//公開葉面
+        http.authorizeRequests().antMatchers("/", "/user/createUser", "/register", "/post/**", "/test/**", "/index/**", "/css/**", "/js/**", "/pic/**", "/view/**", "/login/**", "/user/login/**").permitAll();//公開頁面
+        http.authorizeRequests().antMatchers("/post/**", "/hub").hasAnyAuthority(LeafRoleType.NORMAL.name(), LeafRoleType.ANONY.name());//限制為jwt權限訪問
+//        http.authorizeRequests().antMatchers("/post/**").permitAll();
         http.authorizeRequests().anyRequest().hasAuthority(LeafRoleType.ADMIN.name());//限制為admin權限訪問
         http.exceptionHandling().accessDeniedPage("/err");
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);//不使用session
+        http.authenticationProvider(authenticationProvider).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000/"));
+        configuration.addAllowedOrigin("*");
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     /**

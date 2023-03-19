@@ -47,10 +47,9 @@ public class AutoUserIdAspect {
             postDTO.setUserId(base64Id);
         }else{
             LeafUser leafUser = (LeafUser) auth.getPrincipal();
-            postDTO.setUserId(Long.toString(leafUser.getId()));
+            postDTO.setUserId(leafUser.getId() == -1 ? leafUser.getUsername() : Long.toString(leafUser.getId()));//id=0表示匿名
             postDTO.setUserName(leafUser.getUsername());
         }
-
 
     }
 

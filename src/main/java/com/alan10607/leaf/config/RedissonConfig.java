@@ -11,9 +11,9 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 
-@Data
 @Configuration
 @ConfigurationProperties(prefix = "spring.redis")
+@Data
 @Slf4j
 public class RedissonConfig {
     public String host;

@@ -18,6 +18,7 @@ public class LeafUserDTO {
     private String pw;
     private List<LeafRole> userRole;
     private LocalDateTime updatedDate;
+    private String token;
 
     public LeafUserDTO(long id,
                        String userName,
@@ -29,5 +30,11 @@ public class LeafUserDTO {
         this.email = email;
         this.userRole = userRole;
         this.updatedDate = updatedDate;
+    }
+
+    public LeafUserDTO(long id,
+                       String token) {
+        this.id = id;
+        this.token = token;
     }
 }

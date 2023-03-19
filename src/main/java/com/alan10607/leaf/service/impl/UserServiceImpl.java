@@ -6,6 +6,7 @@ import com.alan10607.leaf.dao.LeafUserDAO;
 import com.alan10607.leaf.dto.LeafUserDTO;
 import com.alan10607.leaf.model.LeafRole;
 import com.alan10607.leaf.model.LeafUser;
+import com.alan10607.leaf.service.JwtService;
 import com.alan10607.leaf.service.UserService;
 import com.alan10607.leaf.util.RedisKeyUtil;
 import com.alan10607.leaf.util.TimeUtil;
@@ -21,8 +22,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
+import javax.servlet.http.HttpSession;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -31,31 +32,85 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService, UserDetailsService{
+    private final JwtService jwtService;
     private final LeafUserDAO leafUserDAO;
     private final LeafRoleDAO leafRoleDAO;
     private final RedisTemplate redisTemplate;
     private final RedisKeyUtil keyUtil;
     private final TimeUtil timeUtil;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final HttpSession session;
     private final static int USER_EXPIRE = 3600;
+
+    public LeafUserDTO login(String email) {
+        if(Strings.isBlank(email)) throw new IllegalStateException("Email can't be blank");
+
+        return leafUserDAO.findByEmail(email)
+                .map(leafUser -> {
+                    List<String> roles = leafUser.getLeafRole().stream()
+                            .map(leafRole -> leafRole.getRoleName())
+                            .collect(Collectors.toList());
+                    String token = jwtService.createToken(
+                            leafUser.getUsername(),
+                            leafUser.getEmail(),
+                            roles,
+                            leafUser);
+
+                    return new LeafUserDTO(leafUser.getId(), token);
+                }).orElseThrow(() -> new IllegalStateException("User not found"));
+    }
+
+    public LeafUserDTO loginAnony() {
+        String sessionId = session.getId();//HttpSession is thread safe
+        String base64Id = Base64.getEncoder().encodeToString(hashTo6Bytes(sessionId.getBytes()));
+        String token = jwtService.createToken(
+                base64Id,
+                "",
+                Arrays.asList(LeafRoleType.ANONY.name()),
+                new LeafUser());
+
+        return new LeafUserDTO(-1L, token);
+    }
+
+    public LeafUser getAnonyUser(String anonyName) {
+        LeafRole anonyRole = leafRoleDAO.findByRoleName(LeafRoleType.ANONY.name());
+        LeafUser anonyUser = new LeafUser();
+        anonyUser.setId(-1L);
+        anonyUser.setUserName(anonyName);
+        anonyUser.setLeafRole(Arrays.asList(anonyRole));
+        return anonyUser;
+    }
+
+    /**
+     * 每 6 bytes循環取xor, 6 bytes透過Base64編碼剛好是8字元
+     * @param bytes
+     * @return
+     */
+    private byte[] hashTo6Bytes(byte[] bytes) {
+        byte[] base64 = new byte[6];
+        for(int i = 0; i < bytes.length; i++)
+            base64[i % 6] ^= (bytes[i] & 0xFF);//& 0xFF: 只取8bits
+
+        return base64;
+    }
 
     public LeafUserDTO findUser(String email) {
         if(Strings.isBlank(email)) throw new IllegalStateException("Email can't be blank");
 
-        LeafUser leafUser = leafUserDAO.findByEmail(email)
-                .orElseThrow(() -> new IllegalStateException("User not found"));
-
-        return new LeafUserDTO(leafUser.getId(),
-                leafUser.getUsername(),
-                leafUser.getEmail(),
-                leafUser.getLeafRole(),
-                leafUser.getUpdatedDate()
-        );
+        return leafUserDAO.findByEmail(email)
+                .map(leafUser -> new LeafUserDTO(
+                        leafUser.getId(),
+                        leafUser.getUsername(),
+                        leafUser.getEmail(),
+                        leafUser.getLeafRole(),
+                        leafUser.getUpdatedDate()
+                )).orElseThrow(() -> new IllegalStateException("User not found"));
     }
 
     public List<LeafUserDTO> findAllUser() {
         List<LeafUserDTO> leafUserDTOList = leafUserDAO.findAll().stream()
-                .map((leafUser) -> new LeafUserDTO(leafUser.getId(),
+                .map((leafUser) -> new LeafUserDTO(
+                        leafUser.getId(),
                         leafUser.getUsername(),
                         leafUser.getEmail(),
                         leafUser.getLeafRole(),
@@ -83,7 +138,8 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         });
 
         LeafRole leafRole = leafRoleDAO.findByRoleName(roleType.name());
-        leafUserDAO.save(new LeafUser(userName,
+        leafUserDAO.save(new LeafUser(
+                userName,
                 email,
                 bCryptPasswordEncoder.encode(pw),
                 Arrays.asList(leafRole),
@@ -167,9 +223,11 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         return args -> {
             userService.saveRole(new LeafRole(1L, LeafRoleType.ADMIN.name()));
             userService.saveRole(new LeafRole(2L, LeafRoleType.NORMAL.name()));
+            userService.saveRole(new LeafRole(3L, LeafRoleType.ANONY.name()));
             LeafRole leafRole = leafRoleDAO.findByRoleName(LeafRoleType.ADMIN.name());
             if(!leafUserDAO.findByEmail("alan").isPresent()){
-                leafUserDAO.save(new LeafUser("alan",
+                leafUserDAO.save(new LeafUser(
+                        "alan",
                         "alan",
                         bCryptPasswordEncoder.encode("alan"),
                         Arrays.asList(leafRole),
