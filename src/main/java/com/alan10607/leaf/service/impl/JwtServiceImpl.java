@@ -12,7 +12,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 @Service
@@ -20,25 +22,25 @@ import java.util.function.Function;
 @Slf4j
 public class JwtServiceImpl implements JwtService {
     private final static String SECRET_KEY = "EsPKLbwWNsOtNoifyls3afApQVXy17mQTd+D22Qy5+/MiSV5eFYxEE651nY41mDt";
-    private final static String USERNAME = "username";
     private final static String EMAIL = "email";
-    private final static String ROLES = "roles";
+    private final static String IS_ANONYMOUS = "isAnonymous";
     private final static int VALID_HOUR = 1;
 
-    public String extractUsername(String token) {
-        return (String) extractClaims(token, c -> c.get(USERNAME));
+    public String extractSubject(String token){
+        return extractClaims(token, Claims::getSubject);
+    }
+
+    public String extractUsername(String token){
+        return extractSubject(token);
     }
 
     public String extractEmail(String token) {
         return (String) extractClaims(token, c -> c.get(EMAIL));
     }
 
-    public Set<String> extractRoles(String token) {
-        return new HashSet<>((List<String>) extractClaims(token, c -> c.get(ROLES)));
-    }
-
-    public String extractSubject(String token){
-        return extractClaims(token, Claims::getSubject);
+    public boolean extractIsAnonymous(String token) {
+        Boolean isAnonymous = (Boolean) extractClaims(token, c -> c.get(IS_ANONYMOUS));
+        return isAnonymous == null ? false : isAnonymous;
     }
 
     public <T> T extractClaims(String token, Function<Claims, T> claimsResolver){
@@ -50,14 +52,6 @@ public class JwtServiceImpl implements JwtService {
         return createToken(new HashMap<String, Object>(), userDetails);
     }
 
-    public String createToken(String username, String email, List<String> roles, UserDetails userDetails){
-        return createToken(Map.of(
-                USERNAME, username,
-                EMAIL, email,
-                ROLES, roles
-            ), userDetails);
-    }
-
     public String createToken(Map<String, Object> extraClaim, UserDetails userDetails){
         return Jwts.builder()
                 .setClaims(extraClaim)
@@ -66,6 +60,14 @@ public class JwtServiceImpl implements JwtService {
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * VALID_HOUR))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public String createToken(String email, UserDetails userDetails){
+        return createToken(Map.of(EMAIL, email, IS_ANONYMOUS, false), userDetails);
+    }
+
+    public String createAnonymousToken(UserDetails userDetails){
+        return createToken(Map.of(IS_ANONYMOUS, true), userDetails);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails){

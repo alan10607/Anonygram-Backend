@@ -29,7 +29,6 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final AuthenticationProvider authenticationProvider;
 
-
     /**
      * Web security, 代替WebSecurityConfigurerAdapter.configure(HttpSecurity http)
      * @param http
@@ -38,17 +37,32 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable();//跨域請求偽造, 測試時禁用
-        http.cors();
-        http.formLogin().loginPage("/login").loginProcessingUrl("/loginProcessing").defaultSuccessUrl("/hub").failureForwardUrl("/login?error");
-        http.logout().logoutUrl("/logoutProcessing").logoutSuccessUrl("/login?logout");
-        http.authorizeRequests().antMatchers("/", "/user/createUser", "/register", "/post/**", "/test/**", "/index/**", "/css/**", "/js/**", "/pic/**", "/view/**", "/login/**", "/user/login/**").permitAll();//公開頁面
-        http.authorizeRequests().antMatchers("/post/**", "/hub").hasAnyAuthority(LeafRoleType.NORMAL.name(), LeafRoleType.ANONY.name());//限制為jwt權限訪問
-//        http.authorizeRequests().antMatchers("/post/**").permitAll();
-        http.authorizeRequests().anyRequest().hasAuthority(LeafRoleType.ADMIN.name());//限制為admin權限訪問
-        http.exceptionHandling().accessDeniedPage("/err");
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);//不使用session
-        http.authenticationProvider(authenticationProvider).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        http.csrf().disable()//跨域請求偽造, 測試時禁用
+                .cors()
+                .and().formLogin().loginPage("/login").loginProcessingUrl("/loginProcessing")
+                .defaultSuccessUrl("/hub").failureForwardUrl("/login?error")
+                .and().logout().logoutUrl("/logoutProcessing").logoutSuccessUrl("/login?logout")
+                .and().authorizeRequests().antMatchers(
+                        "/",
+                        //thymeleaf
+//                "/user/createUser",
+//                "login",
+//                "/register",
+//                "/post/**",
+//                "/test/**",
+//                "/index/**",
+//                "/css/**",
+//                "/js/**",
+//                "/pic/**",
+                        "/user/login",
+                        "/user/loginAnonymity",
+                        "/user/register").permitAll()//公開頁面
+                .and().authorizeRequests().antMatchers("/post/**", "/hub")
+                .hasAnyAuthority(LeafRoleType.NORMAL.name(), LeafRoleType.ADMIN.name(), LeafRoleType.ANONY.name())//限制為jwt權限訪問
+                .and().authorizeRequests().anyRequest().hasAuthority(LeafRoleType.ADMIN.name())//限制為admin權限訪問
+                .and().exceptionHandling().accessDeniedPage("/err")
+                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)//不使用session
+                .and().authenticationProvider(authenticationProvider).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

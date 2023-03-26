@@ -19,6 +19,7 @@ public class LeafUserDTO {
     private List<LeafRole> userRole;
     private LocalDateTime updatedDate;
     private String token;
+    private boolean isAnonymousId;
 
     public LeafUserDTO(long id,
                        String userName,
@@ -32,9 +33,12 @@ public class LeafUserDTO {
         this.updatedDate = updatedDate;
     }
 
-    public LeafUserDTO(long id,
+    public LeafUserDTO(String userName,
+                       boolean isAnonymousId,
                        String token) {
-        this.id = id;
+        this.userName = userName;
+        this.isAnonymousId = isAnonymousId;
         this.token = token;
     }
+
 }

@@ -85,4 +85,12 @@ public class LeafUser implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public void setAnonymousId() {
+        this.id = -1L;
+    }
+
+    public boolean isAnonymousId() {
+        return this.id == -1L;
+    }
 }

@@ -25,7 +25,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody LeafUserDTO leafUserDTO){
         try{
-            leafUserDTO = userService.login(leafUserDTO.getEmail());
+            leafUserDTO = userService.login(leafUserDTO.getEmail(), leafUserDTO.getPw());
             return responseUtil.ok(leafUserDTO);
         }catch (Exception e){
             log.error(e.getMessage());
@@ -33,11 +33,22 @@ public class UserController {
         }
     }
 
-    @PostMapping("/login/anony")
-    public ResponseEntity loginAnony(@RequestBody LeafUserDTO leafUserDTO){
+    @PostMapping("/loginAnonymity")
+    public ResponseEntity loginAnonymity(@RequestBody LeafUserDTO leafUserDTO){
         try{
-            leafUserDTO = userService.loginAnony();
+            leafUserDTO = userService.loginAnonymity();
             return responseUtil.ok(leafUserDTO);
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return responseUtil.err(e);
+        }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity register(@RequestBody LeafUserDTO leafUserDTO){
+        try{
+            userService.register(leafUserDTO.getEmail(), leafUserDTO.getUserName(), leafUserDTO.getPw());
+            return responseUtil.ok();
         }catch (Exception e){
             log.error(e.getMessage());
             return responseUtil.err(e);
