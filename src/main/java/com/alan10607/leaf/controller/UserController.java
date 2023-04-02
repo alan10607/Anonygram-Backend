@@ -22,39 +22,6 @@ public class UserController {
     private final UserService userService;
     private final ResponseUtil responseUtil;
 
-    @PostMapping("/login")
-    public ResponseEntity login(@RequestBody LeafUserDTO leafUserDTO){
-        try{
-            leafUserDTO = userService.login(leafUserDTO.getEmail(), leafUserDTO.getPw());
-            return responseUtil.ok(leafUserDTO);
-        }catch (Exception e){
-            log.error(e.getMessage());
-            return responseUtil.err(e);
-        }
-    }
-
-    @PostMapping("/loginAnonymity")
-    public ResponseEntity loginAnonymity(@RequestBody LeafUserDTO leafUserDTO){
-        try{
-            leafUserDTO = userService.loginAnonymity();
-            return responseUtil.ok(leafUserDTO);
-        }catch (Exception e){
-            log.error(e.getMessage());
-            return responseUtil.err(e);
-        }
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity register(@RequestBody LeafUserDTO leafUserDTO){
-        try{
-            userService.register(leafUserDTO.getEmail(), leafUserDTO.getUserName(), leafUserDTO.getPw());
-            return responseUtil.ok();
-        }catch (Exception e){
-            log.error(e.getMessage());
-            return responseUtil.err(e);
-        }
-    }
-
     @PostMapping("/findUser")
     public ResponseEntity findUser(@RequestBody LeafUserDTO leafUserDTO){
         try{

@@ -1,5 +1,6 @@
 package com.alan10607.leaf.service.impl;
 
+import com.alan10607.leaf.model.LeafUser;
 import com.alan10607.leaf.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -22,6 +23,7 @@ import java.util.function.Function;
 @Slf4j
 public class JwtServiceImpl implements JwtService {
     private final static String SECRET_KEY = "EsPKLbwWNsOtNoifyls3afApQVXy17mQTd+D22Qy5+/MiSV5eFYxEE651nY41mDt";
+    private final static String ID = "id";
     private final static String EMAIL = "email";
     private final static String IS_ANONYMOUS = "isAnonymous";
     private final static int VALID_HOUR = 1;
@@ -62,12 +64,8 @@ public class JwtServiceImpl implements JwtService {
                 .compact();
     }
 
-    public String createToken(String email, UserDetails userDetails){
-        return createToken(Map.of(EMAIL, email, IS_ANONYMOUS, false), userDetails);
-    }
-
-    public String createAnonymousToken(UserDetails userDetails){
-        return createToken(Map.of(IS_ANONYMOUS, true), userDetails);
+    public String createToken(LeafUser leafUser){
+        return createToken(Map.of(ID, leafUser.getId(), EMAIL, leafUser.getEmail(), IS_ANONYMOUS, leafUser.isAnonymousId()), leafUser);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails){

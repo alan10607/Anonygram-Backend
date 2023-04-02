@@ -9,10 +9,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import java.util.List;
 
 public interface UserService extends UserDetailsService {
-    LeafUserDTO login(String email, String pw);
-    LeafUserDTO loginAnonymity();
-    LeafUser getAnonymousUser(String userName);
-    void register(String email, String userName, String pw);
     LeafUserDTO findUser(String email);
     List<LeafUserDTO> findAllUser();
     void createUser(String email, String userName, String pw, LeafRoleType roleType);
@@ -22,4 +18,5 @@ public interface UserService extends UserDetailsService {
     void saveRole(LeafRole leafRole);
     String findUserNameFromRedis(String id);
     void deleteUserNameFromRedis(String id);
+    LeafUser getAnonymousUser(String userName);
 }

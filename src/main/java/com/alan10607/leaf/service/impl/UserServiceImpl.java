@@ -6,7 +6,6 @@ import com.alan10607.leaf.dao.LeafUserDAO;
 import com.alan10607.leaf.dto.LeafUserDTO;
 import com.alan10607.leaf.model.LeafRole;
 import com.alan10607.leaf.model.LeafUser;
-import com.alan10607.leaf.service.JwtService;
 import com.alan10607.leaf.service.UserService;
 import com.alan10607.leaf.util.RedisKeyUtil;
 import com.alan10607.leaf.util.TimeUtil;
@@ -21,12 +20,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -35,86 +32,17 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService, UserDetailsService{
-    private final JwtService jwtService;
     private final LeafUserDAO leafUserDAO;
     private final LeafRoleDAO leafRoleDAO;
-//    private final AuthenticationManager authenticationManager;
     private final RedisTemplate redisTemplate;
     private final RedisKeyUtil keyUtil;
     private final TimeUtil timeUtil;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final HttpSession session;
     private final static int USER_EXPIRE = 3600;
-    private final static long ANONYMOUS_ID = -1L;//預設匿名id
 
     private final static String E_EMAIL = "Email can't be blank or format not correct";
     private final static String E_PW = "Password can't be blank";
     private final static String E_USERNAME = "UserName can't be blank";
-
-    public LeafUserDTO login(
-            @NotBlank @Email(message = E_EMAIL) String email,
-            @NotBlank(message = E_PW) String pw
-    ) {
-//        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, pw));//進行驗證
-        LeafUser user = leafUserDAO.findByEmail(email)
-                            .orElseThrow(() -> new IllegalStateException("User not found"));
-        String token = jwtService.createToken(email, user);
-        return new LeafUserDTO(user.getUsername(),
-                user.isAnonymousId(),
-                token);
-    }
-
-    public LeafUserDTO loginAnonymity() {
-        LeafUser anonymousUser = createAnonymousUser();
-        String token = jwtService.createAnonymousToken(anonymousUser);
-        return new LeafUserDTO(anonymousUser.getUsername(),
-                anonymousUser.isAnonymousId(),
-                token);
-    }
-
-    public void register(
-            @NotBlank @Email(message = E_EMAIL) String email,
-            @NotBlank(message = E_USERNAME) String userName,
-            @NotBlank(message = E_PW) String pw
-    ) {
-        createUser(email, userName, pw, LeafRoleType.NORMAL);
-    }
-
-    private LeafUser createAnonymousUser() {
-        return getAnonymousUser(getSessionBase64());
-    }
-
-    public LeafUser getAnonymousUser(String userName) {
-        LeafRole role = findRole(LeafRoleType.ANONY.name());
-        LeafUser anonymousUser = new LeafUser();
-        anonymousUser.setAnonymousId();
-        anonymousUser.setUserName(userName);
-        anonymousUser.setLeafRole(Arrays.asList(role));
-        return anonymousUser;
-    }
-
-    /**
-     * 透過sessionId取得暫時id
-     * @return
-     */
-    private String getSessionBase64(){
-        String sessionId = session.getId();//HttpSession is thread safe
-        String base64Id = Base64.getEncoder().encodeToString(hashTo6Bytes(sessionId.getBytes()));
-        return base64Id;
-    }
-
-    /**
-     * 每 6 bytes循環取xor, 6 bytes透過Base64編碼剛好是8字元
-     * @param bytes
-     * @return
-     */
-    private byte[] hashTo6Bytes(byte[] bytes) {
-        byte[] base64 = new byte[6];
-        for(int i = 0; i < bytes.length; i++)
-            base64[i % 6] ^= (bytes[i] & 0xFF);//& 0xFF: 只取8bits
-
-        return base64;
-    }
 
     public LeafUserDTO findUser(
             @NotBlank @Email(message = E_EMAIL) String email
@@ -248,6 +176,16 @@ public class UserServiceImpl implements UserService, UserDetailsService{
 
     public void deleteUserNameFromRedis(String id) {
         redisTemplate.delete(keyUtil.user(id));
+    }
+
+    public LeafUser getAnonymousUser(String userName) {
+        LeafRole role = leafRoleDAO.findByRoleName(LeafRoleType.ANONY.name());
+        LeafUser anonymousUser = new LeafUser();
+        anonymousUser.setAnonymousId();
+        anonymousUser.setUserName(userName);
+        anonymousUser.setEmail("");
+        anonymousUser.setLeafRole(List.of(role));
+        return anonymousUser;
     }
 
     @Bean

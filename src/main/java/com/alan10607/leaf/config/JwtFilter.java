@@ -3,7 +3,6 @@ package com.alan10607.leaf.config;
 import com.alan10607.leaf.model.LeafUser;
 import com.alan10607.leaf.service.JwtService;
 import com.alan10607.leaf.service.UserService;
-import io.jsonwebtoken.security.SignatureException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -38,7 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         try{
             setAuthentication(request);
-        }catch (SignatureException e){
+        }catch (Exception e){
             log.info("JwtFilter fail: " + e.getMessage());
         }
         filterChain.doFilter(request, response);
