@@ -4,7 +4,7 @@ import com.alan10607.leaf.constant.LeafRoleType;
 import com.alan10607.leaf.dto.LeafUserDTO;
 import com.alan10607.leaf.model.LeafUser;
 import com.alan10607.leaf.service.JwtService;
-import com.alan10607.leaf.service.LoginService;
+import com.alan10607.leaf.service.AuthService;
 import com.alan10607.leaf.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import java.util.Base64;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class LoginServiceImpl implements LoginService{
+public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final UserService userService;
     private final AuthenticationManager authenticationManager;

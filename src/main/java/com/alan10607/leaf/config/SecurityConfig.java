@@ -43,19 +43,21 @@ public class SecurityConfig {
                 .defaultSuccessUrl("/hub").failureForwardUrl("/login?error")
                 .and().logout().logoutUrl("/logoutProcessing").logoutSuccessUrl("/login?logout")
                 .and().authorizeRequests().antMatchers(
-                        "/",
-                        //thymeleaf
-//                "/user/createUser",
-//                "login",
-//                "/register",
-//                "/post/**",
-//                "/test/**",
-//                "/index/**",
-//                "/css/**",
-//                "/js/**",
-//                "/pic/**",
-                        "/auth/**").permitAll()//公開頁面
-                .and().authorizeRequests().antMatchers("/post/**", "/hub")
+                    //thymeleaf
+                    "/",
+                    "/login",
+                    "/register",
+                    "/user/createUser",
+                    "/hub",
+                    "/post/**",
+                    "/test/**",
+                    "/index/**",
+                    "/css/**",
+                    "/js/**",
+                    "/pic/**",
+                    //react api
+                    "/auth/**").permitAll()//公開頁面
+                .and().authorizeRequests().antMatchers("/post/**")
                 .hasAnyAuthority(LeafRoleType.NORMAL.name(), LeafRoleType.ADMIN.name(), LeafRoleType.ANONY.name())//限制為jwt權限訪問
                 .and().authorizeRequests().anyRequest().hasAuthority(LeafRoleType.ADMIN.name())//限制為admin權限訪問
                 .and().exceptionHandling().accessDeniedPage("/err")

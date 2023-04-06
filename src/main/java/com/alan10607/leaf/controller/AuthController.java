@@ -1,7 +1,7 @@
 package com.alan10607.leaf.controller;
 
 import com.alan10607.leaf.dto.LeafUserDTO;
-import com.alan10607.leaf.service.LoginService;
+import com.alan10607.leaf.service.AuthService;
 import com.alan10607.leaf.util.ResponseUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/auth")
 @AllArgsConstructor
 @Slf4j
-public class LoginController {
-    private final LoginService loginService;
+public class AuthController {
+    private final AuthService authService;
     private final ResponseUtil responseUtil;
 
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody LeafUserDTO leafUserDTO){
         try{
-            leafUserDTO = loginService.login(leafUserDTO.getEmail(), leafUserDTO.getPw());
+            leafUserDTO = authService.login(leafUserDTO.getEmail(), leafUserDTO.getPw());
             return responseUtil.ok(leafUserDTO);
         }catch (Exception e){
             log.error(e.getMessage());
@@ -31,9 +31,9 @@ public class LoginController {
     }
 
     @PostMapping("/anony")
-    public ResponseEntity loginAnonymity(@RequestBody LeafUserDTO leafUserDTO){
+    public ResponseEntity anony(@RequestBody LeafUserDTO leafUserDTO){
         try{
-            leafUserDTO = loginService.loginAnonymity();
+            leafUserDTO = authService.loginAnonymity();
             return responseUtil.ok(leafUserDTO);
         }catch (Exception e){
             log.error(e.getMessage());
@@ -44,7 +44,7 @@ public class LoginController {
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody LeafUserDTO leafUserDTO){
         try{
-            loginService.register(leafUserDTO.getEmail(), leafUserDTO.getUserName(), leafUserDTO.getPw());
+            authService.register(leafUserDTO.getEmail(), leafUserDTO.getUserName(), leafUserDTO.getPw());
             return responseUtil.ok();
         }catch (Exception e){
             log.error(e.getMessage());

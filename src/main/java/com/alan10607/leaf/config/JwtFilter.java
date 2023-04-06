@@ -27,7 +27,6 @@ public class JwtFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsServices;
     private final UserService userService;
     private final static String BEARER = "Bearer ";
-    private final static long ANONYMOUS_ID = -1L;//預設匿名id
 
     @Override
     protected void doFilterInternal(
