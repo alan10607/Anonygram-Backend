@@ -95,6 +95,11 @@ public class WebPageController {
         return "err.html";
     }
 
+    @GetMapping("/ssl")
+    public String ssl(HttpServletRequest request) {
+        return "ssl.html";
+    }
+
     @GetMapping("/test")
     public String test(){
         return "Hello Leaf";

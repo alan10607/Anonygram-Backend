@@ -56,7 +56,8 @@ public class SecurityConfig {
                     "/js/**",
                     "/pic/**",
                     //react api
-                    "/auth/**").permitAll()//公開頁面
+                    "/auth/**",
+                    "/ssl").permitAll()//公開頁面
                 .and().authorizeRequests().antMatchers("/post/**")
                 .hasAnyAuthority(LeafRoleType.NORMAL.name(), LeafRoleType.ADMIN.name(), LeafRoleType.ANONY.name())//限制為jwt權限訪問
                 .and().authorizeRequests().anyRequest().hasAuthority(LeafRoleType.ADMIN.name())//限制為admin權限訪問
