@@ -10,7 +10,7 @@ public interface PostService {
     List<PostDTO> findTopCont(PostDTO postDTO);
     List<PostDTO> findBotCont(PostDTO postDTO);
     void createPost(PostDTO postDTO);
-    void replyPost(PostDTO postDTO);
+    PostDTO replyPost(PostDTO postDTO);
     void deletePost(PostDTO postDTO);
     void deleteContent(PostDTO postDTO);
     PostDTO likeContent(PostDTO postDTO);

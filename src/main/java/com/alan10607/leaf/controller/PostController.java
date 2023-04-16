@@ -85,8 +85,8 @@ public class PostController {
     @AutoUserId
     public ResponseEntity replyPost(@RequestBody PostDTO postDTO){
         try{
-            postService.replyPost(postDTO);
-            return responseUtil.ok();
+            PostDTO cont = postService.replyPost(postDTO);
+            return responseUtil.ok(cont);
         }catch (Exception e){
             log.error(e.getMessage());
             return responseUtil.err(e);

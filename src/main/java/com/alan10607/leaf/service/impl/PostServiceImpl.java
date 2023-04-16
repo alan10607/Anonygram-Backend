@@ -63,12 +63,17 @@ public class PostServiceImpl implements PostService {
         if(Strings.isBlank(postDTO.getId())) throw new IllegalStateException("id can't be blank");
         if(Strings.isBlank(postDTO.getUserId())) throw new IllegalStateException("userId can't be blank");
         if(postDTO.getNo() == null) throw new IllegalStateException("no can't be null");
+        postDTO.setFindContSize(FIND_CONT_SIZE);
+        return findCont(postDTO);
+    }
 
+    private List<PostDTO> findCont(PostDTO postDTO) {
         String id = postDTO.getId();
         String userId = postDTO.getUserId();
+        int findContSize = postDTO.getFindContSize();
         int startNo = postDTO.getNo();
         int contNum = articleService.findArtContNumFromRedis(id);
-        int endNo = startNo + FIND_CONT_SIZE - 1 < contNum ? startNo + FIND_CONT_SIZE - 1 : contNum - 1;
+        int endNo = startNo + findContSize - 1 < contNum ? startNo + findContSize - 1 : contNum - 1;
         return contentService.findContentFromRedis(id, startNo, endNo, userId);
     }
 
@@ -110,8 +115,9 @@ public class PostServiceImpl implements PostService {
     /**
      * 新增留言
      * @param postDTO
+     * @return
      */
-    public void replyPost(PostDTO postDTO) {
+    public PostDTO replyPost(PostDTO postDTO) {
         if(Strings.isBlank(postDTO.getId())) throw new IllegalStateException("id can't be blank");
         if(Strings.isBlank(postDTO.getUserId())) throw new IllegalStateException("userId can't be blank");
         if(Strings.isBlank(postDTO.getWord())) throw new IllegalStateException("word can't be blank");
@@ -125,6 +131,11 @@ public class PostServiceImpl implements PostService {
         articleService.deleteArticleFromRedis(id);
         articleService.updateIdSetFromRedis(id, updateTime);
         articleService.deleteIdStrFromRedis();
+
+        //重新查詢
+        postDTO.setNo(no);
+        postDTO.setFindContSize(1);
+        return findCont(postDTO).get(0);
     }
 
     /**

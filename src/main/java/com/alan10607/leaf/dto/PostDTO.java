@@ -34,6 +34,7 @@ public class PostDTO {
     private Boolean success;
     private String imgBase64;
     private String imgUrl;
+    private int findContSize;
 
     /* --- for Article --- */
     public PostDTO(String id,
