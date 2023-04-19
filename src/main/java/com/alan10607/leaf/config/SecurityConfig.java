@@ -39,9 +39,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()//跨域請求偽造, 測試時禁用
                 .cors()
-                .and().formLogin().loginPage("/login").loginProcessingUrl("/loginProcessing")
-                .defaultSuccessUrl("/hub").failureForwardUrl("/login?error")
-                .and().logout().logoutUrl("/logoutProcessing").logoutSuccessUrl("/login?logout")
+//                .and().formLogin().loginPage("/login").loginProcessingUrl("/loginProcessing")
+//                .defaultSuccessUrl("/hub").failureForwardUrl("/login?error")
+//                .and().logout().logoutUrl("/logoutProcessing").logoutSuccessUrl("/login?logout")
                 .and().authorizeRequests().antMatchers(
                     //thymeleaf
                     "/",
