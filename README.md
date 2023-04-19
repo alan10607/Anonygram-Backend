@@ -1,8 +1,5 @@
 # Anonygram
 <p align="center">
-	<a href="http://35.201.171.165:8081/" target="_blank">
-        <img src="https://img.shields.io/badge/Demo-GCP-orange">
-	</a>
 	<a href="https://github.com/alan10607/LeafHub" target="_blank">
         <img src="https://img.shields.io/badge/Github-LeafHub-green">
 	</a>
@@ -11,7 +8,7 @@
     <img src="https://img.shields.io/badge/MySql-8.0.30-lightgray">
 </p>
 
-###[Click here](https://13.112.45.117/hub) to the demo page.
+### [Click here](https://alan10607.github.io/Anonygram-Frontend) to the demo page.
 
 ## Article Redis Structure
 #### idStr
