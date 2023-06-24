@@ -19,7 +19,7 @@ mvn -Dmaven.test.skip=true install
 ### docker build / 其他platform
 docker build -f Dockerfile -t alan10607/leaf:0.8.5 .
 docker buildx ls
-docker build --platform linux/amd64 -f Dockerfile -t alan10607/leaf_hub:1.2.0 .
+docker build --platform linux/amd64 -f Dockerfile -t alan10607/anonygram:2.0.1 .
 
 ### docker run
 docker run --env-file env/leaf-env -p 8081:8080 -v ~/docker/volume/leaf/log:/log --name leaf-server -d alan10607/leaf:0.8.5 ./wait-for-it.sh leaf-mysql:3306 -- ./wait-for-it.sh leaf-redis:6379 -- java -jar /leaf-server.jar
