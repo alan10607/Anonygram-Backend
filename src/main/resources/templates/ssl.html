@@ -1,55 +1,9 @@
-<!DOCTYPE html>
-<html xmlns:th="https://thymeleaf.org">
-<head>
-    <title>Anonygram ssl</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1">
-    <meta charset="UTF-8">
-    <link rel="shortcut icon" th:href="@{~/pic/favicon.png}" type="image/x-icon">
-    <link rel="icon" th:href="@{~/pic/favicon.png}" type="image/x-icon">
-    <link rel="stylesheet" th:href="@{~/css/main.css}">
-    <script type="text/JavaScript" th:src="@{~/js/main.js}"></script>
-    <script type="text/JavaScript" th:src="@{~/js/jquery-3.6.1.min.js}"></script>
-</head>
-<script th:inline="javascript">
-const CALLBACK_URL = "callbackUrl";
-
-function init(){
-    try{
-        const data = getUrlParam(window.location.search.substring(1));
-        if(!data[CALLBACK_URL]) throw "No callback url!";
-        const afterFunc = () => { location.href = data[CALLBACK_URL] };
-        waitThenGo(0, afterFunc);
-    }catch(e){
-        console.log(e);
-        showConsole("請返回上一頁重新登入");
-    }
-}
-
-function getUrlParam(queryString){
-    const dataExp = /([^&=]+)=([^&]*)/g;
-    const data = {};
-    while (m = dataExp.exec(queryString)) {
-      data[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
-    }
-    return data;
-}
-
-function showConsole(str){
-    $("#console").text(str);
-}
-
-function waitThenGo(sec, afterFunc) {
-    if (sec > 0) {
-        showConsole(`Redirect...${sec}`);
-        setTimeout(() => waitThenGo(sec - 1, afterFunc), 1000);
-    } else {
-        afterFunc();
-    }
+<script type="text/javascript">
+const params = new URLSearchParams(window.location.search);
+const callbackUrl = params.get("callbackUrl");
+if(!callbackUrl){
+  alert("Please go back to the previous page and login again.");
+}else{
+  window.location.href = callbackUrl;
 }
 </script>
-<body onload="init();">
-<h2 id="console">Redirect...</h2>
-</body>
-</html>
