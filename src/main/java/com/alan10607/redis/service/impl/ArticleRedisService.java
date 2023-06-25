@@ -1,25 +1,30 @@
 package com.alan10607.redis.service.impl;
 
 import com.alan10607.leaf.dto.ArticleDTO;
+import com.alan10607.redis.service.HashRedisService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Service
-public class ArticleRedisService extends HashRedisService{
+@AllArgsConstructor
+public class ArticleRedisService {
+    private final HashRedisService hashRedisService;
+
     private String getKey(String id){
         return String.format("data:art:%s", id);
     }
 
-    public ArticleDTO get(String id, int m) {
-        Map<String, Object> dataMap = super.get(getKey(id));
+    public ArticleDTO get(String id) {
+        Map<String, Object> dataMap = hashRedisService.get(getKey(id));
         return new ObjectMapper().convertValue(dataMap, ArticleDTO.class);
     }
 
     public void set(ArticleDTO articleDTO) {
         Map<String, Object> dataMap = new ObjectMapper().convertValue(articleDTO, Map.class);
-        redisTemplate.opsForHash().putAll(getKey(articleDTO.getId()), dataMap);
+        hashRedisService.set(getKey(articleDTO.getId()), dataMap);
     }
 
 }

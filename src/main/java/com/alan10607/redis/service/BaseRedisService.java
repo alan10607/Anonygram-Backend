@@ -1,16 +1,17 @@
-package com.alan10607.redis.service.impl;
+package com.alan10607.redis.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public class BaseRedisService {
     @Autowired
     public RedisTemplate redisTemplate;
-    private final static int CONT_EXPIRE = 3600;
 
     public void delete(String key) {
         redisTemplate.delete(key);
@@ -23,6 +24,11 @@ public class BaseRedisService {
     public void expire(String key, long sec) {
         long randomTime = ((int) (Math.random() * 60)) + sec;
         redisTemplate.expire(key, randomTime, TimeUnit.SECONDS);
+    }
+
+    public <T, K> boolean execute(RedisScript<T> script, List<K> keys, Object... args) {
+        Long res = (Long) redisTemplate.execute(script, keys, args);
+        return res == 1;
     }
 
 }
