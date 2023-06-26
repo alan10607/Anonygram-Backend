@@ -26,9 +26,9 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final HttpSession session;
 
-    private final static String E_EMAIL = "Email can't be blank or format not correct";
-    private final static String E_PW = "Password can't be blank";
-    private final static String E_USERNAME = "UserName can't be blank";
+    private static final String E_EMAIL = "Email can't be blank or format not correct";
+    private static final String E_PW = "Password can't be blank";
+    private static final String E_USERNAME = "UserName can't be blank";
 
     public LeafUserDTO login(
             @NotBlank @Email(message = E_EMAIL) String email,

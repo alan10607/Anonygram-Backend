@@ -29,7 +29,7 @@ public class ContentServiceImpl implements ContentService {
     private final RedisTemplate redisTemplate;
     private final RedisKeyUtil keyUtil;
     private final TimeUtil timeUtil;
-    private final static int CONT_EXPIRE = 3600;
+    private static final int CONT_EXPIRE = 3600;
 
     /**
      * 查詢cont文章留言, 若沒有則到DB查詢, 並設置過期時間

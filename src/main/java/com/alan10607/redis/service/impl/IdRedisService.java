@@ -18,10 +18,10 @@ import java.util.*;
 public class IdRedisService {
     private final ZSetRedisService zSetRedisService;
     private final DefaultRedisScript createIdSetScript;
-    private final static String KEY = "data:idSet";
-    private final static int MAX_ID_SIZE = 100;
-    private final static long SCORE_BASE = 4102416000000L;//= LocalDateTime.of(2100, 1, 1, 0, 0).atZone(UTC_PLUS_8).toInstant().toEpochMilli();
-    private final static long BATCH_START = 2461449600000L;//2100EpochMilli(SCORE_BASE) - 2022EpochMilli
+    private static final String KEY = "data:idSet";
+    private static final int MAX_ID_SIZE = 100;
+    private static final long SCORE_BASE = 4102416000000L;//= LocalDateTime.of(2100, 1, 1, 0, 0).atZone(UTC_PLUS_8).toInstant().toEpochMilli();
+    private static final long BATCH_START = 2461449600000L;//2100EpochMilli(SCORE_BASE) - 2022EpochMilli
 
     public List<String> get() {
         return zSetRedisService.get(KEY, 0, MAX_ID_SIZE - 1);
@@ -31,7 +31,7 @@ public class IdRedisService {
         Set<ZSetOperations.TypedTuple<String>> tuples = new HashSet<>();
         for(int i = 0; i < sortedIdList.size(); i++){
             tuples.add(new DefaultTypedTuple<>(
-                    sortedIdList.get(i), (double) (TimeUtil.BATCH_START + i)));
+                    sortedIdList.get(i), (double) (BATCH_START + i)));
         }
         zSetRedisService.set(KEY, tuples);
     }
@@ -47,6 +47,10 @@ public class IdRedisService {
 
     public void updateScore(String id, LocalDateTime updateTime){
         zSetRedisService.set(KEY, id, getRedisScore(updateTime));
+    }
+
+    public boolean hasKey(){
+        return zSetRedisService.hasKey(KEY);
     }
 
 

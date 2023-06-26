@@ -35,25 +35,25 @@ public class Content {
     private StatusType status;
 
     @Column(nullable = false)
-    private LocalDateTime updateDate;
+    private LocalDateTime createDate;
 
     @Column(nullable = false)
-    private LocalDateTime createDate;
+    private LocalDateTime updateDate;
 
     public Content(String id,
                    String author,
                    String word,
                    long likes,
                    StatusType status,
-                   LocalDateTime updateDate,
-                   LocalDateTime createDate) {
+                   LocalDateTime createDate,
+                   LocalDateTime updateDate) {
         this.id = id;
         this.author = author;
         this.word = word;
         this.likes = likes;
         this.status = status;
-        this.updateDate = updateDate;
         this.createDate = createDate;
+        this.updateDate = updateDate;
     }
 
 }

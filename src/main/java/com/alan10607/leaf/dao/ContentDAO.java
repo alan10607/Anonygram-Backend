@@ -13,6 +13,7 @@ import java.util.Optional;
 @Repository
 public interface ContentDAO extends JpaRepository<Content, ContentId> {
     Optional<Content> findByIdAndNo(String id, int no);
+    Integer countById(String id);
 
     @Transactional
     @Modifying

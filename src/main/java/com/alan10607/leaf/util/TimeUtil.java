@@ -8,14 +8,14 @@ import java.time.format.DateTimeFormatter;
 
 @Component
 public class TimeUtil {
-    public final static ZoneId UTC_PLUS_8 = ZoneId.of("UTC+8");
-    public final static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-    public final static DateTimeFormatter FORMATTER_SHORT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-    public final static long SCORE_BASE = 4102416000000L;//= LocalDateTime.of(2100, 1, 1, 0, 0).atZone(UTC_PLUS_8).toInstant().toEpochMilli();
-    public final static long BATCH_START = 2461449600000L;//2100EpochMilli(SCORE_BASE) - 2022EpochMilli
+    public static final ZoneId UTC_PLUS_8 = ZoneId.of("UTC+8");
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    public static final DateTimeFormatter FORMATTER_SHORT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    public static final long SCORE_BASE = 4102416000000L;//= LocalDateTime.of(2100, 1, 1, 0, 0).atZone(UTC_PLUS_8).toInstant().toEpochMilli();
+    public static final long BATCH_START = 2461449600000L;//2100EpochMilli(SCORE_BASE) - 2022EpochMilli
 
 
-    public LocalDateTime now(){
+    public static LocalDateTime now(){
         return LocalDateTime.now(UTC_PLUS_8);
     }
 

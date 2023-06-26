@@ -17,15 +17,17 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @NoArgsConstructor(force = true)
 @AllArgsConstructor
 @Slf4j
 public class ArticleServiceImplNew implements ArticleServiceNew {
+    private final ContentServiceImplNew contentServiceImplNew;
     private final ArticleDAO articleDAO;
-    private ContentDAO contentDAO;
-    private ArticleRedisService articleRedisService;
+    private final ContentDAO contentDAO;
+    private final ArticleRedisService articleRedisService;
 
     public ArticleDTO get(String id) {
         ArticleDTO articleDTO = articleRedisService.get(id);
@@ -33,26 +35,26 @@ public class ArticleServiceImplNew implements ArticleServiceNew {
             pullToRedis(id);
             articleDTO = articleRedisService.get(id);
         }
+        articleRedisService.expire(id);
+
         return articleFilter(articleDTO);
     }
 
     private void pullToRedis(String id) {
-        Article article = articleDAO.findById(id).orElseGet(() -> {
-            log.error("Pull Article failed, id={}, will put empty data to redis", id);
-            Article unknownArticle = new Article();
-            unknownArticle.setStatus(StatusType.UNKNOWN);
-            return unknownArticle;
-        });
-
-        ArticleDTO articleDTO = new ArticleDTO(article.getId(),
-                    article.getTitle(),
-                    article.getContNum(),
-                    article.getStatus(),
-                    article.getUpdateDate(),
-                    article.getCreateDate());
+        ArticleDTO articleDTO = articleDAO.findById(id)
+            .map(article -> new ArticleDTO(article.getId(),
+                article.getTitle(),
+                article.getStatus(),
+                article.getCreateDate(),
+                article.getUpdateDate(),
+                contentServiceImplNew.getContentSizeById(id)))
+            .orElseGet(() -> {//need test
+                log.error("Pull Article failed, id={}, will put empty data to redis", id);
+                return new ArticleDTO(id, StatusType.UNKNOWN);
+            });
 
         articleRedisService.set(articleDTO);
-        log.info("Pull art to redis succeed, id={}", id);
+        log.info("Pull article to redis succeed, id={}", id);
     }
 
     private ArticleDTO articleFilter(ArticleDTO articleDTO) {
@@ -67,18 +69,6 @@ public class ArticleServiceImplNew implements ArticleServiceNew {
         }
     }
 
-    private ArticleDTO findArticle(String id) {
-        Article article = articleDAO.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Article not found"));
-
-        return new ArticleDTO(article.getId(),
-                article.getTitle(),
-                article.getContNum(),
-                article.getStatus(),
-                article.getUpdateDate(),
-                article.getCreateDate());
-    }
-
     @AfterDeleteRedis
     public void create(ArticleDTO articleDTO) {
         articleDAO.findById(articleDTO.getId()).ifPresent((a) -> {
@@ -87,7 +77,6 @@ public class ArticleServiceImplNew implements ArticleServiceNew {
 
         Article article = new Article(articleDTO.getId(),
                 articleDTO.getTitle(),
-                1,
                 StatusType.NEW,
                 articleDTO.getCreateDate(),
                 articleDTO.getCreateDate());
@@ -119,30 +108,6 @@ public class ArticleServiceImplNew implements ArticleServiceNew {
         article.setStatus(status);
         article.setUpdateDate(TimeUtil.now());
         articleDAO.save(article);
-    }
-
-
-
-    @Transactional
-    public void createArtAndCont(String id, int no, String title, String author, String word, LocalDateTime createAndUpdateTime) {
-//        create(id, title, createAndUpdateTime);
-
-//        contentDAO.findByIdAndNo(id, no).ifPresent((c) -> {
-//            throw new IllegalStateException("Content id already exist");
-//        });
-//
-//
-//
-//        Content content = new Content(id,
-//                no,
-//                author,
-//                word,
-//                0L,
-//                StatusType.NEW,
-//                createAndUpdateTime,
-//                createAndUpdateTime);
-//
-//        txnService.createArtAndContTxn(article, content);
     }
 
 }

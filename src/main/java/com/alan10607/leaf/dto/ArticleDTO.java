@@ -14,23 +14,23 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ArticleDTO extends BaseDTO{
     private String title;
-    private Integer contNum;
     private StatusType status;
-    private LocalDateTime updateDate;
     private LocalDateTime createDate;
+    private LocalDateTime updateDate;
+    private Integer contNum;
 
     public ArticleDTO(String id,
                       String title,
-                      Integer contNum,
                       StatusType status,
+                      LocalDateTime createDate,
                       LocalDateTime updateDate,
-                      LocalDateTime createDate) {
+                      Integer contNum) {
         this.id = id;
         this.title = title;
-        this.contNum = contNum;
         this.status = status;
         this.createDate = createDate;
         this.updateDate = updateDate;
+        this.contNum = contNum;
     }
 
     public ArticleDTO(String id,

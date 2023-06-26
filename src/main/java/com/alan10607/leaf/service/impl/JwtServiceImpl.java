@@ -22,11 +22,11 @@ import java.util.function.Function;
 @AllArgsConstructor
 @Slf4j
 public class JwtServiceImpl implements JwtService {
-    private final static String SECRET_KEY = "EsPKLbwWNsOtNoifyls3afApQVXy17mQTd+D22Qy5+/MiSV5eFYxEE651nY41mDt";
-    private final static String ID = "id";
-    private final static String EMAIL = "email";
-    private final static String IS_ANONYMOUS = "isAnonymous";
-    private final static int VALID_HOUR = 1;
+    private static final String SECRET_KEY = "EsPKLbwWNsOtNoifyls3afApQVXy17mQTd+D22Qy5+/MiSV5eFYxEE651nY41mDt";
+    private static final String ID = "id";
+    private static final String EMAIL = "email";
+    private static final String IS_ANONYMOUS = "isAnonymous";
+    private static final int VALID_HOUR = 1;
 
     public String extractSubject(String token){
         return extractClaims(token, Claims::getSubject);

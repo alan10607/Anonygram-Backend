@@ -21,16 +21,13 @@ public class Article {
     private String title;
 
     @Column(nullable = false)
-    private int contNum;
-
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private StatusType status;
 
     @Column(nullable = false)
-    private LocalDateTime updateDate;
+    private LocalDateTime createDate;
 
     @Column(nullable = false)
-    private LocalDateTime createDate;
+    private LocalDateTime updateDate;
 
 }

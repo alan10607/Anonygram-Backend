@@ -32,8 +32,8 @@ public class ArticleServiceImpl implements ArticleService {
     private final DefaultRedisScript createIdSetScript;
     private final RedisKeyUtil keyUtil;
     private final TimeUtil timeUtil;
-    private final static int ART_EXPIRE = 3600;
-    private final static int POST_SIZE = 100;
+    private static final int ART_EXPIRE = 3600;
+    private static final int POST_SIZE = 100;
 
     /**
      * 依照更新流言順率列出文章id, string格式, 在jvm做split減少redis每次查詢zset的負擔

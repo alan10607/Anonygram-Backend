@@ -38,11 +38,11 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     private final RedisKeyUtil keyUtil;
     private final TimeUtil timeUtil;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final static int USER_EXPIRE = 3600;
+    private static final int USER_EXPIRE = 3600;
 
-    private final static String E_EMAIL = "Email can't be blank or format not correct";
-    private final static String E_PW = "Password can't be blank";
-    private final static String E_USERNAME = "UserName can't be blank";
+    private static final String E_EMAIL = "Email can't be blank or format not correct";
+    private static final String E_PW = "Password can't be blank";
+    private static final String E_USERNAME = "UserName can't be blank";
 
     public LeafUserDTO findUser(
             @NotBlank @Email(message = E_EMAIL) String email

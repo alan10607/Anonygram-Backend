@@ -23,7 +23,7 @@ public class PostServiceImpl implements PostService {
     private ContLikeService contLikeService;
     private ImgurService imgurService;
     private final TimeUtil timeUtil;
-    private final static int FIND_CONT_SIZE = 10;
+    private static final int FIND_CONT_SIZE = 10;
 
     /**
      * 依最新留言順序查詢所有文章id

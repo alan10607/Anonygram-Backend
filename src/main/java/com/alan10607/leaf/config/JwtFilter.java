@@ -26,7 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsServices;
     private final UserService userService;
-    private final static String BEARER = "Bearer ";
+    private static final String BEARER = "Bearer ";
 
     @Override
     protected void doFilterInternal(
