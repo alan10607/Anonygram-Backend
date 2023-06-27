@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class ContLikeServiceImplNew implements ContLikeService {
+public class ContLikeServiceImplNew {
     private TxnService txnService;
     private ContLikeDAO contLikeDAO;
     private final RedisTemplate redisTemplate;

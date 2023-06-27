@@ -13,7 +13,7 @@ public class ArticleRedisController {
     private final ArticleRedisService articleRedisService;
 
     @GetMapping("/{id}")
-    public ArticleDTO get(@PathVariable("id") String id){
+    public Object get(@PathVariable("id") String id){
         return articleRedisService.get(id);
     }
 

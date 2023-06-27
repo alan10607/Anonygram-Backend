@@ -16,22 +16,22 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @Slf4j
 public class ExceptionAdvisorAspect {
+//
+//    @Pointcut("@annotation(exceptionAdvisor)")
+//    public void pointcut(ExceptionAdvisor exceptionAdvisor) {
+//    }
 
-    @Pointcut("@annotation(exceptionAdvisor)")
-    public void pointcut(ExceptionAdvisor exceptionAdvisor) {
-    }
-
-    @Around("execution(* com.alan10607.*.controller.*.*(..))")
-    public ResponseEntity handleException(ProceedingJoinPoint pjp, ExceptionAdvisor exceptionAdvisor) {
+    @Around("execution(* com.alan10607.redis.controller.*.*(..))")
+    public Object handleException(ProceedingJoinPoint pjp) {
         MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
         Class<?> returnType = methodSignature.getReturnType();
         Object res = null;
         try {
-            if(returnType == void.class){
-                pjp.proceed();
-            }else{
+//            if(returnType == void.class){
+//                pjp.proceed();
+//            }else{
                 res = pjp.proceed();
-            }
+//            }
         } catch (Throwable e) {
             log.error(e.getMessage());
             return ResponseUtil.err(e);

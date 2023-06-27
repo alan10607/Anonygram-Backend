@@ -69,7 +69,7 @@ public class ArticleServiceImplNew implements ArticleServiceNew {
         }
     }
 
-    @AfterDeleteRedis
+    //@AfterDeleteRedis
     public void create(ArticleDTO articleDTO) {
         articleDAO.findById(articleDTO.getId()).ifPresent((a) -> {
             throw new IllegalStateException("Article id already exist");
@@ -84,17 +84,17 @@ public class ArticleServiceImplNew implements ArticleServiceNew {
         articleDAO.save(article);
     }
 
-    @AfterDeleteRedis
+    //@AfterDeleteRedis
     public void delete(String id, String userId) {
         updateArticleStatus(id, userId, StatusType.DELETED);
     }
 
-    @AfterDeleteRedis
+    //@AfterDeleteRedis
     public void updateArticleContNumIncrease(String id) {
-        articleDAO.incrContNum(id);
+//        articleDAO.incrContNum(id);
     }
 
-    @AfterDeleteRedis
+    //@AfterDeleteRedis
     public void updateArticleStatus(String id, String userId, StatusType status) {
         Article article = articleDAO.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Article not found"));

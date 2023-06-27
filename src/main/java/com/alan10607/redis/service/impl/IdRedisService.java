@@ -49,10 +49,6 @@ public class IdRedisService {
         zSetRedisService.set(KEY, id, getNowTimeScore());
     }
 
-    public boolean hasKey(){
-        return zSetRedisService.hasKey(KEY);
-    }
-
 
     /**
      * Reverse localDateTime for redis score, reduce time complexity from O(log n) to O(1) when zadd

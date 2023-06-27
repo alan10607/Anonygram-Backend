@@ -16,11 +16,11 @@ public class IdRedisController {
     private final IdRedisService idRedisService;
 
     @GetMapping
-    public List<String> get(){
+    public Object get(){
         return idRedisService.get();
     }
 
-    @PostMapping("/Bulk")
+    @PostMapping("/bulk")
     public void setBulk(@RequestBody SimpleDTO simpleDTO){
         idRedisService.set((List<String>) simpleDTO.getList());
     }

@@ -16,7 +16,7 @@ public class IdStrRedisController {
     private final IdStrRedisService idStrRedisService;
 
     @GetMapping
-    public String get(){
+    public Object get(){
         return idStrRedisService.get();
     }
 

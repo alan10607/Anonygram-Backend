@@ -33,13 +33,14 @@ public class TxnService {
 
     @Transactional
     public int createContAndUpdateArtTxn(String id, Content content) {
-        int contNum = articleDAO.findContNumByIdWithLock(id)
-                .orElseThrow(() -> new IllegalStateException("Article not found"));
-
-        content.setNo(contNum);//會剛好是contNum
-        contentDAO.save(content);
-        articleDAO.incrContNum(id);
-        return contNum;
+//        int contNum = articleDAO.findContNumByIdWithLock(id)
+//                .orElseThrow(() -> new IllegalStateException("Article not found"));
+//
+//        content.setNo(contNum);//會剛好是contNum
+//        contentDAO.save(content);
+//        articleDAO.incrContNum(id);
+//        return contNum;
+        return 0;
     }
 
     @Transactional

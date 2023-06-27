@@ -12,7 +12,7 @@ public class ContentRedisController {
     private final ContentRedisService contentRedisService;
 
     @GetMapping("/{id}/{no}")
-    public ContentDTO get(@PathVariable("id") String id,
+    public Object get(@PathVariable("id") String id,
                           @PathVariable("no") int no){
         return contentRedisService.get(id, no);
     }

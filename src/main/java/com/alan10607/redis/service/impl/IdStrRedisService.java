@@ -31,8 +31,4 @@ public class IdStrRedisService {
         stringRedisService.set(KEY, idStr);
     }
 
-    public boolean hasKey(){
-        return stringRedisService.hasKey(KEY);
-    }
-
 }

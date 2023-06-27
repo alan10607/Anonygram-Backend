@@ -64,7 +64,7 @@ public class ContentServiceImplNew implements ContentServiceNew {
         switch(contentDTO.getStatus()){
             case UNKNOWN :
                 throw new IllegalStateException(
-                        String.format("Content not found, id: %s, no: %s", id, no))
+                        String.format("Content not found, id: %s, no: %s", contentDTO.getId(), contentDTO.getNo()));
             case DELETED :
                 return new ContentDTO(contentDTO.getId(), contentDTO.getNo(), StatusType.DELETED);
             default :
@@ -72,7 +72,7 @@ public class ContentServiceImplNew implements ContentServiceNew {
         }
     }
 
-    @AfterDeleteRedis
+    //@AfterDeleteRedis
     public void create(ContentDTO contentDTO) {
         contentDAO.findByIdAndNo(contentDTO.getId(), contentDTO.getNo()).ifPresent((c) -> {
             throw new IllegalStateException("Content id already exist");
@@ -89,17 +89,17 @@ public class ContentServiceImplNew implements ContentServiceNew {
         contentDAO.save(content);
     }
 
-    @AfterDeleteRedis
+    //@AfterDeleteRedis
     public void delete(String id, int no, String userId) {
         updateContentStatus(id, no, userId, StatusType.DELETED);
     }
 
-    @AfterDeleteRedis
+    //@AfterDeleteRedis
     public void updateArticleContNumIncrease(String id) {
-        articleDAO.incrContNum(id);
+//        articleDAO.incrContNum(id);
     }
 
-    @AfterDeleteRedis
+    //@AfterDeleteRedis
     public void updateContentStatus(String id, int no, String userId, StatusType status) {
         Content content = contentDAO.findByIdAndNo(id, no)
                 .orElseThrow(() -> new IllegalStateException("Content not found"));

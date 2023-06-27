@@ -187,7 +187,6 @@ public class ArticleServiceImpl implements ArticleService {
             default :
                 return new PostDTO(id,
                         (String) artMap.get("title"),
-                        ((Number) artMap.get("contNum")).intValue(),
                         (StatusType) artMap.get("status"),
                         timeUtil.parseStr((String) artMap.get("updateDate")),
                         timeUtil.parseStr((String) artMap.get("createDate"))
@@ -228,7 +227,6 @@ public class ArticleServiceImpl implements ArticleService {
 
         return new PostDTO(article.getId(),
                 article.getTitle(),
-                article.getContNum(),
                 article.getStatus(),
                 article.getUpdateDate(),
                 article.getCreateDate());
@@ -245,7 +243,6 @@ public class ArticleServiceImpl implements ArticleService {
 
         Article article = new Article(id,
                 title,
-                1,
                 StatusType.NEW,
                 createAndUpdateTime,
                 createAndUpdateTime);

@@ -18,6 +18,15 @@ public class ArticleRedisService {
         return String.format("data:art:%s", id);
     }
 
+    /*
+    TODO:
+     1.all set function should have expire
+     2.study output only be Object or not
+     3.merge objectMapper to DTO
+     4.extend BaseRedisService
+     5.study controller unit test
+    */
+
     public ArticleDTO get(String id) {
         Map<String, Object> dataMap = hashRedisService.get(getKey(id));
         return new ObjectMapper().convertValue(dataMap, ArticleDTO.class);

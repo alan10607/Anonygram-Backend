@@ -39,7 +39,6 @@ public class PostDTO {
     /* --- for Article --- */
     public PostDTO(String id,
                    String title,
-                   Integer contNum,
                    StatusType status,
                    LocalDateTime updateDate,
                    LocalDateTime createDate) {

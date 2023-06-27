@@ -54,12 +54,12 @@ public class IdService  {
         log.info("Set id to redis succeed, id size={}", sortedIdList.size());
     }
 
-    @AfterDeleteRedis
+    //@AfterDeleteRedis
     public void create(String id) {
         idRedisService.set(id);
     }
 
-    @AfterDeleteRedis
+    //@AfterDeleteRedis
     public void updateScoreToTop(String id) {
         idRedisService.updateScoreToTop(id);
     }
