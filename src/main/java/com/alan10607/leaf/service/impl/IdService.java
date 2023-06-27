@@ -55,13 +55,13 @@ public class IdService  {
     }
 
     @AfterDeleteRedis
-    public void create(String id, LocalDateTime updateTime) {
-        idRedisService.set(id, updateTime);
+    public void create(String id) {
+        idRedisService.set(id);
     }
 
     @AfterDeleteRedis
-    public void updateScore(String id, LocalDateTime updateTime) {
-        idRedisService.updateScore(id, updateTime);
+    public void updateScoreToTop(String id) {
+        idRedisService.updateScoreToTop(id);
     }
 
 

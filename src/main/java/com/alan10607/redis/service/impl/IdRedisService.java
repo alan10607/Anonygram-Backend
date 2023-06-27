@@ -36,17 +36,17 @@ public class IdRedisService {
         zSetRedisService.set(KEY, tuples);
     }
 
-    public void set(String id, LocalDateTime updateTime) {
-        boolean res = zSetRedisService.execute(createIdSetScript,
+    public void set(String id) {
+        Long res = zSetRedisService.execute(createIdSetScript,
                 Arrays.asList(KEY),
                 id,
-                Long.toString(getRedisScore(updateTime)),
+                Long.toString(getNowTimeScore()),
                 Integer.toString(MAX_ID_SIZE));
-        log.info("Create idSet from redis succeed, id={}, popSet={}", id, res);
+        log.info("Create idSet from redis succeed, id={}, popSet={}", id, res == 1);
     }
 
-    public void updateScore(String id, LocalDateTime updateTime){
-        zSetRedisService.set(KEY, id, getRedisScore(updateTime));
+    public void updateScoreToTop(String id){
+        zSetRedisService.set(KEY, id, getNowTimeScore());
     }
 
     public boolean hasKey(){
@@ -61,8 +61,8 @@ public class IdRedisService {
      *
      * @return
      */
-    private long getRedisScore(LocalDateTime localDateTime){
-        long epochMilli = localDateTime.atZone(TimeUtil.UTC_PLUS_8).toInstant().toEpochMilli();
+    private long getNowTimeScore(){
+        long epochMilli = TimeUtil.now().atZone(TimeUtil.UTC_PLUS_8).toInstant().toEpochMilli();
         return SCORE_BASE - epochMilli;
     }
 }

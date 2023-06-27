@@ -16,9 +16,6 @@ public class ContLikeRedisService {
     private final SetRedisService setRedisService;
     private final DefaultRedisScript checkLikeScript;
     private final DefaultRedisScript toggleLikeScript;
-    public static final String STATIC_KEY = "data:like:static";
-    public static final String NEW_KEY = "data:like:new";
-    public static final String BATCH_KEY = "data:like:batch";
 
     @AllArgsConstructor
     public enum Key {
@@ -38,7 +35,7 @@ public class ContLikeRedisService {
         return String.format("%s:%s:%s:%s", contId, no, userId, likeStatus.value);
     }
 
-    public boolean checkLike(String id, int no, String userId){
+    public Long checkLike(String id, int no, String userId){
         String isLike = getLikeValue(id, no, userId, Status.LIKE);
         String unLike = getLikeValue(id, no, userId, Status.UNLIKE);
         return setRedisService.execute(checkLikeScript,
@@ -48,6 +45,22 @@ public class ContLikeRedisService {
 
     public void set(Key contLikeKey, String contId, int no, String userId, Status likeStatus) {
         setRedisService.set(contLikeKey.value, getLikeValue(contId, no, userId, likeStatus));
+    }
+
+    public boolean UpdateUnLikeFromRedis(String id, int no, String userId) {
+        Long isSuccess = setRedisService.execute(toggleLikeScript,
+                Arrays.asList(Key.NEW.value, Key.BATCH.value, Key.STATIC.value),
+                getLikeValue(id, no, userId, Status.UNLIKE),
+                getLikeValue(id, no, userId, Status.LIKE));
+
+        if(isSuccess == 0){
+            log.error("Already unlike, skip this time, id={}, no={}, userId={}", id, no, userId);
+        }else if(isSuccess == -1) {
+            throw new RuntimeException(
+                    String.format("Update like by lua failed because set not found, isSuccess=-1, id=%s, no=%s, userId=%s", id, no, userId));
+        }
+
+        return isSuccess == 1;
     }
 
 

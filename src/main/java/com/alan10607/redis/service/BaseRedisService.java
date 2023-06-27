@@ -26,9 +26,8 @@ public class BaseRedisService {
         redisTemplate.expire(key, randomTime, TimeUnit.SECONDS);
     }
 
-    public <T, K> boolean execute(RedisScript<T> script, List<K> keys, Object... args) {
-        Long res = (Long) redisTemplate.execute(script, keys, args);
-        return res == 1;
+    public <T, K> Long execute(RedisScript<T> script, List<K> keys, Object... args) {
+        return (Long) redisTemplate.execute(script, keys, args);
     }
 
 }
