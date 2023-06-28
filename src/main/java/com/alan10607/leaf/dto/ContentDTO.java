@@ -6,20 +6,39 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContentDTO extends BaseDTO{
+    @NotNull
+    @Min(0)
     private Integer no;
+
+    @NotBlank
     private String author;
+
+    @NotBlank
     private String word;
+
+    @NotNull
+    @Min(0)
     private Long likes;
+
+    @NotNull
     private StatusType status;
+
+    @NotNull
     private LocalDateTime createDate;
+
+    @NotNull
     private LocalDateTime updateDate;
 
     public ContentDTO(String id,
@@ -46,6 +65,14 @@ public class ContentDTO extends BaseDTO{
         this.id = id;
         this.no = no;
         this.status = status;
+    }
+
+    public static ContentDTO toDTO(Map<String, Object> data) {
+        return BaseDTO.convertValue(data, ContentDTO.class);
+    }
+
+    public static Map<String, Object> toMap(ContentDTO contentDTO) {
+        return BaseDTO.convertValue(contentDTO, Map.class);
     }
 
 }

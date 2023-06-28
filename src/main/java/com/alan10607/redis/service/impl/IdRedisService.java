@@ -9,7 +9,6 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -24,7 +23,7 @@ public class IdRedisService {
     private static final long BATCH_START = 2461449600000L;//2100EpochMilli(SCORE_BASE) - 2022EpochMilli
 
     public List<String> get() {
-        return zSetRedisService.get(KEY, 0, MAX_ID_SIZE - 1);
+        return zSetRedisService.getZSet(KEY, 0, MAX_ID_SIZE - 1);
     }
 
     public void set(List<String> sortedIdList) {
@@ -33,7 +32,7 @@ public class IdRedisService {
             tuples.add(new DefaultTypedTuple<>(
                     sortedIdList.get(i), (double) (BATCH_START + i)));
         }
-        zSetRedisService.set(KEY, tuples);
+        zSetRedisService.setZSet(KEY, tuples);
     }
 
     public void set(String id) {
@@ -46,7 +45,7 @@ public class IdRedisService {
     }
 
     public void updateScoreToTop(String id){
-        zSetRedisService.set(KEY, id, getNowTimeScore());
+        zSetRedisService.setZSet(KEY, id, getNowTimeScore());
     }
 
 

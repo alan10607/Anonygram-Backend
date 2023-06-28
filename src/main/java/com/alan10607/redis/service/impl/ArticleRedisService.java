@@ -2,7 +2,6 @@ package com.alan10607.redis.service.impl;
 
 import com.alan10607.leaf.dto.ArticleDTO;
 import com.alan10607.redis.service.HashRedisService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,21 +19,22 @@ public class ArticleRedisService {
 
     /*
     TODO:
-     1.all set function should have expire
-     2.study output only be Object or not
-     3.merge objectMapper to DTO
      4.extend BaseRedisService
      5.study controller unit test
     */
 
     public ArticleDTO get(String id) {
-        Map<String, Object> dataMap = hashRedisService.get(getKey(id));
-        return new ObjectMapper().convertValue(dataMap, ArticleDTO.class);
+        Map<String, Object> dataMap = hashRedisService.getHash(getKey(id));
+        return ArticleDTO.toDTO(dataMap);
     }
 
     public void set(ArticleDTO articleDTO) {
-        Map<String, Object> dataMap = new ObjectMapper().convertValue(articleDTO, Map.class);
-        hashRedisService.set(getKey(articleDTO.getId()), dataMap);
+        Map<String, Object> dataMap = ArticleDTO.toMap(articleDTO);
+        hashRedisService.setHash(getKey(articleDTO.getId()), dataMap);
+    }
+
+    public void delete(String id){
+        hashRedisService.delete(getKey(id));
     }
 
     public void expire(String id) {

@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class StringRedisService extends BaseRedisService {
 
-    public String get(String key) {
+    public String getString(String key) {
         return (String) redisTemplate.opsForValue().get(key);
     }
 
-    public void set(String key, String value) {
+    public void setString(String key, String value) {
         redisTemplate.opsForValue().set(key, value);
     }
 }

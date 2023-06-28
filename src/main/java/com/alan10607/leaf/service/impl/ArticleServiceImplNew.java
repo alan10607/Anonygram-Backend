@@ -15,10 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.util.concurrent.TimeUnit;
-
 @Service
 @NoArgsConstructor(force = true)
 @AllArgsConstructor
@@ -54,6 +50,7 @@ public class ArticleServiceImplNew implements ArticleServiceNew {
             });
 
         articleRedisService.set(articleDTO);
+        articleRedisService.expire(id);
         log.info("Pull article to redis succeed, id={}", id);
     }
 
@@ -69,7 +66,6 @@ public class ArticleServiceImplNew implements ArticleServiceNew {
         }
     }
 
-    //@AfterDeleteRedis
     public void create(ArticleDTO articleDTO) {
         articleDAO.findById(articleDTO.getId()).ifPresent((a) -> {
             throw new IllegalStateException("Article id already exist");
@@ -82,19 +78,9 @@ public class ArticleServiceImplNew implements ArticleServiceNew {
                 articleDTO.getCreateDate());
 
         articleDAO.save(article);
+        articleRedisService.delete(articleDTO.getId());
     }
 
-    //@AfterDeleteRedis
-    public void delete(String id, String userId) {
-        updateArticleStatus(id, userId, StatusType.DELETED);
-    }
-
-    //@AfterDeleteRedis
-    public void updateArticleContNumIncrease(String id) {
-//        articleDAO.incrContNum(id);
-    }
-
-    //@AfterDeleteRedis
     public void updateArticleStatus(String id, String userId, StatusType status) {
         Article article = articleDAO.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Article not found"));
@@ -108,6 +94,7 @@ public class ArticleServiceImplNew implements ArticleServiceNew {
         article.setStatus(status);
         article.setUpdateDate(TimeUtil.now());
         articleDAO.save(article);
+        articleRedisService.delete(id);
     }
 
 }

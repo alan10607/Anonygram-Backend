@@ -27,11 +27,7 @@ public class ExceptionAdvisorAspect {
         Class<?> returnType = methodSignature.getReturnType();
         Object res = null;
         try {
-//            if(returnType == void.class){
-//                pjp.proceed();
-//            }else{
-                res = pjp.proceed();
-//            }
+            res = pjp.proceed();
         } catch (Throwable e) {
             log.error(e.getMessage());
             return ResponseUtil.err(e);

@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Slf4j
 public class ContentServiceImplNew implements ContentServiceNew {
-    private final ArticleDAO articleDAO;
     private final ContentDAO contentDAO;
     private final ContentRedisService contentRedisService;
 
@@ -57,6 +56,7 @@ public class ContentServiceImplNew implements ContentServiceNew {
             });
 
         contentRedisService.set(contentDTO);
+        contentRedisService.expire(id, no);
         log.info("Pull Content to redis succeed, id={}", id);
     }
 
@@ -72,7 +72,6 @@ public class ContentServiceImplNew implements ContentServiceNew {
         }
     }
 
-    //@AfterDeleteRedis
     public void create(ContentDTO contentDTO) {
         contentDAO.findByIdAndNo(contentDTO.getId(), contentDTO.getNo()).ifPresent((c) -> {
             throw new IllegalStateException("Content id already exist");
@@ -87,19 +86,15 @@ public class ContentServiceImplNew implements ContentServiceNew {
                 contentDTO.getCreateDate());
 
         contentDAO.save(content);
+        contentRedisService.delete(contentDTO.getId(), contentDTO.getNo());
     }
 
-    //@AfterDeleteRedis
-    public void delete(String id, int no, String userId) {
-        updateContentStatus(id, no, userId, StatusType.DELETED);
-    }
 
     //@AfterDeleteRedis
     public void updateArticleContNumIncrease(String id) {
 //        articleDAO.incrContNum(id);
     }
 
-    //@AfterDeleteRedis
     public void updateContentStatus(String id, int no, String userId, StatusType status) {
         Content content = contentDAO.findByIdAndNo(id, no)
                 .orElseThrow(() -> new IllegalStateException("Content not found"));
@@ -110,10 +105,14 @@ public class ContentServiceImplNew implements ContentServiceNew {
         content.setStatus(status);
         content.setUpdateDate(TimeUtil.now());
         contentDAO.save(content);
+        contentRedisService.delete(id, no);
     }
 
     public Integer getContentSizeById(String id){
         return contentDAO.countById(id);
     }
 
+    public void updateContentLikesFromRedis(String id, int no, long incr) {
+        contentRedisService.
+    }
 }

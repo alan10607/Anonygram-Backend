@@ -30,4 +30,8 @@ public class BaseRedisService {
         return (Long) redisTemplate.execute(script, keys, args);
     }
 
+    public void rename(String fromKeyName, String toKeyName){
+        redisTemplate.rename(fromKeyName, toKeyName);
+    }
+
 }
