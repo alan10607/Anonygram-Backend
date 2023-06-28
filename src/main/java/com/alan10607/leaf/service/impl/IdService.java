@@ -32,14 +32,14 @@ public class IdService  {
     private final IdStrRedisService idStrRedisService;
 
     public String get(String id) {
-        if(!idStrRedisService.hasKey()) {
+        if(Strings.isBlank(idStrRedisService.get())) {
             pullStringToRedis();
         }
         return idStrRedisService.get();
     }
 
     private void pullStringToRedis() {
-        if(!idRedisService.hasKey()){
+        if(idRedisService.get().isEmpty()){
             pullToRedis();
         }
         List<String> idList = idRedisService.get();

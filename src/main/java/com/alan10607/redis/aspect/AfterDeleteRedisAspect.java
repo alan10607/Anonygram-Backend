@@ -32,31 +32,7 @@ public class AfterDeleteRedisAspect {
      */
     @AfterReturning(pointcut="pointcut(afterDeleteRedis)", returning="res")
     public void deleteRedisCache(JoinPoint jp, Object res, AfterDeleteRedis afterDeleteRedis) {
-        if(!autoUserId.enable()) return;
 
-        PostDTO postDTO = (PostDTO) jp.getArgs()[0];
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();//取得Authentication
-        if(auth instanceof UsernamePasswordAuthenticationToken){
-            LeafUser leafUser = (LeafUser) auth.getPrincipal();
-
-            postDTO.setUserId(leafUser.isAnonymousId() ?
-                    leafUser.getUsername() :
-                    Long.toString(leafUser.getId()));
-            postDTO.setUserName(leafUser.getUsername());
-        }
-    }
-    @Around("execution(* com.alan10607.redis.controller.*.*(..))")
-    public Object handleException(ProceedingJoinPoint pjp) {
-        MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
-        Class<?> returnType = methodSignature.getReturnType();
-        Object res = null;
-        try {
-            res = pjp.proceed();
-        } catch (Throwable e) {
-            log.error(e.getMessage());
-            return ResponseUtil.err(e);
-        }
-        return ResponseUtil.ok(res);
     }
 
 }

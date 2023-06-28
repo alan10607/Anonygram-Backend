@@ -112,7 +112,7 @@ public class ContentServiceImplNew implements ContentServiceNew {
         return contentDAO.countById(id);
     }
 
-    public void updateContentLikesFromRedis(String id, int no, long incr) {
-        contentRedisService.
+    public void updateContentLikesFromRedis(String id, int no, long addNum) {
+        contentRedisService.increaseLikes(id, no, addNum);
     }
 }

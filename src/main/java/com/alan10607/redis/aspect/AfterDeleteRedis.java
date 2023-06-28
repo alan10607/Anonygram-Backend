@@ -11,6 +11,6 @@ import java.lang.annotation.*;
 public @interface AfterDeleteRedis {
 
 
-    Filed[] value();
+//    Filed[] value();
 
 }

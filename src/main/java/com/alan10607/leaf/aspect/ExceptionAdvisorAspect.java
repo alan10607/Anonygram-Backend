@@ -25,14 +25,12 @@ public class ExceptionAdvisorAspect {
     public Object handleException(ProceedingJoinPoint pjp) {
         MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
         Class<?> returnType = methodSignature.getReturnType();
-        Object res = null;
         try {
-            res = pjp.proceed();
+            return ResponseUtil.ok(pjp.proceed());
         } catch (Throwable e) {
             log.error(e.getMessage());
             return ResponseUtil.err(e);
         }
-        return ResponseUtil.ok(res);
     }
 
 }
