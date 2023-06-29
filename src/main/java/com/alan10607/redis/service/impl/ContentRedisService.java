@@ -23,7 +23,7 @@ public class ContentRedisService {
     }
 
     public void set(ContentDTO contentDTO) {
-        Map<String, Object> dataMap = ContentDTO.toMap(contentDTO);
+        Map<String, Object> dataMap = contentDTO.toMap();
         hashRedisService.setHash(getKey(contentDTO.getId(), contentDTO.getNo()), dataMap);
     }
 

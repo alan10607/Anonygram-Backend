@@ -29,7 +29,7 @@ public class ArticleRedisService {
     }
 
     public void set(ArticleDTO articleDTO) {
-        Map<String, Object> dataMap = ArticleDTO.toMap(articleDTO);
+        Map<String, Object> dataMap = articleDTO.toMap();
         hashRedisService.setHash(getKey(articleDTO.getId()), dataMap);
     }
 

@@ -67,12 +67,12 @@ public class ContentDTO extends BaseDTO{
         this.status = status;
     }
 
-    public static ContentDTO toDTO(Map<String, Object> data) {
+    public static ContentDTO toDTO(Object data) {
         return BaseDTO.convertValue(data, ContentDTO.class);
     }
 
-    public static Map<String, Object> toMap(ContentDTO contentDTO) {
-        return BaseDTO.convertValue(contentDTO, Map.class);
+    public Map<String, Object> toMap() {
+        return BaseDTO.convertValue(this, Map.class);
     }
 
 }

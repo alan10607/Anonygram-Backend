@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 @Slf4j
 public class ContentServiceImplNew implements ContentServiceNew {
     private final ContentDAO contentDAO;
+    private final ArticleRedisService articleRedisService;
     private final ContentRedisService contentRedisService;
 
     public ContentDTO get(String id, int no) {
@@ -72,7 +73,7 @@ public class ContentServiceImplNew implements ContentServiceNew {
         }
     }
 
-    public void create(ContentDTO contentDTO) {
+    public int create(ContentDTO contentDTO) {
         contentDAO.findByIdAndNo(contentDTO.getId(), contentDTO.getNo()).ifPresent((c) -> {
             throw new IllegalStateException("Content id already exist");
         });
@@ -81,18 +82,14 @@ public class ContentServiceImplNew implements ContentServiceNew {
                 contentDTO.getAuthor(),
                 contentDTO.getWord(),
                 0L,
-                StatusType.NEW,
+                StatusType.NORMAL,
                 contentDTO.getCreateDate(),
                 contentDTO.getCreateDate());
 
-        contentDAO.save(content);
+        content = contentDAO.save(content);
         contentRedisService.delete(contentDTO.getId(), contentDTO.getNo());
-    }
-
-
-    //@AfterDeleteRedis
-    public void updateArticleContNumIncrease(String id) {
-//        articleDAO.incrContNum(id);
+        articleRedisService.delete(contentDTO.getId());
+        return content.getNo();
     }
 
     public void updateContentStatus(String id, int no, String userId, StatusType status) {

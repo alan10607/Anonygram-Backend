@@ -21,9 +21,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ArticleServiceImplNew implements ArticleServiceNew {
     private final ContentServiceImplNew contentServiceImplNew;
+    private final ArticleRedisService articleRedisService;
     private final ArticleDAO articleDAO;
     private final ContentDAO contentDAO;
-    private final ArticleRedisService articleRedisService;
 
     public ArticleDTO get(String id) {
         ArticleDTO articleDTO = articleRedisService.get(id);
@@ -73,7 +73,7 @@ public class ArticleServiceImplNew implements ArticleServiceNew {
 
         Article article = new Article(articleDTO.getId(),
                 articleDTO.getTitle(),
-                StatusType.NEW,
+                StatusType.NORMAL,
                 articleDTO.getCreateDate(),
                 articleDTO.getCreateDate());
 

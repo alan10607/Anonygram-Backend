@@ -37,7 +37,7 @@ public class TxnService {
 //                .orElseThrow(() -> new IllegalStateException("Article not found"));
 //
 //        content.setNo(contNum);//會剛好是contNum
-//        contentDAO.save(content);
+        contentDAO.save(content);
 //        articleDAO.incrContNum(id);
 //        return contNum;
         return 0;

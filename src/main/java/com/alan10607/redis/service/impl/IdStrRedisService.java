@@ -20,4 +20,7 @@ public class IdStrRedisService {
         stringRedisService.setString(KEY, idStr);
     }
 
+    public void delete() {
+        stringRedisService.delete(KEY);
+    }
 }

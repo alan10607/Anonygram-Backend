@@ -31,11 +31,11 @@ public class IdService  {
     private final IdRedisService idRedisService;
     private final IdStrRedisService idStrRedisService;
 
-    public String get(String id) {
+    public List<String> get() {
         if(Strings.isBlank(idStrRedisService.get())) {
             pullStringToRedis();
         }
-        return idStrRedisService.get();
+        return Arrays.asList(idStrRedisService.get().split(","));
     }
 
     private void pullStringToRedis() {
@@ -55,14 +55,11 @@ public class IdService  {
     }
 
     //@AfterDeleteRedis
-    public void create(String id) {
+    public void set(String id) {
         idRedisService.set(id);
+        idStrRedisService.delete();
     }
 
-    //@AfterDeleteRedis
-    public void updateScoreToTop(String id) {
-        idRedisService.updateScoreToTop(id);
-    }
 
 
 }

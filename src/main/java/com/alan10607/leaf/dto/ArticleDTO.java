@@ -12,6 +12,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -55,12 +56,12 @@ public class ArticleDTO extends BaseDTO {
         this.status = status;
     }
 
-    public static ArticleDTO toDTO(Map<String, Object> data) {
+    public static ArticleDTO toDTO(Object data) {
         return BaseDTO.convertValue(data, ArticleDTO.class);
     }
 
-    public static Map<String, Object> toMap(ArticleDTO articleDTO) {
-        return BaseDTO.convertValue(articleDTO, Map.class);
+    public Map<String, Object> toMap() {
+        return BaseDTO.convertValue(this, Map.class);
     }
 
 

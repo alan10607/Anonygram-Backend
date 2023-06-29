@@ -27,21 +27,23 @@ public class IdRedisService {
     }
 
     public void set(List<String> sortedIdList) {
+        long scoreBase = getNowTimeScore();
         Set<ZSetOperations.TypedTuple<String>> tuples = new HashSet<>();
         for(int i = 0; i < sortedIdList.size(); i++){
             tuples.add(new DefaultTypedTuple<>(
-                    sortedIdList.get(i), (double) (BATCH_START + i)));
+                    sortedIdList.get(i), (double) (scoreBase + i)));
         }
         zSetRedisService.setZSet(KEY, tuples);
     }
 
     public void set(String id) {
-        Long res = zSetRedisService.execute(createIdSetScript,
-                Arrays.asList(KEY),
-                id,
-                Long.toString(getNowTimeScore()),
-                Integer.toString(MAX_ID_SIZE));
-        log.info("Create idSet from redis succeed, id={}, popSet={}", id, res == 1);
+        set(Collections.singletonList(id));
+//        Long res = zSetRedisService.execute(createIdSetScript,
+//                Arrays.asList(KEY),
+//                id,
+//                Long.toString(getNowTimeScore()),
+//                Integer.toString(MAX_ID_SIZE));
+//        log.info("Create idSet from redis succeed, id={}, popSet={}", id, res == 1);
     }
 
     public void updateScoreToTop(String id){
