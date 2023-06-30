@@ -27,6 +27,8 @@ public class IdRedisService {
     }
 
     public void set(List<String> sortedIdList) {
+        if(sortedIdList.isEmpty()) return;
+
         long scoreBase = getNowTimeScore();
         Set<ZSetOperations.TypedTuple<String>> tuples = new HashSet<>();
         for(int i = 0; i < sortedIdList.size(); i++){

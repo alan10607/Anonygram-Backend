@@ -8,5 +8,5 @@ public enum StatusType {
     NORMAL("normal"),
     DELETED("deleted"),
     UNKNOWN("unknown");
-    private String name;
+    public String value;
 }

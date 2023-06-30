@@ -20,14 +20,9 @@ public class IdRedisController {
         return idRedisService.get();
     }
 
-    @PostMapping("/bulk")
-    public void setBulk(@RequestBody SimpleDTO simpleDTO){
-        idRedisService.set((List<String>) simpleDTO.getList());
-    }
-
     @PostMapping
     public void set(@RequestBody SimpleDTO simpleDTO){
-        idRedisService.set(simpleDTO.getString());
+        idRedisService.set((List<String>) simpleDTO.getList());
     }
 
     @PatchMapping("/{id}/top")

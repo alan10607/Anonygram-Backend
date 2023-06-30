@@ -218,7 +218,7 @@ public class ArticleServiceImpl implements ArticleService {
      * @return
      */
     public List<String> findLatestId() {
-        return articleDAO.findLatest100Id(StatusType.NEW.name());
+        return contentDAO.findLatest100Id(StatusType.NEW.name());
     }
 
     public PostDTO findArticle(String id) {

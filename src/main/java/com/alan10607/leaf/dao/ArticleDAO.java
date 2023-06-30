@@ -14,8 +14,6 @@ import java.util.Optional;
 public interface ArticleDAO extends JpaRepository<Article, String> {
     Optional<Article> findById(String id);
 
-    @Query(nativeQuery = true, value = "SELECT a.id FROM article a LEFT JOIN content c on a.id = c.id AND a.cont_num - 1 = c.no WHERE a.create_date > (NOW() - INTERVAL 30 DAY) AND a.status = ?1 ORDER BY c.create_date DESC LIMIT 100")
-    List<String> findLatest100Id(String status);
 
 //    @Query(nativeQuery = true, value = "SELECT a.cont_num FROM article a WHERE a.id = ?1 LOCK IN SHARE MODE")
 //    Optional<Integer> findContNumByIdWithLock(String id);

@@ -22,7 +22,6 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 
 @Service
-@NoArgsConstructor(force = true)
 @AllArgsConstructor
 @Slf4j
 public class ContentServiceImplNew implements ContentServiceNew {

@@ -16,7 +16,6 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
 @Service
-@NoArgsConstructor(force = true)
 @AllArgsConstructor
 @Slf4j
 public class ArticleServiceImplNew implements ArticleServiceNew {

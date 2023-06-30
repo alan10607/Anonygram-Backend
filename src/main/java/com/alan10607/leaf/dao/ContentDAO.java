@@ -8,12 +8,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface ContentDAO extends JpaRepository<Content, ContentId> {
     Optional<Content> findByIdAndNo(String id, int no);
     Integer countById(String id);
+
+    @Query(nativeQuery = true, value = "SELECT id FROM (SELECT c.id, c.status, c.create_date, ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY c.no DESC) AS rn FROM content c) AS subquery WHERE status = ?1 AND create_date > (NOW() - INTERVAL 30 DAY) AND rn = 1 ORDER BY create_date DESC LIMIT 100")
+    List<String> findLatest100Id(String status);
 
     @Transactional
     @Modifying

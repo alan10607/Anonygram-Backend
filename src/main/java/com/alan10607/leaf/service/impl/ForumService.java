@@ -25,7 +25,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@NoArgsConstructor(force = true)
 @AllArgsConstructor
 @Slf4j
 public class ForumService implements ArticleServiceNew {
@@ -55,7 +54,7 @@ public class ForumService implements ArticleServiceNew {
     public List<ContentDTO> getTopContents(String id, int no) {
         int contNum = articleServiceImplNew.get(id).getContNum();
         List<ContentDTO> contentList = new ArrayList<>();
-        for(int i = 0; i < FIND_CONTENT_SIZE || no + i < contNum; ++i){
+        for(int i = 0; i < FIND_CONTENT_SIZE && no + i < contNum; ++i){
             ContentDTO contentDTO = contentServiceImplNew.get(id, no + i);
             contentList.add(contentDTO);
         }

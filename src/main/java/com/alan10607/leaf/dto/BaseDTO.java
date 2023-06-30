@@ -1,6 +1,7 @@
 package com.alan10607.leaf.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,8 @@ public class BaseDTO {
     public String id;
 
     public static <T> T convertValue(Object fromValue, Class<T> clazz) {
-        return new ObjectMapper().convertValue(fromValue, clazz);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        return objectMapper.convertValue(fromValue, clazz);
     }
 }

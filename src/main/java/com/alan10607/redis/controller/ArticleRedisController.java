@@ -18,7 +18,7 @@ public class ArticleRedisController {
 
     @GetMapping("/{id}")
     public Object get(@PathVariable("id") String id){
-        return ResponseUtil.ok(articleRedisService.get(id));
+        return articleRedisService.get(id);
     }
 
     @PostMapping

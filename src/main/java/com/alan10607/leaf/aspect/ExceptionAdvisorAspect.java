@@ -16,15 +16,10 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @Slf4j
 public class ExceptionAdvisorAspect {
-//
-//    @Pointcut("@annotation(exceptionAdvisor)")
-//    public void pointcut(ExceptionAdvisor exceptionAdvisor) {
-//    }
 
-    @Around("execution(* com.alan10607.redis.controller.*.*(..))")
+    @Around("execution(* com.alan10607.redis.controller.*.*(..)) "
+        + "|| execution(* com.alan10607.leaf.controller.ForumController.*(..))")
     public Object handleException(ProceedingJoinPoint pjp) {
-        MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
-        Class<?> returnType = methodSignature.getReturnType();
         try {
             return ResponseUtil.ok(pjp.proceed());
         } catch (Throwable e) {
