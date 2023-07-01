@@ -67,7 +67,7 @@ public class ArticleServiceImplNew implements ArticleServiceNew {
 
     public void create(ArticleDTO articleDTO) {
         articleDAO.findById(articleDTO.getId()).ifPresent((a) -> {
-            throw new IllegalStateException("Article id already exist");
+            throw new IllegalStateException(String.format("Article already exist, id: %s", articleDTO.getId()));
         });
 
         Article article = new Article(articleDTO.getId(),

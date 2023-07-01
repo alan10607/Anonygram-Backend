@@ -10,7 +10,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 
 @Component
-public class ResponseUtil {
+public class ResponseUtilNew {
     private static Map<String, Object> body = new LinkedHashMap<>();
 
     /**
@@ -37,10 +37,10 @@ public class ResponseUtil {
         return ResponseEntity.badRequest().body(body);
     }
 
-    public static ResponseEntity err(Object errMsg) {
+    public static Map<String, Object> err2(Throwable e) {
         body.put("status", BAD_REQUEST.toString());
-        body.put("result", errMsg);
-        return ResponseEntity.badRequest().body(body);
+        body.put("result", e.getMessage());
+        return body;
     }
 
 }

@@ -1,11 +1,14 @@
 package com.alan10607.leaf.controller;
 
-import com.alan10607.leaf.dto.SimpleDTO;
+import com.alan10607.leaf.dto.ContentDTO;
+import com.alan10607.leaf.dto.ForumDTO;
 import com.alan10607.leaf.service.impl.ForumService;
+import com.alan10607.leaf.util.UserUtil;
 import lombok.AllArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -14,20 +17,48 @@ import java.util.List;
 public class ForumController {
     private final ForumService forumService;
 
-    @GetMapping()
-    public Object getId(){
+    @GetMapping("/id")
+    public List<String> getId(){
         return forumService.getId();
     }
 
-    @GetMapping("/{id}")
-    public Object getFirstForums(@PathVariable("id") List<String> idList){
+    @GetMapping("/article/{id}")
+    public List<ForumDTO> getFirstForums(@PathVariable("id") List<String> idList){
         return forumService.getFirstForums(idList);
     }
 
-    @GetMapping("/{id}/{no}")
-    public Object getTopContents(@PathVariable("id") String id,
-                                 @PathVariable("no") int no){
+    @PostMapping("/article")
+    public ForumDTO createForum(@RequestBody @Validated({ ForumDTO.ValidForumGroup.class }) ForumDTO forumDTO){
+        forumDTO.setAuthor(UserUtil.getAuthUserId());
+        return forumService.createForum(forumDTO);
+    }
+
+    @DeleteMapping("/article/{id}")
+    public void deleteContent(@PathVariable("id") String id){
+        forumService.deleteForum(id, UserUtil.getAuthUserId());
+    }
+
+    @GetMapping("/content/{id}/{no}")
+    public List<ContentDTO> getTopContents(@PathVariable("id") String id,
+                                           @PathVariable("no") int no){
         return forumService.getTopContents(id, no);
     }
+
+    @PostMapping("/content/{id}")
+    public ContentDTO replyForum(@PathVariable("id") String id,
+                                 @RequestBody @Validated ForumDTO forumDTO){
+        forumDTO.setId(id);
+        forumDTO.setAuthor(UserUtil.getAuthUserId());
+        forumDTO = forumService.replyForum(forumDTO);
+        List<ContentDTO> requeryContent = forumService.getTopContents(forumDTO.getId(), forumDTO.getNo(), 1);
+        return requeryContent.get(0);
+    }
+
+    @DeleteMapping("/content/{id}/{no}")
+    public void deleteContent(@PathVariable("id") String id,
+                              @PathVariable("no") int no){
+        forumService.deleteContent(id, no, UserUtil.getAuthUserId());
+    }
+
 
 }

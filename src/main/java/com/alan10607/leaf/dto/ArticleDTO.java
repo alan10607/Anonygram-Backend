@@ -1,6 +1,7 @@
 package com.alan10607.leaf.dto;
 
 import com.alan10607.leaf.constant.StatusType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +20,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ArticleDTO extends BaseDTO {
     @NotBlank
     private String title;

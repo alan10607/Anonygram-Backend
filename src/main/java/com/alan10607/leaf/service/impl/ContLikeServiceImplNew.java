@@ -144,7 +144,7 @@ public class ContLikeServiceImplNew {
 
                 ContLike contLike = contLikeDAO.findByIdAndNoAndUserId(id, no, userId);
                 if(likeStatus == LIKE && contLike == null){
-                    contLike = new ContLike(id, no, userId);
+                    contLike = new ContLike(id, (long) no, userId);
                     createList.add(contLike);
 
                     if(!createCount.containsKey(id))

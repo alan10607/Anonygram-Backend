@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Slf4j
 public class ContentServiceImplNew implements ContentServiceNew {
+    private final ArticleDAO articleDAO;
     private final ContentDAO contentDAO;
     private final ArticleRedisService articleRedisService;
     private final ContentRedisService contentRedisService;
@@ -57,7 +58,7 @@ public class ContentServiceImplNew implements ContentServiceNew {
 
         contentRedisService.set(contentDTO);
         contentRedisService.expire(id, no);
-        log.info("Pull Content to redis succeed, id={}", id);
+        log.info("Pull Content to redis succeed, id={}, no={}", id, no);
     }
 
     private ContentDTO contentFilter(ContentDTO contentDTO) {
@@ -73,9 +74,9 @@ public class ContentServiceImplNew implements ContentServiceNew {
     }
 
     public int create(ContentDTO contentDTO) {
-        contentDAO.findByIdAndNo(contentDTO.getId(), contentDTO.getNo()).ifPresent((c) -> {
-            throw new IllegalStateException("Content id already exist");
-        });
+        articleDAO.findById(contentDTO.getId()).orElseThrow(() ->
+                new IllegalStateException(String.format("Article not found, id: %s", contentDTO.getId())));
+
 
         Content content = new Content(contentDTO.getId(),
                 contentDTO.getAuthor(),
@@ -86,14 +87,16 @@ public class ContentServiceImplNew implements ContentServiceNew {
                 contentDTO.getCreateDate());
 
         content = contentDAO.save(content);
+
+        contentDTO.setNo(content.getNo());
         contentRedisService.delete(contentDTO.getId(), contentDTO.getNo());
         articleRedisService.delete(contentDTO.getId());
         return content.getNo();
     }
 
     public void updateContentStatus(String id, int no, String userId, StatusType status) {
-        Content content = contentDAO.findByIdAndNo(id, no)
-                .orElseThrow(() -> new IllegalStateException("Content not found"));
+        Content content = contentDAO.findByIdAndNo(id, no).orElseThrow(() ->
+                new IllegalStateException(String.format("Content not found, id: %s, no: $s", id, no)));
 
         if(!userId.equals(content.getAuthor()))
             throw new IllegalStateException("No authority to modify");

@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import static javax.persistence.GenerationType.*;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -19,16 +21,16 @@ public class Content {
     private String id;
 
     @Id
-    private int no;
+    private Integer no;
 
     @Column(nullable = false)
     private String author;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition="TEXT")
     private String word;
 
     @Column(nullable = false)
-    private long likes;
+    private Long likes;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

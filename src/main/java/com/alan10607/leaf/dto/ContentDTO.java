@@ -1,6 +1,7 @@
 package com.alan10607.leaf.dto;
 
 import com.alan10607.leaf.constant.StatusType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ContentDTO extends BaseDTO{
     @NotNull
     @Min(0)

@@ -1,14 +1,14 @@
 package com.alan10607.leaf.dto;
 
 import com.alan10607.leaf.constant.StatusType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.groups.Default;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -17,19 +17,17 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ForumDTO {
     public String id;
     public Integer no;
 
-    @NotBlank
+    @NotBlank(groups = ValidForumGroup.class)
     private String title;
-
-    @NotBlank
     private String author;
 
     @NotBlank
     private String word;
-
     private StatusType status;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
@@ -44,5 +42,6 @@ public class ForumDTO {
         return BaseDTO.convertValue(this, Map.class);
     }
 
-
+    public interface ValidForumGroup extends Default {
+    }
 }

@@ -1,8 +1,6 @@
 package com.alan10607.redis.controller;
 
-import com.alan10607.leaf.dto.ContentDTO;
 import com.alan10607.leaf.dto.SimpleDTO;
-import com.alan10607.redis.service.impl.ContentRedisService;
 import com.alan10607.redis.service.impl.IdRedisService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +14,7 @@ public class IdRedisController {
     private final IdRedisService idRedisService;
 
     @GetMapping
-    public Object get(){
+    public List<String> get(){
         return idRedisService.get();
     }
 
