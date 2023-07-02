@@ -5,6 +5,7 @@ import com.alan10607.leaf.service.JwtService;
 import com.alan10607.leaf.service.UserService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
 
 @Configuration
 @Data
@@ -26,13 +29,13 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsServices;
     private final UserService userService;
+    private static final String AUTHORIZATION_KEY = "Authorization";
     private static final String BEARER = "Bearer ";
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain
     ) throws ServletException, IOException {
         try{
             setAuthentication(request);
@@ -46,21 +49,31 @@ public class JwtFilter extends OncePerRequestFilter {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if(auth != null) return;//已經setAuthentication
 
-        String authHeader = request.getHeader("Authorization");
-        if(authHeader == null || !authHeader.startsWith(BEARER)) return;//token不存在
+        String token = getTokenFromRequest(request);
+        if(token == null) return;//token不存在
 
-        String token = authHeader.substring(BEARER.length());
         LeafUser user = getUserDetails(token);
         if(user == null) return;//token無效
 
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                user,
-                null,
-                user.getAuthorities()
-        );
-        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails((request)));
+        UsernamePasswordAuthenticationToken authToken = createAuthToken(user, request);
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
+
+    public String getTokenFromRequest(HttpServletRequest request) {
+        Optional<String> headerToken = Optional.ofNullable(request.getHeader(AUTHORIZATION_KEY))
+                .filter(Strings::isNotBlank);
+
+         if (headerToken.isPresent()) {
+            return headerToken.get();
+        }
+
+        return Optional.ofNullable(request.getParameterMap())
+                .map(map -> map.get(AUTHORIZATION_KEY))
+                .map(arr -> arr[0])
+                .filter(str -> Strings.isNotBlank(str))
+                .orElse(null);
+    }
+
 
     private LeafUser getUserDetails(String token) {
         return jwtService.extractIsAnonymous(token) ?
@@ -87,4 +100,12 @@ public class JwtFilter extends OncePerRequestFilter {
         return userService.getAnonymousUser(anonymousName);
     }
 
+    private UsernamePasswordAuthenticationToken createAuthToken(LeafUser user, HttpServletRequest request) {
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                user,
+                null,
+                user.getAuthorities());
+        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails((request)));
+        return authToken;
+    }
 }

@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SimpleDTO {
+    Integer integer;
     String string;
     List<?> list;
     LocalDateTime dateTime;

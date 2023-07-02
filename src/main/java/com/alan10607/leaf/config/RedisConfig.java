@@ -62,17 +62,17 @@ public class RedisConfig {
     }
 
     @Bean
-    public DefaultRedisScript<Long> checkLikeScript() {
+    public DefaultRedisScript<Long> getContentLikeScript() {
         DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
-        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/check_like.lua")));
+        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/get_content_like.lua")));
         redisScript.setResultType(Long.class);
         return redisScript;
     }
 
     @Bean
-    public DefaultRedisScript<Long> toggleLikeScript() {
+    public DefaultRedisScript<Long> setContentLikeScript() {
         DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
-        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/toggle_like.lua")));
+        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/set_content_like.lua")));
         redisScript.setResultType(Long.class);
         return redisScript;
     }

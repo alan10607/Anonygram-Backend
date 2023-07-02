@@ -19,7 +19,9 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -73,12 +75,21 @@ public class ContentServiceImplNew implements ContentServiceNew {
         }
     }
 
+    /**
+     * MySQL InnoDB engine does not support auto-increment with multiple primary keys.
+     * Instead, use countByIdWithLock with "LOCK IN SHARE MODE" as an alternative to the auto-increment rule.
+     * countByIdWithLock will only lock the rows with the same id and will not lock other rows with different id.
+     * @param contentDTO
+     * @return
+     */
     public int create(ContentDTO contentDTO) {
         articleDAO.findById(contentDTO.getId()).orElseThrow(() ->
                 new IllegalStateException(String.format("Article not found, id: %s", contentDTO.getId())));
 
-
+        List<Object[]> query = contentDAO.countByIdWithLock(contentDTO.getId());
+        int no = ((BigInteger) query.get(0)[0]).intValue();
         Content content = new Content(contentDTO.getId(),
+                no,
                 contentDTO.getAuthor(),
                 contentDTO.getWord(),
                 0L,
@@ -86,7 +97,7 @@ public class ContentServiceImplNew implements ContentServiceNew {
                 contentDTO.getCreateDate(),
                 contentDTO.getCreateDate());
 
-        content = contentDAO.save(content);
+        contentDAO.save(content);
 
         contentDTO.setNo(content.getNo());
         contentRedisService.delete(contentDTO.getId(), contentDTO.getNo());

@@ -17,7 +17,7 @@ import java.util.*;
 public class IdRedisService {
     private final ZSetRedisService zSetRedisService;
     private final DefaultRedisScript createIdSetScript;
-    private static final String KEY = "data:idSet";
+    private static final String KEY = "data:id";
     private static final int MAX_ID_SIZE = 100;
     private static final long SCORE_BASE = 4102416000000L;//= LocalDateTime.of(2100, 1, 1, 0, 0).atZone(UTC_PLUS_8).toInstant().toEpochMilli();
     private static final long BATCH_START = 2461449600000L;//2100EpochMilli(SCORE_BASE) - 2022EpochMilli

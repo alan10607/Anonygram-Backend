@@ -13,10 +13,7 @@ public class ContentRedisController {
 
     @GetMapping("/{id}/{no}")
     public ContentDTO get(@PathVariable("id") String id,
-                          @PathVariable("no") int no) throws Throwable {
-        if(true)
-            throw new Exception("!!!");
-
+                          @PathVariable("no") int no) {
         return contentRedisService.get(id, no);
     }
 

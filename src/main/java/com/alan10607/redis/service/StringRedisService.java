@@ -9,7 +9,7 @@ public class StringRedisService extends BaseRedisService {
         return (String) redisTemplate.opsForValue().get(key);
     }
 
-    public void setString(String key, String value) {
+    public void setString(String key, Object value) {
         redisTemplate.opsForValue().set(key, value);
     }
 }

@@ -21,8 +21,8 @@ public class ContLikeServiceImplNew {
     private TxnService txnService;
     private ContLikeDAO contLikeDAO;
     private final RedisTemplate redisTemplate;
-    private final DefaultRedisScript checkLikeScript;
-    private final DefaultRedisScript toggleLikeScript;
+    private final DefaultRedisScript getContentLikeScript;
+    private final DefaultRedisScript setContentLikeScript;
     private final RedisKeyUtil keyUtil;
     private static final int LIKE = 1;
     private static final int UNLIKE = 0;
@@ -43,7 +43,7 @@ public class ContLikeServiceImplNew {
         String unLike = keyUtil.LikeValue(id, no, userId, UNLIKE);
 
         //順序: LIKE_NEW > LIKE_BATCH > LIKE_STATIC > DB
-        Long isSuccess = (Long) redisTemplate.execute(checkLikeScript,
+        Long isSuccess = (Long) redisTemplate.execute(setContentLikeScript,
                 Arrays.asList(keyUtil.LIKE_NEW, keyUtil.LIKE_BATCH, keyUtil.LIKE_STATIC),
                 isLike, unLike);
 
@@ -70,7 +70,7 @@ public class ContLikeServiceImplNew {
      * @throws Exception
      */
     public boolean UpdateIsLikeFromRedis(String id, int no, String userId) {
-        Long isSuccess = (Long) redisTemplate.execute(toggleLikeScript,
+        Long isSuccess = (Long) redisTemplate.execute(getContentLikeScript,
                 Arrays.asList(keyUtil.LIKE_NEW, keyUtil.LIKE_BATCH, keyUtil.LIKE_STATIC),
                 keyUtil.LikeValue(id, no, userId, LIKE),
                 keyUtil.LikeValue(id, no, userId, UNLIKE));
@@ -94,7 +94,7 @@ public class ContLikeServiceImplNew {
      * @throws Exception
      */
     public boolean UpdateUnLikeFromRedis(String id, int no, String userId) {
-        Long isSuccess = (Long) redisTemplate.execute(toggleLikeScript,
+        Long isSuccess = (Long) redisTemplate.execute(setContentLikeScript,
                 Arrays.asList(keyUtil.LIKE_NEW, keyUtil.LIKE_BATCH, keyUtil.LIKE_STATIC),
                 keyUtil.LikeValue(id, no, userId, UNLIKE),
                 keyUtil.LikeValue(id, no, userId, LIKE));
