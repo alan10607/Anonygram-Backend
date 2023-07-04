@@ -1,5 +1,6 @@
 package com.alan10607.redis.controller;
 
+import com.alan10607.leaf.dto.LikeDTO;
 import com.alan10607.leaf.dto.SimpleDTO;
 import com.alan10607.redis.service.impl.ContLikeRedisService;
 import lombok.AllArgsConstructor;
@@ -14,16 +15,14 @@ public class ContLikeRedisController {
     private final ContLikeRedisService contLikeRedisService;
 
     @GetMapping("/{id}/{no}/{userId}")
-    public boolean get(@PathVariable("id") String id,
-                    @PathVariable("no") int no,
-                    @PathVariable("userId") String userId){
+    public LikeDTO get(@PathVariable("id") String id,
+                       @PathVariable("no") int no,
+                       @PathVariable("userId") String userId){
         return contLikeRedisService.get(id, no, userId);
     }
 
-    @PutMapping("/{id}/{no}/{userId}/like")
-    public boolean setLike(@PathVariable("id") String id,
-                    @PathVariable("no") int no,
-                    @PathVariable("userId") String userId){
+    @PutMapping()
+    public boolean setLike(@RequestBody LikeDTO likeDTO){
         return contLikeRedisService.set(id, no, userId, ContLikeRedisService.LikeStatus.LIKE);
     }
 

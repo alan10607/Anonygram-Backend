@@ -7,6 +7,6 @@ import java.io.Serializable;
 @Data
 public class ContLikeId implements Serializable {
     private String id;
-    private int no;
+    private Integer no;
     private String userId;
 }

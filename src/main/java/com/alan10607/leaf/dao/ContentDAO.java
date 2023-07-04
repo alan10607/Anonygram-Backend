@@ -1,6 +1,5 @@
 package com.alan10607.leaf.dao;
 
-import com.alan10607.leaf.constant.StatusType;
 import com.alan10607.leaf.model.Content;
 import com.alan10607.leaf.model.ContentId;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,7 +27,7 @@ public interface ContentDAO extends JpaRepository<Content, ContentId> {
     @Transactional
     @Modifying
     @Query(value = "UPDATE Content c SET c.likes = c.likes + ?3 WHERE c.id = ?1 AND c.no = ?2")
-    int incrLikes(String id, int no, long incrBy);
+    int increaseLikes(String id, int no, long increaseNum);
 
     @Transactional
     @Modifying

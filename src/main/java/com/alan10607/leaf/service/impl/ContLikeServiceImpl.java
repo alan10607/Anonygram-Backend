@@ -2,7 +2,7 @@ package com.alan10607.leaf.service.impl;
 
 import com.alan10607.leaf.dao.ContLikeDAO;
 import com.alan10607.leaf.model.ContLike;
-import com.alan10607.leaf.service.ContLikeService;
+import com.alan10607.leaf.service.ContLikeServiceOld;
 import com.alan10607.leaf.service.TxnService;
 import com.alan10607.leaf.util.RedisKeyUtil;
 import lombok.AllArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class ContLikeServiceImpl implements ContLikeService {
+public class ContLikeServiceImpl implements ContLikeServiceOld {
     private TxnService txnService;
     private ContLikeDAO contLikeDAO;
     private final RedisTemplate redisTemplate;

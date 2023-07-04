@@ -19,7 +19,7 @@ public class ContLike {
     private String id;
 
     @Id
-    private Long no;
+    private Integer no;
 
     @Id
     private String userId;

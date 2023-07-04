@@ -53,12 +53,12 @@ public class TxnService {
     public void updateContentLikesTxn(Map<String, Map<Integer, Integer>> createMap, Map<String, Map<Integer, Integer>> deleteMap){
         for(Map.Entry<String, Map<Integer, Integer>> id : createMap.entrySet()){
             for(Map.Entry<Integer, Integer> no : id.getValue().entrySet())
-                contentDAO.incrLikes(id.getKey(), no.getKey(), no.getValue());
+                contentDAO.increaseLikes(id.getKey(), no.getKey(), no.getValue());
         }
 
         for(Map.Entry<String, Map<Integer, Integer>> id : deleteMap.entrySet()){
             for(Map.Entry<Integer, Integer> no : id.getValue().entrySet())
-                contentDAO.incrLikes(id.getKey(), no.getKey(), ( - no.getValue()));
+                contentDAO.increaseLikes(id.getKey(), no.getKey(), ( - no.getValue()));
         }
     }
 

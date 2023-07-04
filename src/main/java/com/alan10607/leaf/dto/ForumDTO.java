@@ -33,6 +33,7 @@ public class ForumDTO {
     private LocalDateTime updateDate;
     private Integer contNum;
     private List<ContentDTO> contList;
+    private String userId;
 
     public static ForumDTO toDTO(Object data) {
         return BaseDTO.convertValue(data, ForumDTO.class);

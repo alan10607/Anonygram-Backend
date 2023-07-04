@@ -20,7 +20,7 @@ import java.util.UUID;
 public class PostServiceImpl implements PostService {
     private ArticleService articleService;
     private ContentService contentService;
-    private ContLikeService contLikeService;
+    private ContLikeServiceOld contLikeServiceOld;
     private ImgurService imgurService;
     private final TimeUtil timeUtil;
     private static final int FIND_CONT_SIZE = 10;
@@ -185,7 +185,7 @@ public class PostServiceImpl implements PostService {
         int no = postDTO.getNo();
         String userId = postDTO.getUserId();
         contentService.findContentFromRedis(id, no, userId);//必需確認存在於redis
-        boolean isSuccess = contLikeService.UpdateIsLikeFromRedis(id, no, userId);
+        boolean isSuccess = contLikeServiceOld.UpdateIsLikeFromRedis(id, no, userId);
         if(isSuccess) contentService.updateContentLikesFromRedis(id, no, 1);
         postDTO.setSuccess(isSuccess);
         return postDTO;
@@ -206,7 +206,7 @@ public class PostServiceImpl implements PostService {
         int no = postDTO.getNo();
         String userId = postDTO.getUserId();
         contentService.findContentFromRedis(id, no, no, userId);//必需確認存在於redis
-        boolean isSuccess = contLikeService.UpdateUnLikeFromRedis(id, no, userId);
+        boolean isSuccess = contLikeServiceOld.UpdateUnLikeFromRedis(id, no, userId);
         if(isSuccess) contentService.updateContentLikesFromRedis(id, no, -1);
         postDTO.setSuccess(isSuccess);
         return postDTO;

@@ -4,7 +4,7 @@ import com.alan10607.leaf.constant.StatusType;
 import com.alan10607.leaf.dao.ContentDAO;
 import com.alan10607.leaf.dto.PostDTO;
 import com.alan10607.leaf.model.Content;
-import com.alan10607.leaf.service.ContLikeService;
+import com.alan10607.leaf.service.ContLikeServiceOld;
 import com.alan10607.leaf.service.ContentService;
 import com.alan10607.leaf.service.UserService;
 import com.alan10607.leaf.util.RedisKeyUtil;
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 @Slf4j
 public class ContentServiceImpl implements ContentService {
-    private ContLikeService contLikeService;
+    private ContLikeServiceOld contLikeServiceOld;
     private UserService userService;
     private ContentDAO contentDAO;
     private final RedisTemplate redisTemplate;
@@ -84,7 +84,7 @@ public class ContentServiceImpl implements ContentService {
         redisTemplate.opsForHash().putAll(keyUtil.cont(id, no), toRedis);
         log.info("Pull cont to redis succeed, id={}, no={}", id, no);
 
-        postDTO.setIsUserLike(contLikeService.findContLikeFromRedis(id, no, userId));
+        postDTO.setIsUserLike(contLikeServiceOld.findContLikeFromRedis(id, no, userId));
         postDTO.setAuthorName(userService.findUserNameFromRedis(postDTO.getAuthor()));
         return postDTO;
     }
@@ -107,7 +107,7 @@ public class ContentServiceImpl implements ContentService {
                         (StatusType) contMap.get("status"),
                         timeUtil.parseStr((String) contMap.get("updateDate")),
                         timeUtil.parseStr((String) contMap.get("createDate")),
-                        contLikeService.findContLikeFromRedis(id, no, userId),
+                        contLikeServiceOld.findContLikeFromRedis(id, no, userId),
                         userService.findUserNameFromRedis((String) contMap.get("author"))
                 );
         }

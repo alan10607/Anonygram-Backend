@@ -11,7 +11,7 @@ public class SetRedisService extends BaseRedisService {
         return redisTemplate.opsForSet().members(key);
     }
 
-    public void setSet(String key, String value) {
+    public void setSet(String key, String... value) {
         redisTemplate.opsForSet().add(key, value);
     }
 }
