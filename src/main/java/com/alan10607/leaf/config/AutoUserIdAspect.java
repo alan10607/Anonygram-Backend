@@ -1,9 +1,9 @@
 package com.alan10607.leaf.config;
 
+import com.alan10607.auth.service.UserService;
 import com.alan10607.leaf.constant.AutoUserId;
 import com.alan10607.leaf.dto.PostDTO;
-import com.alan10607.leaf.model.GramUser;
-import com.alan10607.leaf.service.UserService;
+import com.alan10607.auth.model.ForumUser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -38,12 +38,12 @@ public class AutoUserIdAspect {
         PostDTO postDTO = (PostDTO) jp.getArgs()[0];
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();//取得Authentication
         if(auth instanceof UsernamePasswordAuthenticationToken){
-            GramUser gramUser = (GramUser) auth.getPrincipal();
+            ForumUser forumUser = (ForumUser) auth.getPrincipal();
 
-            postDTO.setUserId(gramUser.isAnonymousId() ?
-                    gramUser.getUsername() :
-                    Long.toString(gramUser.getId()));
-            postDTO.setUserName(gramUser.getUsername());
+            postDTO.setUserId(forumUser.isAnonymousId() ?
+                    forumUser.getUsername() :
+                    forumUser.getId());
+            postDTO.setUserName(forumUser.getUsername());
         }
     }
 

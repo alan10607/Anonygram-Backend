@@ -1,11 +1,11 @@
 package com.alan10607.leaf.service.impl;
 
-import com.alan10607.leaf.constant.LeafRoleType;
-import com.alan10607.leaf.dto.LeafUserDTO;
-import com.alan10607.leaf.model.GramUser;
+import com.alan10607.auth.service.UserService;
+import com.alan10607.auth.constant.RoleType;
+import com.alan10607.auth.dto.UserDTO;
+import com.alan10607.auth.model.ForumUser;
 import com.alan10607.leaf.service.JwtService;
 import com.alan10607.leaf.service.AuthService;
-import com.alan10607.leaf.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,23 +30,23 @@ public class AuthServiceImpl implements AuthService {
     private static final String E_PW = "Password can't be blank";
     private static final String E_USERNAME = "UserName can't be blank";
 
-    public LeafUserDTO login(
+    public UserDTO login(
             @NotBlank @Email(message = E_EMAIL) String email,
             @NotBlank(message = E_PW) String pw
     ) {
-        GramUser user = (GramUser) authenticationManager
+        ForumUser user = (ForumUser) authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(email, pw)).getPrincipal();
 
         String token = jwtService.createToken(user);
-        return new LeafUserDTO(user.getUsername(),
+        return new UserDTO(user.getUsername(),
                 user.isAnonymousId(),
                 token);
     }
 
-    public LeafUserDTO loginAnonymity() {
-        GramUser anonymousUser = createAnonymousUser();
+    public UserDTO loginAnonymity() {
+        ForumUser anonymousUser = createAnonymousUser();
         String token = jwtService.createToken(anonymousUser);
-        return new LeafUserDTO(anonymousUser.getUsername(),
+        return new UserDTO(anonymousUser.getUsername(),
                 anonymousUser.isAnonymousId(),
                 token);
     }
@@ -56,10 +56,10 @@ public class AuthServiceImpl implements AuthService {
             @NotBlank(message = E_USERNAME) String userName,
             @NotBlank(message = E_PW) String pw
     ) {
-        userService.createUser(email, userName, pw, LeafRoleType.NORMAL);
+        userService.createUser(email, userName, pw, RoleType.NORMAL);
     }
 
-    private GramUser createAnonymousUser() {
+    private ForumUser createAnonymousUser() {
         return userService.getAnonymousUser(getSessionBase64());
     }
 

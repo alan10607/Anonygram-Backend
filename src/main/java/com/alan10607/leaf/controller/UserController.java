@@ -1,8 +1,8 @@
 package com.alan10607.leaf.controller;
 
-import com.alan10607.leaf.constant.LeafRoleType;
-import com.alan10607.leaf.dto.LeafUserDTO;
-import com.alan10607.leaf.service.UserService;
+import com.alan10607.auth.service.UserService;
+import com.alan10607.auth.constant.RoleType;
+import com.alan10607.auth.dto.UserDTO;
 import com.alan10607.leaf.util.ResponseUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +23,10 @@ public class UserController {
     private final ResponseUtil responseUtil;
 
     @PostMapping("/findUser")
-    public ResponseEntity findUser(@RequestBody LeafUserDTO leafUserDTO){
+    public ResponseEntity findUser(@RequestBody UserDTO userDTO){
         try{
-            leafUserDTO = userService.findUser(leafUserDTO.getEmail());
-            return responseUtil.ok(leafUserDTO);
+            userDTO = userService.findUser(userDTO.getEmail());
+            return responseUtil.ok(userDTO);
         }catch (Exception e){
             log.error(e.getMessage());
             return responseUtil.err(e);
@@ -34,10 +34,10 @@ public class UserController {
     }
 
     @PostMapping("/findAllUser")
-    public ResponseEntity findAllUser(@RequestBody LeafUserDTO leafUserDTO){
+    public ResponseEntity findAllUser(@RequestBody UserDTO userDTO){
         try{
-            List<LeafUserDTO> leafUserDTOList = userService.findAllUser();
-            return responseUtil.ok(leafUserDTOList);
+            List<UserDTO> userDTOList = userService.findAllUser();
+            return responseUtil.ok(userDTOList);
         }catch (Exception e){
             log.error(e.getMessage());
             return responseUtil.err(e);
@@ -45,12 +45,12 @@ public class UserController {
     }
 
     @PostMapping("/createUser")
-    public ResponseEntity createUser(@RequestBody LeafUserDTO leafUserDTO){
+    public ResponseEntity createUser(@RequestBody UserDTO userDTO){
         try{
-            userService.createUser(leafUserDTO.getEmail(),
-                    leafUserDTO.getUserName(),
-                    leafUserDTO.getPw(),
-                    LeafRoleType.NORMAL
+            userService.createUser(userDTO.getEmail(),
+                    userDTO.getUserName(),
+                    userDTO.getPw(),
+                    RoleType.NORMAL
             );
             return responseUtil.ok();
         }catch (Exception e){
@@ -60,9 +60,9 @@ public class UserController {
     }
 
     @PostMapping("/deleteUser")
-    public ResponseEntity deleteUser(@RequestBody LeafUserDTO leafUserDTO){
+    public ResponseEntity deleteUser(@RequestBody UserDTO userDTO){
         try{
-            userService.deleteUser(leafUserDTO.getEmail());
+            userService.deleteUser(userDTO.getEmail());
             return responseUtil.ok();
         }catch (Exception e){
             log.error(e.getMessage());

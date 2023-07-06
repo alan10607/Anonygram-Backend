@@ -1,5 +1,6 @@
 package com.alan10607.leaf.service;
 
+import com.alan10607.auth.service.UserService;
 import com.alan10607.leaf.constant.StatusType;
 import com.alan10607.leaf.dao.ArticleDAO;
 import com.alan10607.leaf.dao.ContentDAO;
@@ -44,7 +45,7 @@ public class ContentService {
             .map(content -> new ContentDTO(content.getId(),
                 content.getNo(),
                 content.getAuthor(),
-                userService.findUserNameFromRedis(UserUtil.getAuthUserId()),
+                userService.getUserName(UserUtil.getAuthUserId()),
                 content.getWord(),
                 content.getLikes(),
                 likeService.get(id, no, UserUtil.getAuthUserId()),

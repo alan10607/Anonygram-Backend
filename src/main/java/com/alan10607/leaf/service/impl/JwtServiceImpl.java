@@ -1,6 +1,6 @@
 package com.alan10607.leaf.service.impl;
 
-import com.alan10607.leaf.model.GramUser;
+import com.alan10607.auth.model.ForumUser;
 import com.alan10607.leaf.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -64,8 +64,8 @@ public class JwtServiceImpl implements JwtService {
                 .compact();
     }
 
-    public String createToken(GramUser gramUser){
-        return createToken(Map.of(ID, gramUser.getId(), EMAIL, gramUser.getEmail(), IS_ANONYMOUS, gramUser.isAnonymousId()), gramUser);
+    public String createToken(ForumUser forumUser){
+        return createToken(Map.of(ID, forumUser.getId(), EMAIL, forumUser.getEmail(), IS_ANONYMOUS, forumUser.isAnonymousId()), forumUser);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails){

@@ -1,4 +1,4 @@
-package com.alan10607.leaf.model;
+package com.alan10607.auth.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,9 +11,9 @@ import javax.persistence.Id;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LeafRole {
+public class Role {
 
     @Id
-    private Long id;
+    private Long roleId;
     private String roleName;
 }

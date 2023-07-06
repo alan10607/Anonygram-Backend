@@ -1,6 +1,6 @@
 package com.alan10607.leaf.config;
 
-import com.alan10607.leaf.constant.LeafRoleType;
+import com.alan10607.auth.constant.RoleType;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.server.ConfigurableWebServerFactory;
@@ -62,8 +62,8 @@ public class SecurityConfig {
                     "/redis/**",
                     "/forum/**").permitAll()//公開頁面
                 .and().authorizeRequests().antMatchers("/post/**")
-                .hasAnyAuthority(LeafRoleType.NORMAL.name(), LeafRoleType.ADMIN.name(), LeafRoleType.ANONY.name())//限制為jwt權限訪問
-                .and().authorizeRequests().anyRequest().hasAuthority(LeafRoleType.ADMIN.name())//限制為admin權限訪問
+                .hasAnyAuthority(RoleType.NORMAL.name(), RoleType.ADMIN.name(), RoleType.ANONYMOUS.name())//限制為jwt權限訪問
+                .and().authorizeRequests().anyRequest().hasAuthority(RoleType.ADMIN.name())//限制為admin權限訪問
                 .and().exceptionHandling().accessDeniedPage("/err")
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)//不使用session
                 .and().authenticationProvider(authenticationProvider).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

@@ -1,10 +1,10 @@
 package com.alan10607.leaf.service;
 
-import com.alan10607.leaf.dto.LeafUserDTO;
+import com.alan10607.auth.dto.UserDTO;
 
 public interface AuthService {
-    LeafUserDTO login(String email, String pw);
-    LeafUserDTO loginAnonymity();
+    UserDTO login(String email, String pw);
+    UserDTO loginAnonymity();
     void register(String email, String userName, String pw);
 }
 

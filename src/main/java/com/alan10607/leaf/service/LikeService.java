@@ -74,7 +74,7 @@ public class LikeService {
      * 時間需要 O(contId size * contNo size * userId size)
      * 若批次失敗可以設計成保留資料後重新跑批
      */
-    public void saveContLikeToDB() {
+    public void saveLikeToDB() {
         List<ContLike> createList = new ArrayList<>();
         List<ContLike> deleteList = new ArrayList<>();
         Map<LikeDTO, Long> likeCount = new HashMap<>();

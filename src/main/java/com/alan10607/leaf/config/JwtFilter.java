@@ -1,8 +1,8 @@
 package com.alan10607.leaf.config;
 
-import com.alan10607.leaf.model.GramUser;
+import com.alan10607.auth.model.ForumUser;
+import com.alan10607.auth.service.UserService;
 import com.alan10607.leaf.service.JwtService;
-import com.alan10607.leaf.service.UserService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -51,7 +51,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = getTokenFromRequest(request);
         if(token == null) return;//token不存在
 
-        GramUser user = getUserDetails(token);
+        ForumUser user = getUserDetails(token);
         if(user == null) return;//token無效
 
         UsernamePasswordAuthenticationToken authToken = createAuthToken(user, request);
@@ -74,23 +74,23 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
 
-    private GramUser getUserDetails(String token) {
+    private ForumUser getUserDetails(String token) {
         return jwtService.extractIsAnonymous(token) ?
                 getAnonymousUser(token) :
                 getLoginUser(token);
     }
 
-    private GramUser getLoginUser(String token) {
+    private ForumUser getLoginUser(String token) {
         String email = jwtService.extractEmail(token);
         if(email == null) return null;
 
-        GramUser user = (GramUser) userDetailsServices.loadUserByUsername(email);
+        ForumUser user = (ForumUser) userDetailsServices.loadUserByUsername(email);
         if(!jwtService.isTokenValid(token, user)) return null;
 
         return user;
     }
 
-    private GramUser getAnonymousUser(String token) {
+    private ForumUser getAnonymousUser(String token) {
         if(jwtService.isTokenExpired(token)) return null;
 
         String anonymousName = jwtService.extractUsername(token);
@@ -99,7 +99,7 @@ public class JwtFilter extends OncePerRequestFilter {
         return userService.getAnonymousUser(anonymousName);
     }
 
-    private UsernamePasswordAuthenticationToken createAuthToken(GramUser user, HttpServletRequest request) {
+    private UsernamePasswordAuthenticationToken createAuthToken(ForumUser user, HttpServletRequest request) {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 user,
                 null,

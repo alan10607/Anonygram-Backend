@@ -1,4 +1,4 @@
-package com.alan10607.leaf.model;
+package com.alan10607.auth.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GramUser implements UserDetails {
+public class ForumUser implements UserDetails {
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -30,25 +30,25 @@ public class GramUser implements UserDetails {
     private String pw;
 
     @ManyToMany(fetch = FetchType.EAGER)//EAGER: 關聯的資料同時取出放入內存, LAZY: 關聯的資料不即時取出, 等要使用再處理
-    private List<LeafRole> leafRole = new ArrayList<>();
+    private List<Role> role = new ArrayList<>();
 
     private LocalDateTime updatedDate;
 
-    public GramUser(String userName,
-                    String email,
-                    String pw,
-                    List<LeafRole> leafRole,
-                    LocalDateTime updatedDate) {
+    public ForumUser(String userName,
+                     String email,
+                     String pw,
+                     List<Role> role,
+                     LocalDateTime updatedDate) {
         this.userName = userName;
         this.email = email;
         this.pw = pw;
-        this.leafRole = leafRole;
+        this.role = role;
         this.updatedDate = updatedDate;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> authorities = leafRole
+        List<SimpleGrantedAuthority> authorities = role
                 .stream()
                 .map(leafRole -> new SimpleGrantedAuthority(leafRole.getRoleName()))
                 .collect(Collectors.toList());
@@ -87,10 +87,10 @@ public class GramUser implements UserDetails {
     }
 
     public void setAnonymousId() {
-        this.id = -1L;
+        this.id = "";
     }
 
     public boolean isAnonymousId() {
-        return this.id == -1L;
+        return this.id.isEmpty();
     }
 }

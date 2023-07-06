@@ -1,6 +1,6 @@
 package com.alan10607.leaf.controller;
 
-import com.alan10607.leaf.dto.LeafUserDTO;
+import com.alan10607.auth.dto.UserDTO;
 import com.alan10607.leaf.service.AuthService;
 import com.alan10607.leaf.util.ResponseUtil;
 import lombok.AllArgsConstructor;
@@ -20,10 +20,10 @@ public class AuthController {
     private final ResponseUtil responseUtil;
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody LeafUserDTO leafUserDTO){
+    public ResponseEntity login(@RequestBody UserDTO userDTO){
         try{
-            leafUserDTO = authService.login(leafUserDTO.getEmail(), leafUserDTO.getPw());
-            return responseUtil.ok(leafUserDTO);
+            userDTO = authService.login(userDTO.getEmail(), userDTO.getPw());
+            return responseUtil.ok(userDTO);
         }catch (Exception e){
             log.error(e.getMessage());
             return responseUtil.err(e);
@@ -31,10 +31,10 @@ public class AuthController {
     }
 
     @PostMapping("/anony")
-    public ResponseEntity anony(@RequestBody LeafUserDTO leafUserDTO){
+    public ResponseEntity anony(@RequestBody UserDTO userDTO){
         try{
-            leafUserDTO = authService.loginAnonymity();
-            return responseUtil.ok(leafUserDTO);
+            userDTO = authService.loginAnonymity();
+            return responseUtil.ok(userDTO);
         }catch (Exception e){
             log.error(e.getMessage());
             return responseUtil.err(e);
@@ -42,9 +42,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody LeafUserDTO leafUserDTO){
+    public ResponseEntity register(@RequestBody UserDTO userDTO){
         try{
-            authService.register(leafUserDTO.getEmail(), leafUserDTO.getUserName(), leafUserDTO.getPw());
+            authService.register(userDTO.getEmail(), userDTO.getUserName(), userDTO.getPw());
             return responseUtil.ok();
         }catch (Exception e){
             log.error(e.getMessage());
