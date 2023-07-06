@@ -2,7 +2,7 @@ package com.alan10607.leaf.service.impl;
 
 import com.alan10607.leaf.constant.LeafRoleType;
 import com.alan10607.leaf.dto.LeafUserDTO;
-import com.alan10607.leaf.model.LeafUser;
+import com.alan10607.leaf.model.GramUser;
 import com.alan10607.leaf.service.JwtService;
 import com.alan10607.leaf.service.AuthService;
 import com.alan10607.leaf.service.UserService;
@@ -34,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
             @NotBlank @Email(message = E_EMAIL) String email,
             @NotBlank(message = E_PW) String pw
     ) {
-        LeafUser user = (LeafUser) authenticationManager
+        GramUser user = (GramUser) authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(email, pw)).getPrincipal();
 
         String token = jwtService.createToken(user);
@@ -44,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public LeafUserDTO loginAnonymity() {
-        LeafUser anonymousUser = createAnonymousUser();
+        GramUser anonymousUser = createAnonymousUser();
         String token = jwtService.createToken(anonymousUser);
         return new LeafUserDTO(anonymousUser.getUsername(),
                 anonymousUser.isAnonymousId(),
@@ -59,7 +59,7 @@ public class AuthServiceImpl implements AuthService {
         userService.createUser(email, userName, pw, LeafRoleType.NORMAL);
     }
 
-    private LeafUser createAnonymousUser() {
+    private GramUser createAnonymousUser() {
         return userService.getAnonymousUser(getSessionBase64());
     }
 

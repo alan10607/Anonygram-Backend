@@ -3,6 +3,7 @@ package com.alan10607.leaf.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,17 +15,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LeafUser implements UserDetails {
+public class GramUser implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid")
+    private String id;
     private String userName;
     private String email;
     private String pw;
@@ -34,7 +34,7 @@ public class LeafUser implements UserDetails {
 
     private LocalDateTime updatedDate;
 
-    public LeafUser(String userName,
+    public GramUser(String userName,
                     String email,
                     String pw,
                     List<LeafRole> leafRole,

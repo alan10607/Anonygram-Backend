@@ -5,7 +5,7 @@ import com.alan10607.leaf.dao.LeafRoleDAO;
 import com.alan10607.leaf.dao.LeafUserDAO;
 import com.alan10607.leaf.dto.LeafUserDTO;
 import com.alan10607.leaf.model.LeafRole;
-import com.alan10607.leaf.model.LeafUser;
+import com.alan10607.leaf.model.GramUser;
 import com.alan10607.leaf.service.UserService;
 import com.alan10607.leaf.util.RedisKeyUtil;
 import com.alan10607.leaf.util.TimeUtil;
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         });
 
         LeafRole leafRole = findRole(roleType.name());
-        leafUserDAO.save(new LeafUser(
+        leafUserDAO.save(new GramUser(
                 userName,
                 email,
                 bCryptPasswordEncoder.encode(pw),
@@ -104,11 +104,11 @@ public class UserServiceImpl implements UserService, UserDetailsService{
             @NotBlank @Email(message = E_EMAIL) String email,
             @NotBlank(message = E_USERNAME) String userName
     ) {
-        LeafUser leafUser = leafUserDAO.findByEmail(email)
+        GramUser gramUser = leafUserDAO.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("Email not found"));
 
-        leafUser.setUserName(userName);
-        leafUserDAO.save(leafUser);
+        gramUser.setUserName(userName);
+        leafUserDAO.save(gramUser);
     }
 
     public void deleteUser(
@@ -116,10 +116,10 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     ) {
         if(Strings.isBlank(email)) throw new IllegalStateException("Email can't be blank");
 
-        LeafUser leafUser = leafUserDAO.findByEmail(email)
+        GramUser gramUser = leafUserDAO.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("Email not found"));
 
-        leafUserDAO.delete(leafUser);
+        leafUserDAO.delete(gramUser);
     }
 
     public LeafRole findRole(String roleName) {
@@ -137,14 +137,14 @@ public class UserServiceImpl implements UserService, UserDetailsService{
      * @throws UsernameNotFoundException
      */
     @Override
-    public LeafUser loadUserByUsername(String email) throws UsernameNotFoundException {
-        LeafUser leafUser = leafUserDAO.findByEmail(email)
+    public GramUser loadUserByUsername(String email) throws UsernameNotFoundException {
+        GramUser gramUser = leafUserDAO.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("Email not found: %s", email)));
 
         log.info("Spring security get user by email: {} succeeded", email);
 
         //org.springframework.security.core.userdetails.User
-        return leafUser;
+        return gramUser;
     }
 
     public String findUserNameFromRedis(String id) {
@@ -160,9 +160,9 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     private String pullUserNameToRedis(String id) {
         String userName = "";
         try {
-            LeafUser leafUser = leafUserDAO.findById(Long.parseLong(id))
+            GramUser gramUser = leafUserDAO.findById(Long.parseLong(id))
                     .orElseThrow(() -> new IllegalStateException("User not found"));
-            userName = leafUser.getUsername();
+            userName = gramUser.getUsername();
         }catch (Exception e){
             userName = id;
             log.info("Pull user name to redis failed, id={}, put id to redis instead", id);
@@ -178,9 +178,9 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         redisTemplate.delete(keyUtil.user(id));
     }
 
-    public LeafUser getAnonymousUser(String userName) {
+    public GramUser getAnonymousUser(String userName) {
         LeafRole role = leafRoleDAO.findByRoleName(LeafRoleType.ANONY.name());
-        LeafUser anonymousUser = new LeafUser();
+        GramUser anonymousUser = new GramUser();
         anonymousUser.setAnonymousId();
         anonymousUser.setUserName(userName);
         anonymousUser.setEmail("");
@@ -196,7 +196,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
             userService.saveRole(new LeafRole(3L, LeafRoleType.ANONY.name()));
             LeafRole leafRole = userService.findRole(LeafRoleType.ADMIN.name());
             if(!leafUserDAO.findByEmail("alan").isPresent()){
-                leafUserDAO.save(new LeafUser(
+                leafUserDAO.save(new GramUser(
                         "alan",
                         "alan",
                         bCryptPasswordEncoder.encode("alan"),

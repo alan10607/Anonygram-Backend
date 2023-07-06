@@ -1,11 +1,8 @@
 package com.alan10607.redis.controller;
 
 import com.alan10607.leaf.dto.ArticleDTO;
-import com.alan10607.leaf.dto.ContentDTO;
-import com.alan10607.leaf.util.ResponseUtil;
-import com.alan10607.redis.service.impl.ArticleRedisService;
+import com.alan10607.redis.service.ArticleRedisService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;

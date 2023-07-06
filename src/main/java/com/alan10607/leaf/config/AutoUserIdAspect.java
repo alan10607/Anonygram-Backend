@@ -2,7 +2,7 @@ package com.alan10607.leaf.config;
 
 import com.alan10607.leaf.constant.AutoUserId;
 import com.alan10607.leaf.dto.PostDTO;
-import com.alan10607.leaf.model.LeafUser;
+import com.alan10607.leaf.model.GramUser;
 import com.alan10607.leaf.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,12 +38,12 @@ public class AutoUserIdAspect {
         PostDTO postDTO = (PostDTO) jp.getArgs()[0];
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();//取得Authentication
         if(auth instanceof UsernamePasswordAuthenticationToken){
-            LeafUser leafUser = (LeafUser) auth.getPrincipal();
+            GramUser gramUser = (GramUser) auth.getPrincipal();
 
-            postDTO.setUserId(leafUser.isAnonymousId() ?
-                    leafUser.getUsername() :
-                    Long.toString(leafUser.getId()));
-            postDTO.setUserName(leafUser.getUsername());
+            postDTO.setUserId(gramUser.isAnonymousId() ?
+                    gramUser.getUsername() :
+                    Long.toString(gramUser.getId()));
+            postDTO.setUserName(gramUser.getUsername());
         }
     }
 

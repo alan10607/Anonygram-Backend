@@ -2,7 +2,7 @@ package com.alan10607.redis.controller;
 
 import com.alan10607.leaf.dto.LikeDTO;
 import com.alan10607.leaf.dto.SimpleDTO;
-import com.alan10607.redis.service.impl.ContLikeRedisService;
+import com.alan10607.redis.service.LikeRedisService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,26 +11,26 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/redis/contLike")
 @AllArgsConstructor
-public class ContLikeRedisController {
-    private final ContLikeRedisService contLikeRedisService;
+public class LikeRedisController {
+    private final LikeRedisService likeRedisService;
 
     @GetMapping("/{id}/{no}/{userId}")
     public LikeDTO get(@PathVariable("id") String id,
                        @PathVariable("no") int no,
                        @PathVariable("userId") String userId){
-        return contLikeRedisService.get(id, no, userId);
+        return likeRedisService.get(id, no, userId);
     }
 
     @PutMapping()
     public boolean setLike(@RequestBody LikeDTO likeDTO){
-        return contLikeRedisService.set(id, no, userId, ContLikeRedisService.LikeStatus.LIKE);
+        return likeRedisService.set(id, no, userId, LikeRedisService.LikeStatus.LIKE);
     }
 
     @PutMapping("/{id}/{no}/{userId}/dislike")
     public boolean setDislike(@PathVariable("id") String id,
                         @PathVariable("no") int no,
                         @PathVariable("userId") String userId){
-        return contLikeRedisService.set(id, no, userId, ContLikeRedisService.LikeStatus.DISLIKE);
+        return likeRedisService.set(id, no, userId, LikeRedisService.LikeStatus.DISLIKE);
     }
 
     @PutMapping("/{id}/{no}/{userId}")
@@ -42,11 +42,11 @@ public class ContLikeRedisController {
         String keyType = dataList.get(0);
         String likeStatus = dataList.get(1);
 
-        contLikeRedisService.set(id,
+        likeRedisService.set(id,
                 no,
-                ContLikeRedisService.KeyType.valueOf(keyType),
+                LikeRedisService.KeyType.valueOf(keyType),
                 userId,
-                ContLikeRedisService.LikeStatus.valueOf(likeStatus));
+                LikeRedisService.LikeStatus.valueOf(likeStatus));
     }
 
 

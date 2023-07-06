@@ -1,6 +1,5 @@
 package com.alan10607.leaf.schedule;
 
-import com.alan10607.leaf.service.ContLikeServiceOld;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;

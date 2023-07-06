@@ -3,7 +3,7 @@ package com.alan10607.leaf.controller;
 import com.alan10607.leaf.dto.ContentDTO;
 import com.alan10607.leaf.dto.ForumDTO;
 import com.alan10607.leaf.dto.LikeDTO;
-import com.alan10607.leaf.service.impl.ForumService;
+import com.alan10607.leaf.service.ForumService;
 import com.alan10607.leaf.util.UserUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;

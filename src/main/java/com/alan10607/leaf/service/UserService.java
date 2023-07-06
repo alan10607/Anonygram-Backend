@@ -3,7 +3,7 @@ package com.alan10607.leaf.service;
 import com.alan10607.leaf.constant.LeafRoleType;
 import com.alan10607.leaf.dto.LeafUserDTO;
 import com.alan10607.leaf.model.LeafRole;
-import com.alan10607.leaf.model.LeafUser;
+import com.alan10607.leaf.model.GramUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
@@ -18,5 +18,5 @@ public interface UserService extends UserDetailsService {
     void saveRole(LeafRole leafRole);
     String findUserNameFromRedis(String id);
     void deleteUserNameFromRedis(String id);
-    LeafUser getAnonymousUser(String userName);
+    GramUser getAnonymousUser(String userName);
 }

@@ -1,7 +1,7 @@
-package com.alan10607.redis.service.impl;
+package com.alan10607.redis.service;
 
 import com.alan10607.leaf.dto.LikeDTO;
-import com.alan10607.redis.service.SetRedisService;
+import com.alan10607.redis.service.base.SetBaseRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class ContLikeUpdateRedisService {
-    private final SetRedisService setRedisService;
+public class LikeUpdateRedisService {
+    private final SetBaseRedisService setBaseRedisService;
     private static final String KEY = "data:likeUpdate";
     private static final String KEY_BATCH = "data:likeUpdate:batch";
 
@@ -23,26 +23,26 @@ public class ContLikeUpdateRedisService {
     }
 
     public List<LikeDTO> get() {
-         return parseValue(setRedisService.getSet(KEY));
+         return parseValue(setBaseRedisService.get(KEY));
     }
 
     public void set(LikeDTO likeDTO) {
-        setRedisService.setSet(KEY, getValue(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()));
+        setBaseRedisService.set(KEY, getValue(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()));
     }
 
     public void set(List<LikeDTO> likeList) {
         String[] values = likeList.stream()
                 .map(likeDTO -> getValue(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()))
                 .toArray(size -> new String[size]);
-        setRedisService.setSet(KEY, values);
+        setBaseRedisService.set(KEY, values);
     }
 
     public void renameToBatch() {
-        setRedisService.rename(KEY, KEY_BATCH);
+        setBaseRedisService.rename(KEY, KEY_BATCH);
     }
 
     public List<LikeDTO> getBatch() {
-        return parseValue(setRedisService.getSet(KEY_BATCH));
+        return parseValue(setBaseRedisService.get(KEY_BATCH));
     }
 
     private List<LikeDTO> parseValue(Set<String> keyList){

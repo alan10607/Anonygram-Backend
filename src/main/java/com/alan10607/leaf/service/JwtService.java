@@ -1,6 +1,6 @@
 package com.alan10607.leaf.service;
 
-import com.alan10607.leaf.model.LeafUser;
+import com.alan10607.leaf.model.GramUser;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -15,7 +15,7 @@ public interface JwtService {
     <T> T extractClaims(String token, Function<Claims, T> claimsResolver);
     String createToken(UserDetails userDetails);
     String createToken(Map<String, Object> extraClaim, UserDetails userDetails);
-    String createToken(LeafUser leafUser);
+    String createToken(GramUser gramUser);
     boolean isTokenValid(String token, UserDetails userDetails);
     boolean isTokenExpired(String token);
 }

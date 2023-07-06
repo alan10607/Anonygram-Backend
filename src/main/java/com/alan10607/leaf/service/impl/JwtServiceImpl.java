@@ -1,6 +1,6 @@
 package com.alan10607.leaf.service.impl;
 
-import com.alan10607.leaf.model.LeafUser;
+import com.alan10607.leaf.model.GramUser;
 import com.alan10607.leaf.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -64,8 +64,8 @@ public class JwtServiceImpl implements JwtService {
                 .compact();
     }
 
-    public String createToken(LeafUser leafUser){
-        return createToken(Map.of(ID, leafUser.getId(), EMAIL, leafUser.getEmail(), IS_ANONYMOUS, leafUser.isAnonymousId()), leafUser);
+    public String createToken(GramUser gramUser){
+        return createToken(Map.of(ID, gramUser.getId(), EMAIL, gramUser.getEmail(), IS_ANONYMOUS, gramUser.isAnonymousId()), gramUser);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails){

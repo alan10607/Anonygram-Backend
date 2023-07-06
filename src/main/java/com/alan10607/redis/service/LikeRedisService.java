@@ -1,9 +1,8 @@
-package com.alan10607.redis.service.impl;
+package com.alan10607.redis.service;
 
 import com.alan10607.leaf.dto.LikeDTO;
 import com.alan10607.redis.constant.LikeKeyType;
-import com.alan10607.redis.constant.LikeStatus;
-import com.alan10607.redis.service.StringRedisService;
+import com.alan10607.redis.service.base.StringBaseRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -15,12 +14,11 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class ContLikeRedisService {
-    private final StringRedisService stringRedisService;
+public class LikeRedisService {
+    private final StringBaseRedisService stringBaseRedisService;
     private final DefaultRedisScript getContentLikeScript;
     private final DefaultRedisScript setContentLikeScript;
     private static final int CONTENT_LIKE_EXPIRE_SEC = 3600;
-
 
     private String getKey(String id, int no, LikeKeyType keyType, String userId) {
         return String.format("data:cont:%s:%s:like:%s:%s", id, no, keyType.value, userId);
@@ -36,7 +34,7 @@ public class ContLikeRedisService {
     }
 
     public LikeDTO get(String id, int no, String userId){
-        Long luaQueryResult = stringRedisService.execute(getContentLikeScript,
+        Long luaQueryResult = stringBaseRedisService.execute(getContentLikeScript,
                 getKeyList(id, no, userId));
 
         LikeDTO likeDTO = new LikeDTO(id,
@@ -52,7 +50,7 @@ public class ContLikeRedisService {
     }
 
     public boolean set(LikeDTO likeDTO) {
-        Long isSuccess = stringRedisService.execute(setContentLikeScript,
+        Long isSuccess = stringBaseRedisService.execute(setContentLikeScript,
                 getKeyList(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()),
                 likeDTO.getLikeNumberString());
 
@@ -69,18 +67,16 @@ public class ContLikeRedisService {
     }
 
     public void setWithKeyType(LikeDTO likeDTO) {
-        stringRedisService.setString(
+        stringBaseRedisService.set(
             getKey(likeDTO.getId(), likeDTO.getNo(), likeDTO.getLikeKeyType(), likeDTO.getUserId()),
             likeDTO.getLikeNumberString());
     }
 
     public void expire(String id, int no, String userId, LikeKeyType LikeKeyType) {
-        stringRedisService.expire(
+        stringBaseRedisService.expire(
             getKey(id, no, LikeKeyType, userId),
             CONTENT_LIKE_EXPIRE_SEC);
     }
-
-
 
 
 }

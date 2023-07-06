@@ -1,4 +1,4 @@
-package com.alan10607.redis.service;
+package com.alan10607.redis.service.base;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;

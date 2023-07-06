@@ -1,7 +1,7 @@
-package com.alan10607.redis.service.impl;
+package com.alan10607.redis.service;
 
 import com.alan10607.leaf.util.TimeUtil;
-import com.alan10607.redis.service.ZSetRedisService;
+import com.alan10607.redis.service.base.ZSetBaseRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.DefaultTypedTuple;
@@ -15,15 +15,14 @@ import java.util.*;
 @AllArgsConstructor
 @Slf4j
 public class IdRedisService {
-    private final ZSetRedisService zSetRedisService;
-    private final DefaultRedisScript createIdSetScript;
+    private final ZSetBaseRedisService zSetBaseRedisService;
     private static final String KEY = "data:id";
     private static final int MAX_ID_SIZE = 100;
     private static final long SCORE_BASE = 4102416000000L;//= LocalDateTime.of(2100, 1, 1, 0, 0).atZone(UTC_PLUS_8).toInstant().toEpochMilli();
     private static final long BATCH_START = 2461449600000L;//2100EpochMilli(SCORE_BASE) - 2022EpochMilli
 
     public List<String> get() {
-        return zSetRedisService.getZSet(KEY, 0, MAX_ID_SIZE - 1);
+        return zSetBaseRedisService.get(KEY, 0, MAX_ID_SIZE - 1);
     }
 
     public void set(List<String> sortedIdList) {
@@ -35,21 +34,11 @@ public class IdRedisService {
             tuples.add(new DefaultTypedTuple<>(
                     sortedIdList.get(i), (double) (scoreBase + i)));
         }
-        zSetRedisService.setZSet(KEY, tuples);
-    }
-
-    public void set(String id) {
-        set(Collections.singletonList(id));
-//        Long res = zSetRedisService.execute(createIdSetScript,
-//                Arrays.asList(KEY),
-//                id,
-//                Long.toString(getNowTimeScore()),
-//                Integer.toString(MAX_ID_SIZE));
-//        log.info("Create idSet from redis succeed, id={}, popSet={}", id, res == 1);
+        zSetBaseRedisService.set(KEY, tuples);
     }
 
     public void updateScoreToTop(String id){
-        zSetRedisService.setZSet(KEY, id, getNowTimeScore());
+        zSetBaseRedisService.set(KEY, id, getNowTimeScore());
     }
 
 

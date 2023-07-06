@@ -1,7 +1,7 @@
 package com.alan10607.redis.controller;
 
 import com.alan10607.leaf.dto.SimpleDTO;
-import com.alan10607.redis.service.impl.IdRedisService;
+import com.alan10607.redis.service.IdRedisService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

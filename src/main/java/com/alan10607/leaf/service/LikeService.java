@@ -1,22 +1,15 @@
-package com.alan10607.leaf.service.impl;
+package com.alan10607.leaf.service;
 
 import com.alan10607.leaf.dao.ContLikeDAO;
 import com.alan10607.leaf.dao.ContentDAO;
 import com.alan10607.leaf.dto.LikeDTO;
 import com.alan10607.leaf.model.ContLike;
-import com.alan10607.leaf.service.TxnService;
-import com.alan10607.leaf.util.RedisKeyUtil;
 import com.alan10607.redis.constant.LikeKeyType;
-import com.alan10607.redis.service.impl.ContLikeRedisService;
-import com.alan10607.redis.service.impl.ContLikeUpdateRedisService;
-import com.alan10607.redis.service.impl.ContentRedisService;
+import com.alan10607.redis.service.LikeRedisService;
+import com.alan10607.redis.service.LikeUpdateRedisService;
+import com.alan10607.redis.service.ContentRedisService;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,29 +17,13 @@ import java.util.*;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class ContLikeService {
-    private TxnService txnService;
-    private ContentDAO contentDAO;
-    private ContLikeDAO contLikeDAO;
-    private final RedisTemplate redisTemplate;
-    private final DefaultRedisScript getContentLikeScript;
-    private final DefaultRedisScript setContentLikeScript;
-    private final RedisKeyUtil keyUtil;
-    private static final int LIKE = 1;
-    private static final int UNLIKE = 0;
-
-    private final ContLikeRedisService contLikeRedisService;
+public class LikeService {
     private final ContentRedisService contentRedisService;
-    private final ContLikeUpdateRedisService contLikeUpdateRedisService;
+    private final LikeRedisService likeRedisService;
+    private final LikeUpdateRedisService likeUpdateRedisService;
+    private final ContentDAO contentDAO;
+    private final ContLikeDAO contLikeDAO;
 
-    @Component
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    private class IdNoUserIdDTO{
-        private String id;
-        private int no;
-    }
     /**
      * 查詢是否已經有這個userId的按讚紀錄
      * 順序: LIKE_NEW > LIKE_BATCH > LIKE_STATIC > DB
@@ -59,13 +36,13 @@ public class ContLikeService {
      * @return
      */
     public boolean get(String id, int no, String userId){
-        LikeDTO likeDTO = contLikeRedisService.get(id, no, userId);
+        LikeDTO likeDTO = likeRedisService.get(id, no, userId);
         if(likeDTO.getLikeKeyType() == null){
             pullToRedis(id, no, userId);
         }
 
         if(likeDTO.getLikeKeyType() == LikeKeyType.STATIC){
-            contLikeRedisService.expire(likeDTO);
+            likeRedisService.expire(likeDTO);
         }
 
         return likeDTO.getLike();
@@ -74,7 +51,7 @@ public class ContLikeService {
     private void pullToRedis(String id, int no, String userId){
         boolean like = contLikeDAO.existsByIdAndNoAndUserId(id, no, userId);
         LikeDTO likeDTO = new LikeDTO(id, no, userId, like, LikeKeyType.STATIC);
-        contLikeRedisService.setWithKeyType(likeDTO);
+        likeRedisService.setWithKeyType(likeDTO);
     }
 
     /**
@@ -86,8 +63,8 @@ public class ContLikeService {
      * @throws Exception
      */
     public boolean set(LikeDTO likeDTO) {
-        boolean isSuccess = contLikeRedisService.set(likeDTO);
-        contLikeUpdateRedisService.set(likeDTO);
+        boolean isSuccess = likeRedisService.set(likeDTO);
+        likeUpdateRedisService.set(likeDTO);
         return isSuccess;
     }
 
@@ -101,8 +78,8 @@ public class ContLikeService {
         List<ContLike> createList = new ArrayList<>();
         List<ContLike> deleteList = new ArrayList<>();
         Map<LikeDTO, Long> likeCount = new HashMap<>();
-        contLikeUpdateRedisService.renameToBatch();
-        List<LikeDTO> updateDTOs = contLikeUpdateRedisService.getBatch();
+        likeUpdateRedisService.renameToBatch();
+        List<LikeDTO> updateDTOs = likeUpdateRedisService.getBatch();
 
         if(updateDTOs.isEmpty()) {
             log.info("No contLike data to save");
@@ -117,14 +94,14 @@ public class ContLikeService {
                     createList.size(),  deleteList.size(), likeCount.size());
         } catch (Exception e) {
             log.error("Save ContLike to DB failed:", e);
-            contLikeUpdateRedisService.set(updateDTOs);
+            likeUpdateRedisService.set(updateDTOs);
             throw new RuntimeException(e);
         }
     }
 
     private List<LikeDTO> getUpdateDTOs(){
-        contLikeUpdateRedisService.renameToBatch();
-        return contLikeUpdateRedisService.getBatch();
+        likeUpdateRedisService.renameToBatch();
+        return likeUpdateRedisService.getBatch();
     }
 
     private void collectUpdateListAndCount(List<LikeDTO> updateDTOs,
@@ -165,7 +142,7 @@ public class ContLikeService {
 
     private void removeCache(List<LikeDTO> updateDTOs) {
         updateDTOs.forEach(likeDTO ->
-                contLikeRedisService.expire(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId(), LikeKeyType.NEW));
+                likeRedisService.expire(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId(), LikeKeyType.NEW));
 
         updateDTOs.forEach(likeDTO ->
                 contentRedisService.delete(likeDTO.getId(), likeDTO.getNo()));

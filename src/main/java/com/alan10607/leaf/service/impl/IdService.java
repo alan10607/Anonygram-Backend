@@ -2,8 +2,8 @@ package com.alan10607.leaf.service.impl;
 
 import com.alan10607.leaf.constant.StatusType;
 import com.alan10607.leaf.dao.ContentDAO;
-import com.alan10607.redis.service.impl.IdRedisService;
-import com.alan10607.redis.service.impl.IdStrRedisService;
+import com.alan10607.redis.service.IdRedisService;
+import com.alan10607.redis.service.IdStrRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;

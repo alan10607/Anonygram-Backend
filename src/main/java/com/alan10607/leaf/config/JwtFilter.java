@@ -1,6 +1,6 @@
 package com.alan10607.leaf.config;
 
-import com.alan10607.leaf.model.LeafUser;
+import com.alan10607.leaf.model.GramUser;
 import com.alan10607.leaf.service.JwtService;
 import com.alan10607.leaf.service.UserService;
 import lombok.Data;
@@ -19,7 +19,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Optional;
 
 @Configuration
@@ -52,7 +51,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = getTokenFromRequest(request);
         if(token == null) return;//token不存在
 
-        LeafUser user = getUserDetails(token);
+        GramUser user = getUserDetails(token);
         if(user == null) return;//token無效
 
         UsernamePasswordAuthenticationToken authToken = createAuthToken(user, request);
@@ -75,23 +74,23 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
 
-    private LeafUser getUserDetails(String token) {
+    private GramUser getUserDetails(String token) {
         return jwtService.extractIsAnonymous(token) ?
                 getAnonymousUser(token) :
                 getLoginUser(token);
     }
 
-    private LeafUser getLoginUser(String token) {
+    private GramUser getLoginUser(String token) {
         String email = jwtService.extractEmail(token);
         if(email == null) return null;
 
-        LeafUser user = (LeafUser) userDetailsServices.loadUserByUsername(email);
+        GramUser user = (GramUser) userDetailsServices.loadUserByUsername(email);
         if(!jwtService.isTokenValid(token, user)) return null;
 
         return user;
     }
 
-    private LeafUser getAnonymousUser(String token) {
+    private GramUser getAnonymousUser(String token) {
         if(jwtService.isTokenExpired(token)) return null;
 
         String anonymousName = jwtService.extractUsername(token);
@@ -100,7 +99,7 @@ public class JwtFilter extends OncePerRequestFilter {
         return userService.getAnonymousUser(anonymousName);
     }
 
-    private UsernamePasswordAuthenticationToken createAuthToken(LeafUser user, HttpServletRequest request) {
+    private UsernamePasswordAuthenticationToken createAuthToken(GramUser user, HttpServletRequest request) {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 user,
                 null,
