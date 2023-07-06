@@ -43,20 +43,27 @@ public class ContentDTO extends BaseDTO{
     @NotNull
     private LocalDateTime updateDate;
 
+    private Boolean like;
+    private String authorName;
+
     public ContentDTO(String id,
                    Integer no,
                    String author,
+                   String authorName,
                    String word,
                    Long likes,
+                   Boolean like,
                    StatusType status,
                    LocalDateTime createDate,
                    LocalDateTime updateDate) {
         this.id = id;
         this.no = no;
         this.author = author;
+        this.authorName = authorName;
         this.word = word;
         this.status = status;
         this.likes = likes;
+        this.like = like;
         this.createDate = createDate;
         this.updateDate = updateDate;
     }

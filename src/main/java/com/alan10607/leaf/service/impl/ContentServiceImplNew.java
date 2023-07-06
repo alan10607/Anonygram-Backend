@@ -9,7 +9,9 @@ import com.alan10607.leaf.model.Article;
 import com.alan10607.leaf.model.Content;
 import com.alan10607.leaf.service.ArticleServiceNew;
 import com.alan10607.leaf.service.ContentServiceNew;
+import com.alan10607.leaf.service.UserService;
 import com.alan10607.leaf.util.TimeUtil;
+import com.alan10607.leaf.util.UserUtil;
 import com.alan10607.redis.service.impl.ArticleRedisService;
 import com.alan10607.redis.service.impl.ContentRedisService;
 import lombok.AllArgsConstructor;
@@ -31,6 +33,8 @@ public class ContentServiceImplNew implements ContentServiceNew {
     private final ContentDAO contentDAO;
     private final ArticleRedisService articleRedisService;
     private final ContentRedisService contentRedisService;
+    private final UserService userService;
+    private final ContLikeService contLikeService;
 
     public ContentDTO get(String id, int no) {
         ContentDTO contentDTO = contentRedisService.get(id, no);
@@ -48,8 +52,10 @@ public class ContentServiceImplNew implements ContentServiceNew {
             .map(content -> new ContentDTO(content.getId(),
                 content.getNo(),
                 content.getAuthor(),
+                userService.findUserNameFromRedis(UserUtil.getAuthUserId()),
                 content.getWord(),
                 content.getLikes(),
+                contLikeService.get(id, no, UserUtil.getAuthUserId()),
                 content.getStatus(),
                 content.getCreateDate(),
                 content.getUpdateDate()))
@@ -122,7 +128,7 @@ public class ContentServiceImplNew implements ContentServiceNew {
         return contentDAO.countById(id);
     }
 
-    public void updateContentLikesFromRedis(String id, int no, long addNum) {
+    public void increaseLikes(String id, int no, long addNum) {
         contentRedisService.increaseLikes(id, no, addNum);
     }
 }

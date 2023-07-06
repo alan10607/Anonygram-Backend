@@ -2,13 +2,13 @@ package com.alan10607.leaf.controller;
 
 import com.alan10607.leaf.dto.ContentDTO;
 import com.alan10607.leaf.dto.ForumDTO;
+import com.alan10607.leaf.dto.LikeDTO;
 import com.alan10607.leaf.service.impl.ForumService;
 import com.alan10607.leaf.util.UserUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -58,6 +58,22 @@ public class ForumController {
     public void deleteContent(@PathVariable("id") String id,
                               @PathVariable("no") int no){
         forumService.deleteContent(id, no, UserUtil.getAuthUserId());
+    }
+
+    @PatchMapping("/content/like/{id}/{no}")
+    public void likeContent(@PathVariable("id") String id,
+                            @PathVariable("no") int no){
+        LikeDTO likeDTO = new LikeDTO(id, no, UserUtil.getAuthUserId());
+        likeDTO.setLike(true);
+        forumService.likeOrDislikeContent(likeDTO);
+    }
+
+    @PatchMapping("/content/dislike/{id}/{no}")
+    public void dislikeContent(@PathVariable("id") String id,
+                               @PathVariable("no") int no){
+        LikeDTO likeDTO = new LikeDTO(id, no, UserUtil.getAuthUserId());
+        likeDTO.setLike(false);
+        forumService.likeOrDislikeContent(likeDTO);
     }
 
 

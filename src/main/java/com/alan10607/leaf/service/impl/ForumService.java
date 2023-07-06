@@ -1,15 +1,11 @@
 package com.alan10607.leaf.service.impl;
 
 import com.alan10607.leaf.constant.StatusType;
-import com.alan10607.leaf.dto.ArticleDTO;
-import com.alan10607.leaf.dto.ContentDTO;
-import com.alan10607.leaf.dto.ForumDTO;
-import com.alan10607.leaf.dto.PostDTO;
+import com.alan10607.leaf.dto.*;
 import com.alan10607.leaf.service.ArticleServiceNew;
 import com.alan10607.leaf.util.TimeUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -23,6 +19,7 @@ public class ForumService implements ArticleServiceNew {
     private final IdService idService;
     private final ArticleServiceImplNew articleServiceImplNew;
     private final ContentServiceImplNew contentServiceImplNew;
+    private final ContLikeService contLikeService;
     private static final int DEFAULT_FIND_CONTENT_SIZE = 10;
 
     public List<String> getId(){
@@ -83,6 +80,13 @@ public class ForumService implements ArticleServiceNew {
 
     public void deleteContent(String id, int no, String userId) {
         contentServiceImplNew.updateContentStatus(id, no, userId, StatusType.DELETED);
+    }
+
+    public boolean likeOrDislikeContent(LikeDTO likeDTO) {
+        contentServiceImplNew.get(likeDTO.getId(), likeDTO.getNo());//check content is exist
+        boolean isSuccess = contLikeService.set(likeDTO);
+        contentServiceImplNew.increaseLikes(likeDTO.getId(), likeDTO.getNo(), likeDTO.getLike() ? 1 : -1);
+        return isSuccess;
     }
 
 

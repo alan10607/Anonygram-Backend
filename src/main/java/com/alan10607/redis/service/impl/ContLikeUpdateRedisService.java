@@ -26,12 +26,15 @@ public class ContLikeUpdateRedisService {
          return parseValue(setRedisService.getSet(KEY));
     }
 
-    public void set(String id, int no, String userId) {
-        setRedisService.setSet(KEY, getValue(id, no, userId));
+    public void set(LikeDTO likeDTO) {
+        setRedisService.setSet(KEY, getValue(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()));
     }
 
     public void set(List<LikeDTO> likeList) {
-        setRedisService.setSet(KEY, likeList.toArray(new String[0]));
+        String[] values = likeList.stream()
+                .map(likeDTO -> getValue(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()))
+                .toArray(size -> new String[size]);
+        setRedisService.setSet(KEY, values);
     }
 
     public void renameToBatch() {
