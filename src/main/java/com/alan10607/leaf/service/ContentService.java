@@ -7,7 +7,7 @@ import com.alan10607.leaf.dao.ContentDAO;
 import com.alan10607.leaf.dto.ContentDTO;
 import com.alan10607.leaf.model.Content;
 import com.alan10607.leaf.util.TimeUtil;
-import com.alan10607.leaf.util.UserUtil;
+import com.alan10607.auth.util.AuthUtil;
 import com.alan10607.redis.service.ArticleRedisService;
 import com.alan10607.redis.service.ContentRedisService;
 import lombok.AllArgsConstructor;
@@ -45,10 +45,10 @@ public class ContentService {
             .map(content -> new ContentDTO(content.getId(),
                 content.getNo(),
                 content.getAuthor(),
-                userService.getUserName(UserUtil.getAuthUserId()),
+                userService.getUserName(AuthUtil.getUserId()),
                 content.getWord(),
                 content.getLikes(),
-                likeService.get(id, no, UserUtil.getAuthUserId()),
+                likeService.get(id, no, AuthUtil.getUserId()),
                 content.getStatus(),
                 content.getCreateDate(),
                 content.getUpdateDate()))

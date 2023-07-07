@@ -1,7 +1,6 @@
-package com.alan10607.leaf.service.impl;
+package com.alan10607.auth.service;
 
 import com.alan10607.auth.model.ForumUser;
-import com.alan10607.leaf.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -21,11 +20,11 @@ import java.util.function.Function;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class JwtServiceImpl implements JwtService {
+public class JwtService {
     private static final String SECRET_KEY = "EsPKLbwWNsOtNoifyls3afApQVXy17mQTd+D22Qy5+/MiSV5eFYxEE651nY41mDt";
     private static final String ID = "id";
+    private static final String USERNAME = "username";
     private static final String EMAIL = "email";
-    private static final String IS_ANONYMOUS = "isAnonymous";
     private static final int VALID_HOUR = 1;
 
     public String extractSubject(String token){
@@ -38,11 +37,6 @@ public class JwtServiceImpl implements JwtService {
 
     public String extractEmail(String token) {
         return (String) extractClaims(token, c -> c.get(EMAIL));
-    }
-
-    public boolean extractIsAnonymous(String token) {
-        Boolean isAnonymous = (Boolean) extractClaims(token, c -> c.get(IS_ANONYMOUS));
-        return isAnonymous == null ? false : isAnonymous;
     }
 
     public <T> T extractClaims(String token, Function<Claims, T> claimsResolver){
@@ -65,7 +59,11 @@ public class JwtServiceImpl implements JwtService {
     }
 
     public String createToken(ForumUser forumUser){
-        return createToken(Map.of(ID, forumUser.getId(), EMAIL, forumUser.getEmail(), IS_ANONYMOUS, forumUser.isAnonymousId()), forumUser);
+        return createToken(
+                Map.of(ID, forumUser.getId(),
+                    USERNAME, forumUser.getUsername(),
+                    EMAIL, forumUser.getEmail()),
+                forumUser);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails){

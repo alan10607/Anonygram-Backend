@@ -1,4 +1,4 @@
-package com.alan10607.leaf.util;
+package com.alan10607.auth.util;
 
 import com.alan10607.auth.model.ForumUser;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -7,17 +7,21 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserUtil {
-
-    public static String getAuthUserId () {
+public class AuthUtil {
+    public static ForumUser getUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();//取得Authentication
         if(auth instanceof UsernamePasswordAuthenticationToken){
             ForumUser forumUser = (ForumUser) auth.getPrincipal();
-            return forumUser.isAnonymousId() ?
-                    forumUser.getUsername() :
-                    Long.toString(forumUser.getId());
+            return forumUser;
         }
-        return "unknownUser";
+        throw new RuntimeException("User not found in SecurityContextHolder");
     }
 
+    public static String getUserId() {
+        return getUser().getId();
+    }
+
+    public static String getUsername() {
+        return getUser().getUsername();
+    }
 }

@@ -1,4 +1,4 @@
-package com.alan10607.leaf.config;
+package com.alan10607.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

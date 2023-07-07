@@ -30,20 +30,11 @@ import java.util.stream.Collectors;
 @Slf4j
 @Validated
 public class UserService implements UserDetailsService{
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RoleService roleService;
+    private final UserNameRedisService userNameRedisService;
     private final UserDAO userDAO;
     private final RoleDAO roleDAO;
-    private final RedisTemplate redisTemplate;
-    private final RedisKeyUtil keyUtil;
-    private final TimeUtil timeUtil;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private static final int USER_EXPIRE = 3600;
-
-    private static final String E_EMAIL = "Email can't be blank or format not correct";
-    private static final String E_PW = "Password can't be blank";
-    private static final String E_USERNAME = "UserName can't be blank";
-
-    private final UserNameRedisService userNameRedisService;
 
     public UserDTO findUser(String email) {
         return userDAO.findByEmail(email)
@@ -80,7 +71,7 @@ public class UserService implements UserDetailsService{
                 userDTO.getEmail(),
                 bCryptPasswordEncoder.encode(userDTO.getPw()),
                 Arrays.asList(role),
-                timeUtil.now())
+                TimeUtil.now())
         );
     }
 
@@ -127,12 +118,11 @@ public class UserService implements UserDetailsService{
         log.info("Pull user to redis succeed, userId={}", userId);
     }
     
-    public ForumUser getAnonymousUser(String userName) {
+    public ForumUser getTempAnonymousUser(String tempId) {
         Role role = roleDAO.findByRoleName(RoleType.ANONYMOUS.name());
         ForumUser anonymousUser = new ForumUser();
-        anonymousUser.setAnonymousId();
-        anonymousUser.setUserName(userName);
-        anonymousUser.setEmail("");
+        anonymousUser.setId(tempId);
+        anonymousUser.setUserName(tempId);
         anonymousUser.setRole(List.of(role));
         return anonymousUser;
     }
@@ -149,7 +139,7 @@ public class UserService implements UserDetailsService{
                             "alan",
                             bCryptPasswordEncoder.encode("alan"),
                             Arrays.asList(role),
-                            timeUtil.now())));
+                            TimeUtil.now())));
         };
     }
 }

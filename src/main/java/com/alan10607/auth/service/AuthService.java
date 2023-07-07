@@ -1,11 +1,8 @@
-package com.alan10607.leaf.service.impl;
+package com.alan10607.auth.service;
 
-import com.alan10607.auth.service.UserService;
 import com.alan10607.auth.constant.RoleType;
 import com.alan10607.auth.dto.UserDTO;
 import com.alan10607.auth.model.ForumUser;
-import com.alan10607.leaf.service.JwtService;
-import com.alan10607.leaf.service.AuthService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,7 +17,7 @@ import java.util.Base64;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class AuthServiceImpl implements AuthService {
+public class AuthService {
     private final JwtService jwtService;
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
@@ -30,41 +27,32 @@ public class AuthServiceImpl implements AuthService {
     private static final String E_PW = "Password can't be blank";
     private static final String E_USERNAME = "UserName can't be blank";
 
-    public UserDTO login(
-            @NotBlank @Email(message = E_EMAIL) String email,
-            @NotBlank(message = E_PW) String pw
-    ) {
+    public UserDTO login(UserDTO userDTO) {
         ForumUser user = (ForumUser) authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(email, pw)).getPrincipal();
+                .authenticate(new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPw()))
+                .getPrincipal();
 
-        String token = jwtService.createToken(user);
-        return new UserDTO(user.getUsername(),
-                user.isAnonymousId(),
-                token);
+        userDTO.setUserName(user.getUsername());
+        userDTO.setToken(jwtService.createToken(user));
+        return userDTO;
     }
 
     public UserDTO loginAnonymity() {
-        ForumUser anonymousUser = createAnonymousUser();
-        String token = jwtService.createToken(anonymousUser);
-        return new UserDTO(anonymousUser.getUsername(),
-                anonymousUser.isAnonymousId(),
-                token);
+        ForumUser user = userService.getTempAnonymousUser(getSessionBase64());
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getId());
+        userDTO.setUserName(user.getUsername());
+        userDTO.setToken(jwtService.createToken(user));
+        return userDTO;
     }
 
-    public void register(
-            @NotBlank @Email(message = E_EMAIL) String email,
-            @NotBlank(message = E_USERNAME) String userName,
-            @NotBlank(message = E_PW) String pw
-    ) {
-        userService.createUser(email, userName, pw, RoleType.NORMAL);
+    public void register(UserDTO userDTO) {
+        userService.createUser(userDTO, RoleType.NORMAL);
     }
 
-    private ForumUser createAnonymousUser() {
-        return userService.getAnonymousUser(getSessionBase64());
-    }
 
     /**
-     * 透過sessionId取得暫時id
+     * Get temp id by hashing session
      * @return
      */
     private String getSessionBase64(){

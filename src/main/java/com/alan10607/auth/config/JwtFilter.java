@@ -1,8 +1,8 @@
-package com.alan10607.leaf.config;
+package com.alan10607.auth.config;
 
 import com.alan10607.auth.model.ForumUser;
+import com.alan10607.auth.service.JwtService;
 import com.alan10607.auth.service.UserService;
-import com.alan10607.leaf.service.JwtService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -73,11 +73,15 @@ public class JwtFilter extends OncePerRequestFilter {
                 .orElse(null);
     }
 
-
     private ForumUser getUserDetails(String token) {
-        return jwtService.extractIsAnonymous(token) ?
+        return checkIsAnonymous(token) ?
                 getAnonymousUser(token) :
                 getLoginUser(token);
+    }
+
+    private boolean checkIsAnonymous(String token) {
+        String email = jwtService.extractEmail(token);
+        return Strings.isBlank(email);
     }
 
     private ForumUser getLoginUser(String token) {
@@ -91,12 +95,12 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private ForumUser getAnonymousUser(String token) {
-        if(jwtService.isTokenExpired(token)) return null;
-
         String anonymousName = jwtService.extractUsername(token);
         if(anonymousName == null) return null;
 
-        return userService.getAnonymousUser(anonymousName);
+        if(jwtService.isTokenExpired(token)) return null;
+
+        return userService.getTempAnonymousUser(anonymousName);
     }
 
     private UsernamePasswordAuthenticationToken createAuthToken(ForumUser user, HttpServletRequest request) {

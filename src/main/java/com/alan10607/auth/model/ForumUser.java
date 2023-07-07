@@ -3,6 +3,7 @@ package com.alan10607.auth.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -86,11 +87,7 @@ public class ForumUser implements UserDetails {
         return true;
     }
 
-    public void setAnonymousId() {
-        this.id = "";
-    }
-
     public boolean isAnonymousId() {
-        return this.id.isEmpty();
+        return Strings.isBlank(email);
     }
 }

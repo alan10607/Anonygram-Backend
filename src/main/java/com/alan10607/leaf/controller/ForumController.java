@@ -4,7 +4,7 @@ import com.alan10607.leaf.dto.ContentDTO;
 import com.alan10607.leaf.dto.ForumDTO;
 import com.alan10607.leaf.dto.LikeDTO;
 import com.alan10607.leaf.service.ForumService;
-import com.alan10607.leaf.util.UserUtil;
+import com.alan10607.auth.util.AuthUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,13 +29,13 @@ public class ForumController {
 
     @PostMapping("/article")
     public ForumDTO createForum(@RequestBody @Validated({ ForumDTO.ValidForumGroup.class }) ForumDTO forumDTO){
-        forumDTO.setAuthor(UserUtil.getAuthUserId());
+        forumDTO.setAuthor(AuthUtil.getUserId());
         return forumService.createForum(forumDTO);
     }
 
     @DeleteMapping("/article/{id}")
     public void deleteContent(@PathVariable("id") String id){
-        forumService.deleteForum(id, UserUtil.getAuthUserId());
+        forumService.deleteForum(id, AuthUtil.getUserId());
     }
 
     @GetMapping("/content/{id}/{no}")
@@ -48,7 +48,7 @@ public class ForumController {
     public ContentDTO replyForum(@PathVariable("id") String id,
                                  @RequestBody @Validated ForumDTO forumDTO){
         forumDTO.setId(id);
-        forumDTO.setAuthor(UserUtil.getAuthUserId());
+        forumDTO.setAuthor(AuthUtil.getUserId());
         forumDTO = forumService.replyForum(forumDTO);
         List<ContentDTO> requeryContent = forumService.getTopContents(forumDTO.getId(), forumDTO.getNo(), 1);
         return requeryContent.get(0);
@@ -57,13 +57,13 @@ public class ForumController {
     @DeleteMapping("/content/{id}/{no}")
     public void deleteContent(@PathVariable("id") String id,
                               @PathVariable("no") int no){
-        forumService.deleteContent(id, no, UserUtil.getAuthUserId());
+        forumService.deleteContent(id, no, AuthUtil.getUserId());
     }
 
     @PatchMapping("/content/like/{id}/{no}")
     public void likeContent(@PathVariable("id") String id,
                             @PathVariable("no") int no){
-        LikeDTO likeDTO = new LikeDTO(id, no, UserUtil.getAuthUserId());
+        LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId());
         likeDTO.setLike(true);
         forumService.likeOrDislikeContent(likeDTO);
     }
@@ -71,7 +71,7 @@ public class ForumController {
     @PatchMapping("/content/dislike/{id}/{no}")
     public void dislikeContent(@PathVariable("id") String id,
                                @PathVariable("no") int no){
-        LikeDTO likeDTO = new LikeDTO(id, no, UserUtil.getAuthUserId());
+        LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId());
         likeDTO.setLike(false);
         forumService.likeOrDislikeContent(likeDTO);
     }

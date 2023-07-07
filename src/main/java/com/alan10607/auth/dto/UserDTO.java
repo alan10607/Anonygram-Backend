@@ -16,13 +16,13 @@ import java.util.List;
 public class UserDTO {
 
     private String id;
-    @NotBlank(groups = CreateUserGroup.class)
+    @NotBlank
     private String userName;
 
-    @NotBlank
+    @NotBlank(groups = LoginGroup.class)
     private String email;
 
-    @NotBlank(groups = CreateUserGroup.class)
+    @NotBlank(groups = LoginGroup.class)
     private String pw;
     private List<Role> userRole;
     private LocalDateTime updatedDate;
@@ -41,14 +41,7 @@ public class UserDTO {
         this.updatedDate = updatedDate;
     }
 
-    public UserDTO(String userName,
-                   boolean isAnonymousId,
-                   String token) {
-        this.userName = userName;
-        this.isAnonymousId = isAnonymousId;
-        this.token = token;
-    }
 
-    public interface CreateUserGroup extends Default {
+    public interface LoginGroup extends Default {
     }
 }
