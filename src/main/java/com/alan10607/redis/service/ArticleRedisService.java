@@ -1,6 +1,6 @@
 package com.alan10607.redis.service;
 
-import com.alan10607.leaf.dto.ArticleDTO;
+import com.alan10607.redis.dto.ArticleDTO;
 import com.alan10607.redis.service.base.HashBaseRedisService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,12 +16,6 @@ public class ArticleRedisService {
     private String getKey(String id){
         return String.format("data:art:%s", id);
     }
-
-    /*
-    TODO:
-     4.extend BaseRedisService
-     5.study controller unit test
-    */
 
     public ArticleDTO get(String id) {
         Map<String, Object> dataMap = hashBaseRedisService.get(getKey(id));

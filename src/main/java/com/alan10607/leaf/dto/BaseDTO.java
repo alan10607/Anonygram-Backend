@@ -11,8 +11,7 @@ import java.util.Map;
 @Component
 @Data
 public class BaseDTO {
-    @NotNull
-    public String id;
+
 
     public static <T> T convertValue(Object fromValue, Class<T> clazz) {
         ObjectMapper objectMapper = new ObjectMapper();

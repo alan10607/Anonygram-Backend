@@ -12,12 +12,12 @@ local function update(check_key)
 end
 
 -- Check if it is already the target status or not
--- 1: succeeded, 0: no change
+-- 1: succeeded, 0: no change, -1: key not exist
 if(redis.call('exists', new_key) == 1) then
     return update(new_key);
 elseif(redis.call('exists', static_key) == 1) then
     return update(static_key);
 else
     redis.call('set', new_key, like_status);
-    return 1;
+    return -1;
 end

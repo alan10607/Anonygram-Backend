@@ -4,7 +4,7 @@ import com.alan10607.auth.service.UserService;
 import com.alan10607.leaf.constant.StatusType;
 import com.alan10607.leaf.dao.ArticleDAO;
 import com.alan10607.leaf.dao.ContentDAO;
-import com.alan10607.leaf.dto.ContentDTO;
+import com.alan10607.redis.dto.ContentDTO;
 import com.alan10607.leaf.model.Content;
 import com.alan10607.leaf.util.TimeUtil;
 import com.alan10607.auth.util.AuthUtil;
@@ -45,10 +45,8 @@ public class ContentService {
             .map(content -> new ContentDTO(content.getId(),
                 content.getNo(),
                 content.getAuthor(),
-                userService.getUserName(AuthUtil.getUserId()),
                 content.getWord(),
                 content.getLikes(),
-                likeService.get(id, no, AuthUtil.getUserId()),
                 content.getStatus(),
                 content.getCreateDate(),
                 content.getUpdateDate()))
@@ -70,6 +68,7 @@ public class ContentService {
             case DELETED :
                 return new ContentDTO(contentDTO.getId(), contentDTO.getNo(), StatusType.DELETED);
             default :
+                contentDTO.setLike(likeService.get(contentDTO.getId(), contentDTO.getNo(), AuthUtil.getUserId()));
                 return contentDTO;
         }
     }

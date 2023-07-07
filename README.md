@@ -59,7 +59,7 @@
 - set, 全部讀寫皆為: O(1)
 - 批次時: O(N), N=所有異動資料
 - 查詢順序: LIKE_NEW > LIKE_BATCH > LIKE_STATIC > DB
-- Value格式: {id}:{no}:{userId}:{likeStatus}, likeStatus: 1=islike, 0=dislike
+- Value格式: {id}:{no}:{userId}:{likeType}, likeType: 1=islike, 0=dislike
 
 #### LIKE_NEW
 - 有任何異動優先修改這個, 查詢也優先以這個為主, 批次開始時轉移資料到LIKE_BATCH
@@ -75,7 +75,7 @@ Query  Result  Modify
    |     ^      |
    v     |      v
 +------------------+
-| data:like:new    | > {id}:{no}:{userId}:{likeStatus}
+| data:like:new    | > {id}:{no}:{userId}:{likeType}
 +------------------+    ...
    |     ^      |
    v     |      v Batch start

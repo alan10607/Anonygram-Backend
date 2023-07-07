@@ -1,15 +1,18 @@
 package com.alan10607.redis.controller;
 
-import com.alan10607.leaf.dto.LikeDTO;
+import com.alan10607.redis.constant.LikeKeyType;
+import com.alan10607.redis.dto.LikeDTO;
 import com.alan10607.leaf.dto.SimpleDTO;
 import com.alan10607.redis.service.LikeRedisService;
 import lombok.AllArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/redis/contLike")
+@RequestMapping(path = "/redis/like")
 @AllArgsConstructor
 public class LikeRedisController {
     private final LikeRedisService likeRedisService;
@@ -17,37 +20,25 @@ public class LikeRedisController {
     @GetMapping("/{id}/{no}/{userId}")
     public LikeDTO get(@PathVariable("id") String id,
                        @PathVariable("no") int no,
-                       @PathVariable("userId") String userId){
+                       @PathVariable("userId") String userId) {
         return likeRedisService.get(id, no, userId);
     }
 
-    @PutMapping()
-    public boolean setLike(@RequestBody LikeDTO likeDTO){
-        return likeRedisService.set(id, no, userId, LikeRedisService.LikeStatus.LIKE);
+    @PostMapping()
+    public boolean set(@RequestBody @Valid LikeDTO likeDTO) {
+        return likeRedisService.set(likeDTO);
     }
 
-    @PutMapping("/{id}/{no}/{userId}/dislike")
-    public boolean setDislike(@PathVariable("id") String id,
-                        @PathVariable("no") int no,
-                        @PathVariable("userId") String userId){
-        return likeRedisService.set(id, no, userId, LikeRedisService.LikeStatus.DISLIKE);
+    @PostMapping("/keyType")
+    public void setWithKeyType(@RequestBody @Validated({LikeDTO.ValidKeyTypeGroup.class}) LikeDTO likeDTO) {
+        likeRedisService.setWithKeyType(likeDTO);
     }
 
-    @PutMapping("/{id}/{no}/{userId}")
-    public void set(@PathVariable("id") String id,
-                    @PathVariable("no") int no,
-                    @PathVariable("userId") String userId,
-                    @RequestBody SimpleDTO simpleDTO){
-        List<String> dataList = (List<String>) simpleDTO.getList();
-        String keyType = dataList.get(0);
-        String likeStatus = dataList.get(1);
-
-        likeRedisService.set(id,
-                no,
-                LikeRedisService.KeyType.valueOf(keyType),
-                userId,
-                LikeRedisService.LikeStatus.valueOf(likeStatus));
+    @PatchMapping("/expire/{id}/{no}/{userId}/{keyType}")
+    public void expire(@PathVariable("id") String id,
+                       @PathVariable("no") int no,
+                       @PathVariable("userId") String userId,
+                       @PathVariable("keyType") String keyType) {
+        likeRedisService.expire(id, no, userId, LikeKeyType.valueOf(keyType));
     }
-
-
 }

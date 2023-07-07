@@ -1,6 +1,6 @@
 package com.alan10607.redis.service;
 
-import com.alan10607.leaf.dto.ContentDTO;
+import com.alan10607.redis.dto.ContentDTO;
 import com.alan10607.redis.service.base.HashBaseRedisService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

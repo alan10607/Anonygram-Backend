@@ -1,9 +1,11 @@
 package com.alan10607.redis.controller;
 
-import com.alan10607.leaf.dto.ContentDTO;
+import com.alan10607.redis.dto.ContentDTO;
 import com.alan10607.redis.service.ContentRedisService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping(path = "/redis/content")
@@ -18,11 +20,11 @@ public class ContentRedisController {
     }
 
     @PostMapping
-    public void set(@RequestBody ContentDTO contentDTO){
+    public void set(@RequestBody @Valid ContentDTO contentDTO){
         contentRedisService.set(contentDTO);
     }
 
-    @PatchMapping("/{id}/{no}/expire")
+    @PatchMapping("/expire/{id}/{no}")
     public void expire(@PathVariable("id") String id,
                        @PathVariable("no") int no){
         contentRedisService.expire(id, no);

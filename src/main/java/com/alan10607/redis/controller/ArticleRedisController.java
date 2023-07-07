@@ -1,6 +1,6 @@
 package com.alan10607.redis.controller;
 
-import com.alan10607.leaf.dto.ArticleDTO;
+import com.alan10607.redis.dto.ArticleDTO;
 import com.alan10607.redis.service.ArticleRedisService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +23,7 @@ public class ArticleRedisController {
         articleRedisService.set(articleDTO);
     }
 
-    @PatchMapping("/{id}/expire")
+    @PatchMapping("/expire/{id}")
     public void expire(@PathVariable("id") String id){
         articleRedisService.expire(id);
     }

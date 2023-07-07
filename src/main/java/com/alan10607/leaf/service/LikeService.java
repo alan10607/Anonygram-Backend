@@ -2,7 +2,7 @@ package com.alan10607.leaf.service;
 
 import com.alan10607.leaf.dao.ContLikeDAO;
 import com.alan10607.leaf.dao.ContentDAO;
-import com.alan10607.leaf.dto.LikeDTO;
+import com.alan10607.redis.dto.LikeDTO;
 import com.alan10607.leaf.model.ContLike;
 import com.alan10607.redis.constant.LikeKeyType;
 import com.alan10607.redis.service.LikeRedisService;
@@ -37,12 +37,12 @@ public class LikeService {
      */
     public boolean get(String id, int no, String userId){
         LikeDTO likeDTO = likeRedisService.get(id, no, userId);
-        if(likeDTO.getLikeKeyType() == null){
+        if(likeDTO.getLikeKeyType() == LikeKeyType.UNKNOWN){
             pullToRedis(id, no, userId);
         }
 
         if(likeDTO.getLikeKeyType() == LikeKeyType.STATIC){
-            likeRedisService.expire(likeDTO);
+            likeRedisService.expire(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId(), likeDTO.getLikeKeyType());
         }
 
         return likeDTO.getLike();
@@ -56,9 +56,7 @@ public class LikeService {
 
     /**
      * 取消讚, 若已取消會跳過, 透過lua腳本實現原子操作
-     * @param id
-     * @param no
-     * @param userId
+
      * @return
      * @throws Exception
      */

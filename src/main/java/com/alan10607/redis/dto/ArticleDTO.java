@@ -1,6 +1,7 @@
-package com.alan10607.leaf.dto;
+package com.alan10607.redis.dto;
 
 import com.alan10607.leaf.constant.StatusType;
+import com.alan10607.leaf.dto.BaseDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +19,10 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ArticleDTO extends BaseDTO {
+public class ArticleDTO {
+    @NotNull
+    public String id;
+
     @NotBlank
     private String title;
 
@@ -34,20 +38,6 @@ public class ArticleDTO extends BaseDTO {
     @NotNull
     @Min(1)
     private Integer contNum;
-
-    public ArticleDTO(String id,
-                      String title,
-                      StatusType status,
-                      LocalDateTime createDate,
-                      LocalDateTime updateDate,
-                      Integer contNum) {
-        this.id = id;
-        this.title = title;
-        this.status = status;
-        this.createDate = createDate;
-        this.updateDate = updateDate;
-        this.contNum = contNum;
-    }
 
     public ArticleDTO(String id,
                       StatusType status) {

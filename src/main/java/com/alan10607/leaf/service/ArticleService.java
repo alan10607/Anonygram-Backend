@@ -3,7 +3,7 @@ package com.alan10607.leaf.service;
 import com.alan10607.leaf.constant.StatusType;
 import com.alan10607.leaf.dao.ArticleDAO;
 import com.alan10607.leaf.dao.ContentDAO;
-import com.alan10607.leaf.dto.ArticleDTO;
+import com.alan10607.redis.dto.ArticleDTO;
 import com.alan10607.leaf.model.Article;
 import com.alan10607.leaf.model.Content;
 import com.alan10607.leaf.util.TimeUtil;

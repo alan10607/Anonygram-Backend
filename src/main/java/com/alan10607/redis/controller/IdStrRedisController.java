@@ -3,6 +3,7 @@ package com.alan10607.redis.controller;
 import com.alan10607.leaf.dto.SimpleDTO;
 import com.alan10607.redis.service.IdStrRedisService;
 import lombok.AllArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,7 +18,7 @@ public class IdStrRedisController {
     }
 
     @PostMapping
-    public void set(@RequestBody SimpleDTO simpleDTO){
+    public void set(@RequestBody @Validated({ SimpleDTO.ValidStringGroup.class }) SimpleDTO simpleDTO){
         idStrRedisService.set(simpleDTO.getString());
     }
 

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum LikeKeyType {
+    UNKNOWN("unknown"),
     STATIC("static"),
     NEW("new");
     public final String value;

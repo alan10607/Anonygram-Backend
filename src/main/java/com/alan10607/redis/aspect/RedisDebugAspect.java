@@ -10,6 +10,9 @@ import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 @Aspect
 @Component
 @AllArgsConstructor
@@ -25,7 +28,10 @@ public class RedisDebugAspect {
             long end = System.currentTimeMillis();
             String packageName = pjp.getSignature().getDeclaringTypeName();
             String methodName = pjp.getSignature().getName();
-            log.info("Debug {}().{}() duration: {}ms", packageName, methodName, (end - start));
+            String argNames = Arrays.stream(pjp.getArgs()).map(Object::getClass)
+                    .map(Class::getSimpleName)
+                    .collect(Collectors.joining(","));
+            log.info("Debug {}().{}({}) duration: {}ms", packageName, methodName, argNames, (end - start));
         }
     }
 

@@ -3,6 +3,7 @@ package com.alan10607.redis.controller;
 import com.alan10607.leaf.dto.SimpleDTO;
 import com.alan10607.redis.service.IdRedisService;
 import lombok.AllArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,11 +20,11 @@ public class IdRedisController {
     }
 
     @PostMapping
-    public void set(@RequestBody SimpleDTO simpleDTO){
+    public void set(@RequestBody @Validated({ SimpleDTO.ValidListGroup.class }) SimpleDTO simpleDTO){
         idRedisService.set((List<String>) simpleDTO.getList());
     }
 
-    @PatchMapping("/{id}/top")
+    @PatchMapping("/top/{id}")
     public void updateScoreToTop(@PathVariable String id){
         idRedisService.updateScoreToTop(id);
     }

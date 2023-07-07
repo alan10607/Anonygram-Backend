@@ -1,6 +1,6 @@
 package com.alan10607.redis.service;
 
-import com.alan10607.leaf.dto.LikeDTO;
+import com.alan10607.redis.dto.LikeDTO;
 import com.alan10607.redis.constant.LikeKeyType;
 import com.alan10607.redis.service.base.StringBaseRedisService;
 import lombok.AllArgsConstructor;
@@ -42,7 +42,7 @@ public class LikeRedisService {
                 userId,
                 luaQueryResult);
 
-        if(likeDTO.getLikeKeyType() == null) {
+        if(likeDTO.getLikeKeyType() == LikeKeyType.UNKNOWN) {
             log.info("Redis contLike not found, id={}, no={}, userId={}", id, no, userId);
         }
 
@@ -52,15 +52,15 @@ public class LikeRedisService {
     public boolean set(LikeDTO likeDTO) {
         Long isSuccess = stringBaseRedisService.execute(setContentLikeScript,
                 getKeyList(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()),
-                likeDTO.getLikeNumberString());
+                likeDTO.toLikeNumberString());
 
         if(isSuccess == 0){
             log.info("Already {}, skip this time, id={}, no={}, userId={}",
-                likeDTO.getLikeString(), likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId());
+                likeDTO.toLikeString(), likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId());
         }else if(isSuccess == -1) {
             throw new RuntimeException(String.format(
                 "Update to %s failed because redis key not found, id=%s, no=%s, userId=%s",
-                likeDTO.getLikeString(), likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()));
+                likeDTO.toLikeString(), likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()));
         }
 
         return isSuccess == 1;
@@ -69,7 +69,7 @@ public class LikeRedisService {
     public void setWithKeyType(LikeDTO likeDTO) {
         stringBaseRedisService.set(
             getKey(likeDTO.getId(), likeDTO.getNo(), likeDTO.getLikeKeyType(), likeDTO.getUserId()),
-            likeDTO.getLikeNumberString());
+            likeDTO.toLikeNumberString());
     }
 
     public void expire(String id, int no, String userId, LikeKeyType LikeKeyType) {

@@ -25,6 +25,10 @@ public class IdRedisService {
         return zSetBaseRedisService.get(KEY, 0, MAX_ID_SIZE - 1);
     }
 
+    public void set(String id){
+        set(Collections.singletonList(id));
+    }
+
     public void set(List<String> sortedIdList) {
         if(sortedIdList.isEmpty()) return;
 

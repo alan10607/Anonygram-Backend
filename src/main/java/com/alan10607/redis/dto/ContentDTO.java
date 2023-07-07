@@ -1,6 +1,7 @@
-package com.alan10607.leaf.dto;
+package com.alan10607.redis.dto;
 
 import com.alan10607.leaf.constant.StatusType;
+import com.alan10607.leaf.dto.BaseDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +12,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -19,7 +19,10 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ContentDTO extends BaseDTO{
+public class ContentDTO {
+    @NotNull
+    public String id;
+
     @NotNull
     @Min(0)
     private Integer no;
@@ -49,21 +52,17 @@ public class ContentDTO extends BaseDTO{
     public ContentDTO(String id,
                    Integer no,
                    String author,
-                   String authorName,
                    String word,
                    Long likes,
-                   Boolean like,
                    StatusType status,
                    LocalDateTime createDate,
                    LocalDateTime updateDate) {
         this.id = id;
         this.no = no;
         this.author = author;
-        this.authorName = authorName;
         this.word = word;
         this.status = status;
         this.likes = likes;
-        this.like = like;
         this.createDate = createDate;
         this.updateDate = updateDate;
     }

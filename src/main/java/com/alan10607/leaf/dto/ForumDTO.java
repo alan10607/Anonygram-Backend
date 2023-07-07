@@ -1,6 +1,7 @@
 package com.alan10607.leaf.dto;
 
 import com.alan10607.leaf.constant.StatusType;
+import com.alan10607.redis.dto.ContentDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;

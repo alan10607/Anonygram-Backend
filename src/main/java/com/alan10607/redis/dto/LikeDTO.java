@@ -1,7 +1,7 @@
-package com.alan10607.leaf.dto;
+package com.alan10607.redis.dto;
 
+import com.alan10607.leaf.dto.BaseDTO;
 import com.alan10607.redis.constant.LikeKeyType;
-import com.alan10607.redis.constant.LikeStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.groups.Default;
 import java.util.Map;
 
 @Component
@@ -22,13 +23,14 @@ public class LikeDTO {
 
     @AllArgsConstructor
     private enum LikeStatus {
-        NEW_LIKE(3, LikeKeyType.NEW, true),
-        NEW_DISLIKE(2, LikeKeyType.NEW, false),
+        UNKNOWN(-1, LikeKeyType.UNKNOWN, null),
+        STATUS_DISLIKE(0, LikeKeyType.STATIC, false),
         STATUS_LIKE(1, LikeKeyType.STATIC, true),
-        STATUS_DISLIKE(0, LikeKeyType.STATIC, false);
+        NEW_DISLIKE(2, LikeKeyType.NEW, false),
+        NEW_LIKE(3, LikeKeyType.NEW, true);
         public int queryResult;
         public LikeKeyType keyType;
-        public boolean like;
+        public Boolean like;
     }
 
     @NotBlank
@@ -44,6 +46,7 @@ public class LikeDTO {
     @NotNull
     private Boolean like;
 
+    @NotNull(groups = ValidKeyTypeGroup.class)
     private LikeKeyType likeKeyType;
 
     public LikeDTO(String id,
@@ -70,11 +73,11 @@ public class LikeDTO {
         this.userId = userId;
     }
 
-    public String getLikeNumberString() {
+    public String toLikeNumberString() {
         return this.like == true ? "1" : "0";
     }
 
-    public String getLikeString() {
+    public String toLikeString() {
         return this.like == true ? "like" : "dislike";
     }
 
@@ -86,5 +89,7 @@ public class LikeDTO {
         return BaseDTO.convertValue(this, Map.class);
     }
 
+    public interface ValidKeyTypeGroup extends Default {
+    }
 
 }

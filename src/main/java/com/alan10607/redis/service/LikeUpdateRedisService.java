@@ -1,11 +1,12 @@
 package com.alan10607.redis.service;
 
-import com.alan10607.leaf.dto.LikeDTO;
+import com.alan10607.redis.dto.LikeDTO;
 import com.alan10607.redis.service.base.SetBaseRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ public class LikeUpdateRedisService {
     }
 
     public void set(LikeDTO likeDTO) {
-        setBaseRedisService.set(KEY, getValue(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()));
+        set(Collections.singletonList(likeDTO));
     }
 
     public void set(List<LikeDTO> likeList) {
