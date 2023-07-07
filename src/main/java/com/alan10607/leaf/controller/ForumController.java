@@ -28,7 +28,7 @@ public class ForumController {
     }
 
     @PostMapping("/article")
-    public ForumDTO createForum(@RequestBody @Validated({ ForumDTO.ValidForumGroup.class }) ForumDTO forumDTO){
+    public ForumDTO createForum(@RequestBody @Validated({ ForumDTO.CreateForumGroup.class }) ForumDTO forumDTO){
         forumDTO.setAuthor(AuthUtil.getUserId());
         return forumService.createForum(forumDTO);
     }

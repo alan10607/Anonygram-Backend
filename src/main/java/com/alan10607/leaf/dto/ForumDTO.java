@@ -23,7 +23,7 @@ public class ForumDTO {
     public String id;
     public Integer no;
 
-    @NotBlank(groups = ValidForumGroup.class)
+    @NotBlank(groups = CreateForumGroup.class)
     private String title;
     private String author;
 
@@ -44,6 +44,6 @@ public class ForumDTO {
         return BaseDTO.convertValue(this, Map.class);
     }
 
-    public interface ValidForumGroup extends Default {
+    public interface CreateForumGroup extends Default {
     }
 }

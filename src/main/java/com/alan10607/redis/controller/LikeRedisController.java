@@ -2,14 +2,12 @@ package com.alan10607.redis.controller;
 
 import com.alan10607.redis.constant.LikeKeyType;
 import com.alan10607.redis.dto.LikeDTO;
-import com.alan10607.leaf.dto.SimpleDTO;
 import com.alan10607.redis.service.LikeRedisService;
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping(path = "/redis/like")
@@ -30,7 +28,7 @@ public class LikeRedisController {
     }
 
     @PostMapping("/keyType")
-    public void setWithKeyType(@RequestBody @Validated({LikeDTO.ValidKeyTypeGroup.class}) LikeDTO likeDTO) {
+    public void setWithKeyType(@RequestBody @Validated({LikeDTO.KeyTypeGroup.class}) LikeDTO likeDTO) {
         likeRedisService.setWithKeyType(likeDTO);
     }
 

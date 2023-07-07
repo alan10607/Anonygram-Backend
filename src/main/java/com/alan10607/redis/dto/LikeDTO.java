@@ -46,7 +46,7 @@ public class LikeDTO {
     @NotNull
     private Boolean like;
 
-    @NotNull(groups = ValidKeyTypeGroup.class)
+    @NotNull(groups = KeyTypeGroup.class)
     private LikeKeyType likeKeyType;
 
     public LikeDTO(String id,
@@ -89,7 +89,7 @@ public class LikeDTO {
         return BaseDTO.convertValue(this, Map.class);
     }
 
-    public interface ValidKeyTypeGroup extends Default {
+    public interface KeyTypeGroup extends Default {
     }
 
 }

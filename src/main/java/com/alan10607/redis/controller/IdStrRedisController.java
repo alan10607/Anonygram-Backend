@@ -18,7 +18,7 @@ public class IdStrRedisController {
     }
 
     @PostMapping
-    public void set(@RequestBody @Validated({ SimpleDTO.ValidStringGroup.class }) SimpleDTO simpleDTO){
+    public void set(@RequestBody @Validated({ SimpleDTO.StringGroup.class }) SimpleDTO simpleDTO){
         idStrRedisService.set(simpleDTO.getString());
     }
 

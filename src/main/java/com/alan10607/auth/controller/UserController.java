@@ -16,14 +16,13 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/user")
 @AllArgsConstructor
-@Slf4j
 public class UserController {
     private final UserService userService;
     private final ResponseUtil responseUtil;
 
-    @GetMapping("/{userId}")
-    public UserDTO findUser(@PathVariable("userId") String userId){
-        return userService.findUser(userId);
+    @GetMapping("/{email}")
+    public UserDTO findUser(@PathVariable("email") String email){
+        return userService.findUser(email);
     }
 
     @PostMapping()
@@ -31,9 +30,9 @@ public class UserController {
         userService.createUser(userDTO, RoleType.NORMAL);
     }
 
-    @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable("userId") String userId){
-        userService.deleteUser(userId);
+    @DeleteMapping("/{email}")
+    public void deleteUser(@PathVariable("email") String email){
+        userService.deleteUser(email);
     }
 
 }

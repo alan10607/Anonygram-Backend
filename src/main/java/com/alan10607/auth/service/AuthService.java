@@ -32,16 +32,22 @@ public class AuthService {
                 .authenticate(new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPw()))
                 .getPrincipal();
 
-        userDTO.setUserName(user.getUsername());
+        userDTO = new UserDTO(user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                user.getUpdatedDate());
         userDTO.setToken(jwtService.createToken(user));
         return userDTO;
     }
 
     public UserDTO loginAnonymity() {
         ForumUser user = userService.getTempAnonymousUser(getSessionBase64());
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(user.getId());
-        userDTO.setUserName(user.getUsername());
+        UserDTO userDTO = new UserDTO(user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                user.getUpdatedDate());
         userDTO.setToken(jwtService.createToken(user));
         return userDTO;
     }

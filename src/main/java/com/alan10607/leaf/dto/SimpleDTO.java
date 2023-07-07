@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -16,22 +15,22 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SimpleDTO {
-    @NotNull(groups = ValidIntegerGroup.class)
+    @NotNull(groups = IntegerGroup.class)
     Integer integer;
 
-    @NotBlank(groups = ValidStringGroup.class)
+    @NotBlank(groups = StringGroup.class)
     String string;
 
-    @NotNull(groups = ValidListGroup.class)
+    @NotNull(groups = ListGroup.class)
     List<?> list;
 
 
-    public interface ValidIntegerGroup extends Default {
+    public interface IntegerGroup extends Default {
     }
 
-    public interface ValidStringGroup extends Default {
+    public interface StringGroup extends Default {
     }
 
-    public interface ValidListGroup extends Default {
+    public interface ListGroup extends Default {
     }
 }

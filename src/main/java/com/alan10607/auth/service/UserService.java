@@ -21,7 +21,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -120,11 +122,12 @@ public class UserService implements UserDetailsService{
     
     public ForumUser getTempAnonymousUser(String tempId) {
         Role role = roleDAO.findByRoleName(RoleType.ANONYMOUS.name());
-        ForumUser anonymousUser = new ForumUser();
-        anonymousUser.setId(tempId);
-        anonymousUser.setUserName(tempId);
-        anonymousUser.setRole(List.of(role));
-        return anonymousUser;
+        return new ForumUser(tempId,
+                tempId,
+                "",
+                "",
+                Collections.singletonList(role),
+                TimeUtil.now());
     }
 
     @Bean

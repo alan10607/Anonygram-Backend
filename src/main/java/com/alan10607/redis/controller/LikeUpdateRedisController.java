@@ -7,8 +7,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +27,7 @@ public class LikeUpdateRedisController {
     }
 
     @PostMapping
-    public void set(@RequestBody @Validated({ SimpleDTO.ValidListGroup.class }) SimpleDTO simpleDTO){
+    public void set(@RequestBody @Validated({ SimpleDTO.ListGroup.class }) SimpleDTO simpleDTO){
         List<LikeDTO> likeDTOList = simpleDTO.getList().stream()
                 .map(LikeDTO::toDTO)
                 .collect(Collectors.toList());
