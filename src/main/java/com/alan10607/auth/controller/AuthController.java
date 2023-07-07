@@ -26,7 +26,7 @@ public class AuthController {
                     user.getRole(),
                     user.getUpdatedDate());
         }catch (Exception e){
-            return new UserDTO();
+            throw new RuntimeException("Token invalid or expired");
         }
     }
 
