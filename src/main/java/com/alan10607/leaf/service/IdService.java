@@ -1,4 +1,4 @@
-package com.alan10607.leaf.service.impl;
+package com.alan10607.leaf.service;
 
 import com.alan10607.leaf.constant.StatusType;
 import com.alan10607.leaf.dao.ContentDAO;

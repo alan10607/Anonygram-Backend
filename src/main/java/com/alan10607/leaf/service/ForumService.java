@@ -2,7 +2,6 @@ package com.alan10607.leaf.service;
 
 import com.alan10607.leaf.constant.StatusType;
 import com.alan10607.leaf.dto.*;
-import com.alan10607.leaf.service.impl.IdService;
 import com.alan10607.leaf.util.TimeUtil;
 import com.alan10607.redis.dto.ArticleDTO;
 import com.alan10607.redis.dto.ContentDTO;

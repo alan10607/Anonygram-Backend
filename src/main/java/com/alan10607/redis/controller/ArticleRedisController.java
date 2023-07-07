@@ -28,5 +28,10 @@ public class ArticleRedisController {
         articleRedisService.expire(id);
     }
 
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable("id") String id){
+        articleRedisService.delete(id);
+    }
+
 
 }

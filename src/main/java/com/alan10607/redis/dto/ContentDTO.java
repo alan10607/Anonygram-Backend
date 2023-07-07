@@ -52,6 +52,7 @@ public class ContentDTO {
     public ContentDTO(String id,
                    Integer no,
                    String author,
+                   String authorName,
                    String word,
                    Long likes,
                    StatusType status,
@@ -60,6 +61,7 @@ public class ContentDTO {
         this.id = id;
         this.no = no;
         this.author = author;
+        this.authorName = authorName;
         this.word = word;
         this.status = status;
         this.likes = likes;

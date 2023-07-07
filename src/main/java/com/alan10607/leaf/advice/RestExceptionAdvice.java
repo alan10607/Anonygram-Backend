@@ -1,4 +1,4 @@
-package com.alan10607.leaf.aspect;
+package com.alan10607.leaf.advice;
 
 import com.alan10607.leaf.dto.RestResponseEntity;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,11 +38,11 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request, ServerHttpResponse response) {
         RestResponseEntity restResponseEntity = new RestResponseEntity(getHttpStatus(response), body);
-        /*
-        If body type is String.class, selectedConverterType will be StringHttpMessageConverter,
-        need to transform to string.
-        Normally selectedConverterType will be MappingJackson2HttpMessageConverter if returnType is not String.class
-         */
+            /*
+            If body type is String.class, selectedConverterType will be StringHttpMessageConverter,
+            need to transform to string.
+            Normally selectedConverterType will be MappingJackson2HttpMessageConverter if returnType is not String.class
+             */
         if (returnType.getParameterType().equals(String.class)) {
             return toJSONString(restResponseEntity);
         }
@@ -80,6 +80,5 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
         });
         return suggestions;
     }
-
 
 }

@@ -40,4 +40,9 @@ public class LikeUpdateRedisController {
         likeUpdateRedisService.renameToBatch();
     }
 
+
+    @DeleteMapping("/batch")
+    public void deleteBatch(){
+        likeUpdateRedisService.deleteBatch();
+    }
 }

@@ -14,7 +14,7 @@ public class AuthUtil {
             ForumUser forumUser = (ForumUser) auth.getPrincipal();
             return forumUser;
         }
-        throw new RuntimeException("User not found in SecurityContextHolder");
+        throw new RuntimeException("Authorization failed. Please try to login");
     }
 
     public static String getUserId() {

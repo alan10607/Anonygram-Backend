@@ -9,7 +9,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 
 @AllArgsConstructor
 @Slf4j
-public class RedisSchedule extends QuartzJobBean {
+public class SaveLikeSchedule extends QuartzJobBean {
 
     private LikeService likeService;
 
@@ -17,9 +17,7 @@ public class RedisSchedule extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         try {
             likeService.saveLikeToDB();
-            log.info("Schedule saveLikeToDB succeeded");
         } catch (Exception e) {
-            log.error("Schedule saveLikeToDB fail");
             throw new JobExecutionException(e);
         }
     }

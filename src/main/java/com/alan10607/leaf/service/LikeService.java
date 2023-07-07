@@ -1,5 +1,6 @@
 package com.alan10607.leaf.service;
 
+import com.alan10607.leaf.advice.DebugDuration;
 import com.alan10607.leaf.dao.ContLikeDAO;
 import com.alan10607.leaf.dao.ContentDAO;
 import com.alan10607.redis.dto.LikeDTO;
@@ -12,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.*;
 
 @Service
@@ -39,6 +41,7 @@ public class LikeService {
         LikeDTO likeDTO = likeRedisService.get(id, no, userId);
         if(likeDTO.getLikeKeyType() == LikeKeyType.UNKNOWN){
             pullToRedis(id, no, userId);
+            likeDTO = likeRedisService.get(id, no, userId);
         }
 
         if(likeDTO.getLikeKeyType() == LikeKeyType.STATIC){
@@ -72,32 +75,37 @@ public class LikeService {
      * 時間需要 O(contId size * contNo size * userId size)
      * 若批次失敗可以設計成保留資料後重新跑批
      */
-    public void saveLikeToDB() {
+    @Transactional
+    @DebugDuration
+    public int saveLikeToDB() {
         List<ContLike> createList = new ArrayList<>();
         List<ContLike> deleteList = new ArrayList<>();
         Map<LikeDTO, Long> likeCount = new HashMap<>();
-        likeUpdateRedisService.renameToBatch();
-        List<LikeDTO> updateDTOs = likeUpdateRedisService.getBatch();
+        List<LikeDTO> updateDTOs = getUpdateList();
 
         if(updateDTOs.isEmpty()) {
             log.info("No contLike data to save");
-            return;
+            return updateDTOs.size();
         }
 
         try{
             collectUpdateListAndCount(updateDTOs, createList, deleteList, likeCount);
             saveToDB(createList, deleteList, likeCount);
             removeCache(updateDTOs);
-            log.info("Save contLike succeeded, createList size={}, deleteList size={}, likeCount",
-                    createList.size(),  deleteList.size(), likeCount.size());
+            log.info("Save contLike succeeded, update cache size={}, createList size={}, deleteList size={}, likeCount size={}",
+                    updateDTOs.size(), createList.size(),  deleteList.size(), likeCount.size());
         } catch (Exception e) {
             log.error("Save ContLike to DB failed:", e);
             likeUpdateRedisService.set(updateDTOs);
             throw new RuntimeException(e);
         }
+
+        return updateDTOs.size();
     }
 
-    private List<LikeDTO> getUpdateDTOs(){
+    private List<LikeDTO> getUpdateList(){
+        if(likeUpdateRedisService.get().isEmpty()) return new ArrayList<>();
+
         likeUpdateRedisService.renameToBatch();
         return likeUpdateRedisService.getBatch();
     }
@@ -144,6 +152,8 @@ public class LikeService {
 
         updateDTOs.forEach(likeDTO ->
                 contentRedisService.delete(likeDTO.getId(), likeDTO.getNo()));
+
+        likeUpdateRedisService.deleteBatch();
     }
 
 }

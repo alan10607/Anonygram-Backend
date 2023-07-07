@@ -1,6 +1,6 @@
 package com.alan10607.leaf.config;
 
-import com.alan10607.leaf.schedule.RedisSchedule;
+import com.alan10607.leaf.schedule.SaveLikeSchedule;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +14,7 @@ public class QuartzConfig {
      */
     @Bean
     public JobDetail redisJobDetail(){
-        return JobBuilder.newJob(RedisSchedule.class).storeDurably().build();//storeDurably表示持久化任務
+        return JobBuilder.newJob(SaveLikeSchedule.class).storeDurably().build();//storeDurably表示持久化任務
     }
 
     /**

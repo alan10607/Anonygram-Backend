@@ -1,6 +1,5 @@
 package com.alan10607.leaf.controller;
 
-import com.alan10607.leaf.constant.AutoUserId;
 import com.alan10607.leaf.dto.PostDTO;
 import com.alan10607.leaf.service.PostService;
 import com.alan10607.leaf.util.ResponseUtil;
@@ -12,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping(path = "/post")
 @AllArgsConstructor
@@ -23,7 +20,6 @@ public class PostController {
     private final ResponseUtil responseUtil;
 
     @PostMapping("/uploadImg")
-    @AutoUserId
     public ResponseEntity uploadImg(@RequestBody PostDTO postDTO){
         try{
             postDTO = postService.uploadImg(postDTO);

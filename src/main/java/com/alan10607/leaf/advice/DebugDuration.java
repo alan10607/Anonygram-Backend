@@ -1,10 +1,9 @@
-package com.alan10607.leaf.constant;
+package com.alan10607.leaf.advice;
 
 import java.lang.annotation.*;
 
 @Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AutoUserId {
-    boolean enable() default true;
+public @interface DebugDuration {
 }

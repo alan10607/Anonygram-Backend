@@ -42,6 +42,10 @@ public class LikeUpdateRedisService {
         setBaseRedisService.rename(KEY, KEY_BATCH);
     }
 
+    public void deleteBatch() {
+        setBaseRedisService.delete(KEY_BATCH);
+    }
+
     public List<LikeDTO> getBatch() {
         return parseValue(setBaseRedisService.get(KEY_BATCH));
     }

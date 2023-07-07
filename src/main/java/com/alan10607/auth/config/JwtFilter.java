@@ -60,7 +60,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     public String getTokenFromRequest(HttpServletRequest request) {
         Optional<String> headerToken = Optional.ofNullable(request.getHeader(AUTHORIZATION_KEY))
-                .filter(Strings::isNotBlank);
+                .filter(token -> token.length() > BEARER.length() && token.startsWith(BEARER))
+                .map(token -> token.substring(BEARER.length()));
 
          if (headerToken.isPresent()) {
             return headerToken.get();

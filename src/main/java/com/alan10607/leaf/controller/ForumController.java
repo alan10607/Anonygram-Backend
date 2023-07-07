@@ -1,5 +1,6 @@
 package com.alan10607.leaf.controller;
 
+import com.alan10607.leaf.service.LikeService;
 import com.alan10607.redis.dto.ContentDTO;
 import com.alan10607.leaf.dto.ForumDTO;
 import com.alan10607.redis.dto.LikeDTO;
@@ -16,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ForumController {
     private final ForumService forumService;
+    private final LikeService likeService;
 
     @GetMapping("/id")
     public List<String> getId(){
@@ -60,20 +62,25 @@ public class ForumController {
         forumService.deleteContent(id, no, AuthUtil.getUserId());
     }
 
-    @PatchMapping("/content/like/{id}/{no}")
-    public void likeContent(@PathVariable("id") String id,
-                            @PathVariable("no") int no){
-        LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId());
-        likeDTO.setLike(true);
-        forumService.likeOrDislikeContent(likeDTO);
-    }
-
-    @PatchMapping("/content/dislike/{id}/{no}")
-    public void dislikeContent(@PathVariable("id") String id,
+    @PatchMapping("/like/{id}/{no}")
+    public boolean likeContent(@PathVariable("id") String id,
                                @PathVariable("no") int no){
         LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId());
+        likeDTO.setLike(true);
+        return forumService.likeOrDislikeContent(likeDTO);
+    }
+
+    @PatchMapping("/dislike/{id}/{no}")
+    public boolean dislikeContent(@PathVariable("id") String id,
+                                  @PathVariable("no") int no){
+        LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId());
         likeDTO.setLike(false);
-        forumService.likeOrDislikeContent(likeDTO);
+        return forumService.likeOrDislikeContent(likeDTO);
+    }
+
+    @PostMapping("/saveLike")
+    public int saveLikeToDB(){
+        return likeService.saveLikeToDB();
     }
 
 

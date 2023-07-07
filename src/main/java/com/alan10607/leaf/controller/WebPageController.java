@@ -1,6 +1,5 @@
 package com.alan10607.leaf.controller;
 
-import com.alan10607.leaf.constant.AutoUserId;
 import com.alan10607.leaf.dto.LeafDTO;
 import com.alan10607.leaf.dto.PostDTO;
 import com.alan10607.leaf.service.LeafService;
@@ -24,7 +23,6 @@ public class WebPageController {
     private final LeafService leafService;
 
     @RequestMapping("/hub")
-    @AutoUserId
     public String hub(PostDTO postDTO, Model model){
         try{
             model.addAttribute("userId", postDTO.getUserId());

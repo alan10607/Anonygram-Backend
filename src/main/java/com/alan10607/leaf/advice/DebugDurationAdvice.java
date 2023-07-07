@@ -1,13 +1,11 @@
-package com.alan10607.redis.aspect;
+package com.alan10607.leaf.advice;
 
-import com.alan10607.leaf.util.ResponseUtil;
-import com.alan10607.leaf.util.TimeUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.*;
-import org.aspectj.lang.reflect.MethodSignature;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -17,10 +15,10 @@ import java.util.stream.Collectors;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class RedisDebugAspect {
+public class DebugDurationAdvice {
 
-    @Around("execution(* com.alan10607.redis.service.impl.*.*(..))")
-    public Object measureRedisTime(ProceedingJoinPoint pjp) throws Throwable {
+    @Around("execution(* com.alan10607.redis.service.*.*(..)) || @annotation(com.alan10607.leaf.advice.DebugDuration)")
+    public Object measureTime(ProceedingJoinPoint pjp) throws Throwable {
         long start = System.currentTimeMillis();
         try {
             return pjp.proceed();
@@ -34,5 +32,6 @@ public class RedisDebugAspect {
             log.info("Debug {}().{}({}) duration: {}ms", packageName, methodName, argNames, (end - start));
         }
     }
+
 
 }

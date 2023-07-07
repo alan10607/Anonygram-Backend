@@ -45,6 +45,7 @@ public class ContentService {
             .map(content -> new ContentDTO(content.getId(),
                 content.getNo(),
                 content.getAuthor(),
+                userService.getUserName(content.getAuthor()),
                 content.getWord(),
                 content.getLikes(),
                 content.getStatus(),
