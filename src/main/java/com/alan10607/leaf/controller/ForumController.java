@@ -65,16 +65,14 @@ public class ForumController {
     @PatchMapping("/like/{id}/{no}")
     public boolean likeContent(@PathVariable("id") String id,
                                @PathVariable("no") int no){
-        LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId());
-        likeDTO.setLike(true);
+        LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId(), true);
         return forumService.likeOrDislikeContent(likeDTO);
     }
 
     @PatchMapping("/dislike/{id}/{no}")
     public boolean dislikeContent(@PathVariable("id") String id,
                                   @PathVariable("no") int no){
-        LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId());
-        likeDTO.setLike(false);
+        LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId(), false);
         return forumService.likeOrDislikeContent(likeDTO);
     }
 

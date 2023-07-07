@@ -85,4 +85,12 @@ public class RedisConfig {
         return redisScript;
     }
 
+    @Bean
+    public DefaultRedisScript<Long> isMemberMultiScript() {
+        DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
+        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/is_member_multi.lua")));
+        redisScript.setResultType(Long.class);
+        return redisScript;
+    }
+
 }

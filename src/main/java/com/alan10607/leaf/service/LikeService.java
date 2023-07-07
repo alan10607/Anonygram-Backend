@@ -5,7 +5,6 @@ import com.alan10607.leaf.dao.ContLikeDAO;
 import com.alan10607.leaf.dao.ContentDAO;
 import com.alan10607.redis.dto.LikeDTO;
 import com.alan10607.leaf.model.ContLike;
-import com.alan10607.redis.constant.LikeKeyType;
 import com.alan10607.redis.service.LikeRedisService;
 import com.alan10607.redis.service.LikeUpdateRedisService;
 import com.alan10607.redis.service.ContentRedisService;
@@ -38,23 +37,23 @@ public class LikeService {
      * @return
      */
     public boolean get(String id, int no, String userId){
-        LikeDTO likeDTO = likeRedisService.get(id, no, userId);
-        if(likeDTO.getLikeKeyType() == LikeKeyType.UNKNOWN){
+        Boolean like = likeRedisService.get(id, no, userId);
+        if(like == null){
             pullToRedis(id, no, userId);
-            likeDTO = likeRedisService.get(id, no, userId);
+            like = likeRedisService.get(id, no, userId);
         }
 
-        if(likeDTO.getLikeKeyType() == LikeKeyType.STATIC){
-            likeRedisService.expire(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId(), likeDTO.getLikeKeyType());
+        if(!likeUpdateRedisService.existOrBatchExist(id, no, userId)){
+            likeRedisService.expire(id, no, userId);
         }
 
-        return likeDTO.getLike();
+        return like;
     }
 
     private void pullToRedis(String id, int no, String userId){
         boolean like = contLikeDAO.existsByIdAndNoAndUserId(id, no, userId);
-        LikeDTO likeDTO = new LikeDTO(id, no, userId, like, LikeKeyType.STATIC);
-        likeRedisService.setWithKeyType(likeDTO);
+        LikeDTO likeDTO = new LikeDTO(id, no, userId, like);
+        likeRedisService.set(likeDTO);
     }
 
     /**
@@ -65,7 +64,9 @@ public class LikeService {
      */
     public boolean set(LikeDTO likeDTO) {
         boolean isSuccess = likeRedisService.set(likeDTO);
-        likeUpdateRedisService.set(likeDTO);
+        if(isSuccess){
+            likeUpdateRedisService.set(likeDTO);
+        }
         return isSuccess;
     }
 
@@ -125,7 +126,7 @@ public class LikeService {
         String id = likeDTO.getId();
         int no = likeDTO.getNo();
         String userId = likeDTO.getUserId();
-        LikeDTO keyPair = new LikeDTO(id, no, null);
+        LikeDTO keyPair = new LikeDTO(id, no);
         boolean like = get(id, no, userId);
         ContLike contLike = contLikeDAO.findByIdAndNoAndUserId(id, no, userId);
         if(like && contLike == null){
@@ -148,7 +149,7 @@ public class LikeService {
 
     private void removeCache(List<LikeDTO> updateDTOs) {
         updateDTOs.forEach(likeDTO ->
-                likeRedisService.expire(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId(), LikeKeyType.NEW));
+                likeRedisService.expire(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()));
 
         updateDTOs.forEach(likeDTO ->
                 contentRedisService.delete(likeDTO.getId(), likeDTO.getNo()));

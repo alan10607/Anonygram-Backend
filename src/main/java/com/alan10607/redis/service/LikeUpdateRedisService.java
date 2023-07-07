@@ -4,8 +4,10 @@ import com.alan10607.redis.dto.LikeDTO;
 import com.alan10607.redis.service.base.SetBaseRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LikeUpdateRedisService {
     private final SetBaseRedisService setBaseRedisService;
+    private final DefaultRedisScript isMemberMultiScript;
     private static final String KEY = "data:likeUpdate";
     private static final String KEY_BATCH = "data:likeUpdate:batch";
 
@@ -48,6 +51,14 @@ public class LikeUpdateRedisService {
 
     public List<LikeDTO> getBatch() {
         return parseValue(setBaseRedisService.get(KEY_BATCH));
+    }
+
+    public boolean existOrBatchExist(String id, int no, String userId) {
+        Long exist = setBaseRedisService.execute(isMemberMultiScript,
+                Arrays.asList(KEY, KEY_BATCH),
+                getValue(id, no, userId));
+
+        return exist == 1;
     }
 
     private List<LikeDTO> parseValue(Set<String> keyList){

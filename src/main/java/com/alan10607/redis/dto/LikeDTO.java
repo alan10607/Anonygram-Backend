@@ -1,7 +1,6 @@
 package com.alan10607.redis.dto;
 
 import com.alan10607.leaf.dto.BaseDTO;
-import com.alan10607.redis.constant.LikeKeyType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,18 +20,6 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LikeDTO {
 
-    @AllArgsConstructor
-    private enum LikeStatus {
-        UNKNOWN(-1, LikeKeyType.UNKNOWN, null),
-        STATUS_DISLIKE(0, LikeKeyType.STATIC, false),
-        STATUS_LIKE(1, LikeKeyType.STATIC, true),
-        NEW_DISLIKE(2, LikeKeyType.NEW, false),
-        NEW_LIKE(3, LikeKeyType.NEW, true);
-        public int queryResult;
-        public LikeKeyType keyType;
-        public Boolean like;
-    }
-
     @NotBlank
     private String id;
 
@@ -46,23 +33,10 @@ public class LikeDTO {
     @NotNull
     private Boolean like;
 
-    @NotNull(groups = KeyTypeGroup.class)
-    private LikeKeyType likeKeyType;
-
     public LikeDTO(String id,
-                   Integer no,
-                   String userId,
-                   Long luaQueryResult) {
+                   Integer no){
         this.id = id;
         this.no = no;
-        this.userId = userId;
-        for (LikeStatus likeStatus : LikeStatus.values()) {
-            if (likeStatus.queryResult == luaQueryResult) {
-                this.likeKeyType = likeStatus.keyType;
-                this.like = likeStatus.like;
-                return;
-            }
-        }
     }
 
     public LikeDTO(String id,
@@ -87,9 +61,6 @@ public class LikeDTO {
 
     public Map<String, Object> toMap() {
         return BaseDTO.convertValue(this, Map.class);
-    }
-
-    public interface KeyTypeGroup extends Default {
     }
 
 }

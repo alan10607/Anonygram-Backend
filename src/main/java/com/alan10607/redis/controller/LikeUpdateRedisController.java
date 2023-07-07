@@ -26,6 +26,13 @@ public class LikeUpdateRedisController {
         return likeUpdateRedisService.getBatch();
     }
 
+    @GetMapping("/exist/{id}/{no}/{userId}")
+    public boolean existOrBatchExist(@PathVariable("id") String id,
+                                     @PathVariable("no") int no,
+                                     @PathVariable("userId") String userId) {
+        return likeUpdateRedisService.existOrBatchExist(id, no, userId);
+    }
+
     @PostMapping
     public void set(@RequestBody @Validated({ SimpleDTO.ListGroup.class }) SimpleDTO simpleDTO){
         List<LikeDTO> likeDTOList = simpleDTO.getList().stream()
@@ -39,7 +46,6 @@ public class LikeUpdateRedisController {
     public void renameToBatch(){
         likeUpdateRedisService.renameToBatch();
     }
-
 
     @DeleteMapping("/batch")
     public void deleteBatch(){
