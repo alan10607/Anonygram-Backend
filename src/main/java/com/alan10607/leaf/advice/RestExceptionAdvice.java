@@ -22,6 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+        (basePackages = {
+        "com.alan10607.leaf.controller",
+        "com.alan10607.auth.controller",
+        "com.alan10607.redis.controller"})
 @Slf4j
 public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
 
@@ -43,6 +47,9 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
             need to transform to string.
             Normally selectedConverterType will be MappingJackson2HttpMessageConverter if returnType is not String.class
              */
+        if(!request.getURI().getPath().startsWith("/redis")){
+            return body;
+        }
         if (returnType.getParameterType().equals(String.class)) {
             return toJSONString(restResponseEntity);
         }

@@ -61,7 +61,8 @@ public class SecurityConfig {
                     "/ssl",
                     //test
                     "/redis/**",
-                    "/forum/**").permitAll()//公開頁面
+                    "/forum/**",
+                "/**").permitAll()//公開頁面
                 .and().authorizeRequests().antMatchers("/post/**")
                 .hasAnyAuthority(RoleType.NORMAL.name(), RoleType.ADMIN.name(), RoleType.ANONYMOUS.name())//限制為jwt權限訪問
                 .and().authorizeRequests().anyRequest().hasAuthority(RoleType.ADMIN.name())//限制為admin權限訪問
