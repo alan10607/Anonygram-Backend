@@ -1,5 +1,7 @@
 package com.alan10607.leaf.controller;
 
+import com.alan10607.leaf.dto.PostDTO;
+import com.alan10607.leaf.service.ImgurService;
 import com.alan10607.leaf.service.LikeService;
 import com.alan10607.redis.dto.ContentDTO;
 import com.alan10607.leaf.dto.ForumDTO;
@@ -7,9 +9,11 @@ import com.alan10607.redis.dto.LikeDTO;
 import com.alan10607.leaf.service.ForumService;
 import com.alan10607.auth.util.AuthUtil;
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -17,6 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ForumController {
     private final ForumService forumService;
+    private final ImgurService imgurService;
     private final LikeService likeService;
 
     @GetMapping("/id")
@@ -30,7 +35,7 @@ public class ForumController {
     }
 
     @PostMapping("/article")
-    public ForumDTO createForum(@RequestBody @Validated({ ForumDTO.CreateForumGroup.class }) ForumDTO forumDTO){
+    public ForumDTO createForum(@RequestBody @Validated(ForumDTO.CreateForumGroup.class) ForumDTO forumDTO){
         forumDTO.setAuthor(AuthUtil.getUserId());
         return forumService.createForum(forumDTO);
     }
@@ -48,7 +53,7 @@ public class ForumController {
 
     @PostMapping("/content/{id}")
     public ContentDTO replyForum(@PathVariable("id") String id,
-                                 @RequestBody @Validated ForumDTO forumDTO){
+                                 @RequestBody @Valid ForumDTO forumDTO){//TODO: NEED TEST
         forumDTO.setId(id);
         forumDTO.setAuthor(AuthUtil.getUserId());
         forumDTO = forumService.replyForum(forumDTO);
@@ -81,5 +86,9 @@ public class ForumController {
         return likeService.saveLikeToDB();
     }
 
+    @PostMapping("/img")
+    public String uploadImg(@RequestBody @Validated(ForumDTO.UploadImgGroup.class) ForumDTO forumDTO){
+        return imgurService.upload(forumDTO);
+    }
 
 }

@@ -10,7 +10,6 @@ import org.springframework.validation.annotation.Validated;
 @Service
 @AllArgsConstructor
 @Slf4j
-@Validated
 public class RoleService {
     private final RoleDAO roleDAO;
 

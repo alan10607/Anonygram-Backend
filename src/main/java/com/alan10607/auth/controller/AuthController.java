@@ -41,7 +41,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public void register(@RequestBody @Validated({ UserDTO.registerGroup.class }) UserDTO userDTO){
+    public void register(@RequestBody @Validated(UserDTO.registerGroup.class) UserDTO userDTO){
         authService.register(userDTO);
     }
 

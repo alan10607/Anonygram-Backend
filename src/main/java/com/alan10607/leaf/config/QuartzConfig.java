@@ -13,7 +13,7 @@ public class QuartzConfig {
      * @return
      */
     @Bean
-    public JobDetail redisJobDetail(){
+    public JobDetail saveLikeJobDetail(){
         return JobBuilder.newJob(SaveLikeSchedule.class)
                     .storeDurably()//"storeDurably" means persisting tasks
                     .build();
@@ -24,12 +24,12 @@ public class QuartzConfig {
      * @return
      */
     @Bean
-    public Trigger redisTrigger(){
+    public Trigger saveLikeTrigger(){
         ScheduleBuilder scheduleBuilder = CronScheduleBuilder
                 .cronSchedule("0 0/20 * * * ?"); //Start from 0 and execute every 20 minutes
 
         return TriggerBuilder.newTrigger()
-                .forJob(redisJobDetail())
+                .forJob(saveLikeJobDetail())
                 .withSchedule(scheduleBuilder)
                 .build();
     }

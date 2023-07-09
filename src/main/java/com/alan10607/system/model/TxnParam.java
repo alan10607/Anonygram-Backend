@@ -1,6 +1,5 @@
-package com.alan10607.leaf.model;
+package com.alan10607.system.model;
 
-import com.alan10607.leaf.constant.TxnParamType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,10 +18,6 @@ public class TxnParam {
 
     @Column(nullable = false)
     private String value;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private TxnParamType type;
 
     @Column(nullable = false)
     private LocalDateTime updateDate;

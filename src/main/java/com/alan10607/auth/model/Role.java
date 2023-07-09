@@ -14,6 +14,6 @@ import javax.persistence.Id;
 public class Role {
 
     @Id
-    private Long roleId;
+    private Integer roleId;
     private String roleName;
 }

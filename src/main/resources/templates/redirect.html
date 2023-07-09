@@ -14,13 +14,11 @@
 </head>
 <script th:inline="javascript">
 function init(){
-    // First, parse the query string
-    var data = {};
-    var queryString = location.hash.substring(1)
-    var dataExp = /([^&=]+)=([^&]*)/g;
+    const data = {};
+    const queryString = location.hash.substring(1)
+    const dataExp = /([^&=]+)=([^&]*)/g;
 
-    if(queryString == "")
-        return showConsole("Failed because no data return!!");
+    if(queryString == "") return showConsole("Failed because no data return!!");
 
     while (m = dataExp.exec(queryString)) {
       data[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);

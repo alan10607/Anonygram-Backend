@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "imgur.client")
 @Data
-@Slf4j
 public class ImgurConfig {
     private String clientId;
     private String clientSecret;

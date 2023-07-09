@@ -20,6 +20,7 @@ import java.util.Map;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ForumDTO {
+    @NotBlank(groups = UploadImgGroup.class)
     public String id;
     public Integer no;
 
@@ -34,7 +35,12 @@ public class ForumDTO {
     private LocalDateTime updateDate;
     private Integer contNum;
     private List<ContentDTO> contList;
+
+    @NotBlank(groups = UploadImgGroup.class)
     private String userId;
+
+    @NotBlank(groups = UploadImgGroup.class)
+    private String imgBase64;
 
     public static ForumDTO toDTO(Object data) {
         return BaseDTO.convertValue(data, ForumDTO.class);
@@ -45,5 +51,8 @@ public class ForumDTO {
     }
 
     public interface CreateForumGroup extends Default {
+    }
+
+    public interface UploadImgGroup extends Default {
     }
 }

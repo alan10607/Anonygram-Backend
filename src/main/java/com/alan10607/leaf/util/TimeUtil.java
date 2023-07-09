@@ -23,7 +23,7 @@ public class TimeUtil {
         return now().format(FORMATTER);
     }
 
-    public String nowStrShort(){
+    public static String nowStrShort(){
         return now().format(FORMATTER_SHORT);
     }
 

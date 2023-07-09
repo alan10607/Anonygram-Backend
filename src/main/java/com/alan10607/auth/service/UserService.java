@@ -12,7 +12,6 @@ import com.alan10607.redis.service.UserNameRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 @Slf4j
-@Validated
 public class UserService implements UserDetailsService{
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RoleService roleService;
@@ -78,10 +76,9 @@ public class UserService implements UserDetailsService{
     }
 
     public void deleteUser(String email) {
-        ForumUser forumUser = userDAO.findByEmail(email)
-                .orElseThrow(() -> new IllegalStateException("Email not found"));
-
-        userDAO.delete(forumUser);
+        userDAO.findByEmail(email).ifPresentOrElse(
+                forumUser -> userDAO.delete(forumUser),
+                () -> new IllegalStateException("Email not found"));
     }
 
     /**
@@ -130,19 +127,4 @@ public class UserService implements UserDetailsService{
                 TimeUtil.now());
     }
 
-    @Bean
-    public CommandLineRunner userCommand(RoleService roleService){
-        return args -> {
-            roleService.saveRole(new Role(1L, RoleType.ADMIN.name()));
-            roleService.saveRole(new Role(2L, RoleType.NORMAL.name()));
-            roleService.saveRole(new Role(3L, RoleType.ANONYMOUS.name()));
-            Role role = roleService.findRole(RoleType.ADMIN.name());
-            userDAO.findByEmail("alan").orElseGet(() ->
-                    userDAO.save(new ForumUser("alan",
-                            "alan",
-                            bCryptPasswordEncoder.encode("alan"),
-                            Arrays.asList(role),
-                            TimeUtil.now())));
-        };
-    }
 }

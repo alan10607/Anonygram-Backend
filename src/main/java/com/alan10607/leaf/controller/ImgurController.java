@@ -5,12 +5,10 @@ import com.alan10607.leaf.service.ImgurService;
 import com.alan10607.leaf.util.ResponseUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @Controller
@@ -24,44 +22,22 @@ public class ImgurController {
 
     @GetMapping("/auth")
     public RedirectView auth(){
-        StringBuffer url = new StringBuffer();
-        try{
-            url.append(imgurConfig.getAuthorizeUrl())
+        StringBuffer url = new StringBuffer().append(imgurConfig.getAuthorizeUrl())
                     .append("?client_id=").append(imgurConfig.getClientId())
                     .append("&response_type=token");
-        }catch (Exception e){
-            log.error(e.getMessage());
-        }
         return new RedirectView(url.toString());
     }
 
-    @GetMapping("/redirect")
-    public String redirect(HttpServletRequest request) {
-        return "redirect.html";
-    }
-
-    @PostMapping("/saveToken")
-    @ResponseBody
-    public ResponseEntity saveToken(@RequestBody Map<String,String> data){
-        try{
-            imgurService.saveToken(data.get("access_token"), data.get("refresh_token"));
-            return responseUtil.ok();
-        }catch (Exception e){
-            log.error(e.getMessage());
-            return responseUtil.err(e);
-        }
+    @GetMapping("/saveToken")
+    public Map<String, String> saveToken(@RequestParam("access_token") String accessToken,
+                                         @RequestParam("refresh_token") String refreshToken){
+        imgurService.saveToken(accessToken, refreshToken);
+        return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
     }
 
     @PostMapping("/refreshToken")
-    @ResponseBody
-    public ResponseEntity refreshToken() {
-        try{
-            imgurService.refreshToken();
-            return responseUtil.ok();
-        }catch (Exception e){
-            log.error(e.getMessage());
-            return responseUtil.err(e);
-        }
+    public void refreshToken() {
+        imgurService.refreshToken();
     }
 
 }

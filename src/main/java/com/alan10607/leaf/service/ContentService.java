@@ -106,7 +106,7 @@ public class ContentService {
 
     public void updateContentStatus(String id, int no, String userId, StatusType status) {
         Content content = contentDAO.findByIdAndNo(id, no).orElseThrow(() ->
-                new IllegalStateException(String.format("Content not found, id: %s, no: $s", id, no)));
+                new IllegalStateException(String.format("Content not found, id: %s, no: %s", id, no)));
 
         if(!userId.equals(content.getAuthor()))
             throw new IllegalStateException("No authority to modify");

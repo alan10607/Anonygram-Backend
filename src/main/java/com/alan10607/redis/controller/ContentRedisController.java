@@ -35,7 +35,7 @@ public class ContentRedisController {
     @PatchMapping("/increaseLikes/{id}/{no}")
     public void increaseLikes(@PathVariable("id") String id,
                        @PathVariable("no") int no,
-                       @RequestBody @Validated({ SimpleDTO.IntegerGroup.class }) SimpleDTO simpleDTO){
+                       @RequestBody @Validated(SimpleDTO.IntegerGroup.class) SimpleDTO simpleDTO){
         contentRedisService.increaseLikes(id, no, simpleDTO.getInteger());
     }
 
