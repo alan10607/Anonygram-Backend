@@ -62,7 +62,9 @@ public class SecurityConfig {
                     //test
                     "/redis/**",
                     "/forum/**",
-                "/**").permitAll()//公開頁面
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**"
+                ).permitAll()//公開頁面
                 .and().authorizeRequests().antMatchers("/post/**")
                 .hasAnyAuthority(RoleType.NORMAL.name(), RoleType.ADMIN.name(), RoleType.ANONYMOUS.name())//限制為jwt權限訪問
                 .and().authorizeRequests().anyRequest().hasAuthority(RoleType.ADMIN.name())//限制為admin權限訪問

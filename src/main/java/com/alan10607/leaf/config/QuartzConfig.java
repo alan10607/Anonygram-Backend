@@ -9,22 +9,29 @@ import org.springframework.context.annotation.Configuration;
 public class QuartzConfig {
 
     /**
-     * 綁定具體的工作
+     * Bind specific the task
      * @return
      */
     @Bean
     public JobDetail redisJobDetail(){
-        return JobBuilder.newJob(SaveLikeSchedule.class).storeDurably().build();//storeDurably表示持久化任務
+        return JobBuilder.newJob(SaveLikeSchedule.class)
+                    .storeDurably()//"storeDurably" means persisting tasks
+                    .build();
     }
 
     /**
-     * 綁定對應之工作明細
+     * Bind task's details
      * @return
      */
     @Bean
     public Trigger redisTrigger(){
-        ScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule("0 0/20 * * * ?"); //從0分開始, 每20分鐘執行一次
-        return TriggerBuilder.newTrigger().forJob(redisJobDetail()).withSchedule(scheduleBuilder).build();
+        ScheduleBuilder scheduleBuilder = CronScheduleBuilder
+                .cronSchedule("0 0/20 * * * ?"); //Start from 0 and execute every 20 minutes
+
+        return TriggerBuilder.newTrigger()
+                .forJob(redisJobDetail())
+                .withSchedule(scheduleBuilder)
+                .build();
     }
 
 }
