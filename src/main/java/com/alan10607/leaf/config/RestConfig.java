@@ -1,6 +1,7 @@
 package com.alan10607.leaf.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,17 +21,12 @@ import java.util.Map;
 public class RestConfig {
 
     @Bean
-    public WebClient imgurUploadClient(ImgurConfig imgurConfig){
-        return WebClient.builder().baseUrl(imgurConfig.getUploadUrl())
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE)
-                .build();
+    public WebClient imgurUploadClient(@Value("${imgur.client.uploadUrl}") String uploadUrl){
+        return WebClient.builder().baseUrl(uploadUrl).build();
     }
 
     @Bean
-    public WebClient imgurRefreshTokenClient(ImgurConfig imgurConfig){
-        return WebClient.builder().baseUrl(imgurConfig.getAccessTokenUrl())
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                .
-                .build();
+    public WebClient imgurRefreshTokenClient(@Value("${imgur.client.accessTokenUrl}") String accessTokenUrl){
+        return WebClient.builder().baseUrl(accessTokenUrl).build();
     }
 }

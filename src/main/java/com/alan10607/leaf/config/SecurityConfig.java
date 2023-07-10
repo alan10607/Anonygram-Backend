@@ -2,6 +2,7 @@ package com.alan10607.leaf.config;
 
 import com.alan10607.auth.config.JwtFilter;
 import com.alan10607.auth.constant.RoleType;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.server.ConfigurableWebServerFactory;
@@ -29,6 +30,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final AuthenticationProvider authenticationProvider;
+    public final static String FORUM_PATH = "/forum/**";
+    public final static String AUTH_PATH = "/auth/**";
+    public final static String REDIS_PATH = "/redis/**";
+    public final static String SWAGGER_UI_PATH = "/swagger-ui/**";
+    public final static String SWAGGER_V3_PATH = "/v3/api-docs/**";
 
     /**
      * Web security, 代替WebSecurityConfigurerAdapter.configure(HttpSecurity http)
@@ -60,10 +66,7 @@ public class SecurityConfig {
                     "/auth/**",
                     "/ssl",
                     //test
-                    "/redis/**",
-                    "/forum/**",
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**"
+                        FORUM_PATH, REDIS_PATH, AUTH_PATH, SWAGGER_UI_PATH, SWAGGER_V3_PATH
                 ).permitAll()//公開頁面
                 .and().authorizeRequests().antMatchers("/post/**")
                 .hasAnyAuthority(RoleType.NORMAL.name(), RoleType.ADMIN.name(), RoleType.ANONYMOUS.name())//限制為jwt權限訪問

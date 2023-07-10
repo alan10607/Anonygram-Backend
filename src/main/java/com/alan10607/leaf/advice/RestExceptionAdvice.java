@@ -3,6 +3,7 @@ package com.alan10607.leaf.advice;
 import com.alan10607.leaf.dto.RestResponseEntity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
@@ -18,14 +19,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.alan10607.leaf.config.SecurityConfig.*;
+
 @RestControllerAdvice
-        (basePackages = {
-        "com.alan10607.leaf.controller",
-        "com.alan10607.auth.controller",
-        "com.alan10607.redis.controller"})
+@AllArgsConstructor
 @Slf4j
 public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
 
@@ -41,19 +42,34 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
                                   MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request, ServerHttpResponse response) {
-        RestResponseEntity restResponseEntity = new RestResponseEntity(getHttpStatus(response), body);
-            /*
-            If body type is String.class, selectedConverterType will be StringHttpMessageConverter,
-            need to transform to string.
-            Normally selectedConverterType will be MappingJackson2HttpMessageConverter if returnType is not String.class
-             */
-        if(!request.getURI().getPath().startsWith("/redis")){
+        if(!needWarpResponse(request)){
             return body;
         }
+
+        /*
+        If body type is String.class, selectedConverterType will be StringHttpMessageConverter,
+        need to transform to string.
+        Normally selectedConverterType will be MappingJackson2HttpMessageConverter if returnType is not String.class
+         */
+        RestResponseEntity restResponseEntity = new RestResponseEntity(getHttpStatus(response), body);
         if (returnType.getParameterType().equals(String.class)) {
             return toJSONString(restResponseEntity);
         }
         return restResponseEntity;
+    }
+
+    private boolean needWarpResponse(ServerHttpRequest request){
+        String path = request.getURI().getPath();
+        String[] targetPath = {FORUM_PATH, AUTH_PATH, REDIS_PATH};
+        long match = Arrays.stream(targetPath).map(this::getPathPrefix)
+                .filter(pathPrefix -> path.startsWith("pathPrefix"))
+                .count();
+        return match > 0;
+    }
+
+    private String getPathPrefix(String webConfigPath){
+        int secondSlash = webConfigPath.indexOf("/", 1);
+        return webConfigPath.substring(0, secondSlash);
     }
 
     private HttpStatus getHttpStatus(ServerHttpResponse response){

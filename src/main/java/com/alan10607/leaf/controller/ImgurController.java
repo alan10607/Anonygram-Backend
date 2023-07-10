@@ -28,16 +28,15 @@ public class ImgurController {
         return new RedirectView(url.toString());
     }
 
-    @GetMapping("/saveToken")
-    public Map<String, String> saveToken(@RequestParam("access_token") String accessToken,
-                                         @RequestParam("refresh_token") String refreshToken){
-        imgurService.saveToken(accessToken, refreshToken);
-        return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
-    }
-
     @PostMapping("/refreshToken")
     public Map<String, String> refreshToken() {
         return imgurService.refreshToken();
+    }
+
+    @GetMapping("/saveToken")
+    public Map<String, String> saveToken(@RequestParam("access_token") String accessToken,
+                                         @RequestParam("refresh_token") String refreshToken){
+        return imgurService.saveToken(accessToken, refreshToken);
     }
 
 }
