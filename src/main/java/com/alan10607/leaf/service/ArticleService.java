@@ -8,6 +8,7 @@ import com.alan10607.leaf.model.Article;
 import com.alan10607.leaf.model.Content;
 import com.alan10607.leaf.util.TimeUtil;
 import com.alan10607.redis.service.ArticleRedisService;
+import com.alan10607.redis.service.LockRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -19,13 +20,14 @@ import org.springframework.stereotype.Service;
 public class ArticleService {
     private final ContentService contentService;
     private final ArticleRedisService articleRedisService;
+    private final LockRedisService lockRedisService;
     private final ArticleDAO articleDAO;
     private final ContentDAO contentDAO;
 
-    public ArticleDTO get(String id) {
+    public ArticleDTO get(String id) throws InterruptedException {
         ArticleDTO articleDTO = articleRedisService.get(id);
         if(Strings.isBlank(articleDTO.getId())){
-            pullToRedis(id);
+            lockRedisService.lockByArticle(id, () -> pullToRedis(id));
             articleDTO = articleRedisService.get(id);
         }
         articleRedisService.expire(id);

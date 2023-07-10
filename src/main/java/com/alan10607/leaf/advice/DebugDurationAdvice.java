@@ -1,5 +1,6 @@
 package com.alan10607.leaf.advice;
 
+import com.alan10607.leaf.util.ToolUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -24,14 +25,8 @@ public class DebugDurationAdvice {
             return pjp.proceed();
         } finally {
             long end = System.currentTimeMillis();
-            String packageName = pjp.getSignature().getDeclaringTypeName();
-            String methodName = pjp.getSignature().getName();
-            String argNames = Arrays.stream(pjp.getArgs()).map(Object::getClass)
-                    .map(Class::getSimpleName)
-                    .collect(Collectors.joining(","));
-            log.info("Debug {}().{}({}) duration: {}ms", packageName, methodName, argNames, (end - start));
+            log.info("Debug {} duration: {}ms", ToolUtil.getFullFunctionName(pjp), (end - start));
         }
     }
-
 
 }

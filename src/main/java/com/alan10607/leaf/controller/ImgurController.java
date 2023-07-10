@@ -36,8 +36,8 @@ public class ImgurController {
     }
 
     @PostMapping("/refreshToken")
-    public void refreshToken() {
-        imgurService.refreshToken();
+    public Map<String, String> refreshToken() {
+        return imgurService.refreshToken();
     }
 
 }

@@ -10,6 +10,7 @@ import com.alan10607.leaf.util.TimeUtil;
 import com.alan10607.auth.util.AuthUtil;
 import com.alan10607.redis.service.ArticleRedisService;
 import com.alan10607.redis.service.ContentRedisService;
+import com.alan10607.redis.service.LockRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -26,13 +27,14 @@ public class ContentService {
     private final UserService userService;
     private final ArticleRedisService articleRedisService;
     private final ContentRedisService contentRedisService;
+    private final LockRedisService lockRedisService;
     private final ArticleDAO articleDAO;
     private final ContentDAO contentDAO;
 
-    public ContentDTO get(String id, int no) {
+    public ContentDTO get(String id, int no) throws InterruptedException {
         ContentDTO contentDTO = contentRedisService.get(id, no);
         if(Strings.isBlank(contentDTO.getId()) || contentDTO.getNo() == null){
-            pullToRedis(id, no);
+            lockRedisService.lockByContent(id, no, () -> pullToRedis(id, no));
             contentDTO = contentRedisService.get(id, no);
         }
         contentRedisService.expire(id, no);

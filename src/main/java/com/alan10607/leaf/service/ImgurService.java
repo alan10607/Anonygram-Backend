@@ -8,63 +8,62 @@ import com.alan10607.system.service.TxnParamService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.*;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 @Slf4j
 public class ImgurService {
-    private TxnParamService txnParamService;
-    private ImgurConfig imgurConfig;
-    private RestTemplate restTemplate;
-    private static final String IMG_DESCRIPTION = "User upload";
+    private final TxnParamService txnParamService;
+    private final ImgurConfig imgurConfig;
+    private final RequestService requestService;
+    private final WebClient imgurUploadClient;
+    private final WebClient imgurRefreshTokenClient;
+
+
+
 
     public String upload(ForumDTO forumDTO) {
-        try{
-            HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(getUploadBody(forumDTO), getUploadHeaders());
-            ResponseEntity<Map> response = restTemplate.postForEntity(imgurConfig.getUploadUrl(), request, Map.class);
-            return Optional.of(response)
-                    .map(ResponseEntity::getBody)
-                    .map(responseBody -> responseBody.get("data"))
-                    .map(Object::toString)
-                    .orElseThrow(() -> new IllegalStateException(
-                            String.format("Get imgur response data failed, http status: %s", response.getStatusCode())));
-        } catch (HttpStatusCodeException e) {
-            log.error("Upload imgur failed with response error status code:" + e.getStatusCode());
-            throw e;
-        }
-    }
-
-    private HttpHeaders getUploadHeaders(){
-        String accessToken = imgurConfig.getAccessToken();
-        if(Strings.isBlank(accessToken)){
+        if(Strings.isBlank(imgurConfig.getAccessToken())){
             throw new RuntimeException("Access token not found, need admin auth");
         }
 
-        HttpHeaders header = new HttpHeaders();
-        header.setContentType(MediaType.MULTIPART_FORM_DATA);
-        header.add("Authorization", "Bearer " + accessToken);
-        return header;
+        Map<String, Object> body = Map.of(
+                "title", String.format("%s:%s:%s", forumDTO.getId(), forumDTO.getUserId(), TimeUtil.nowStrShort()),
+                "image", forumDTO.getImgBase64(),
+                "description", "User upload",
+                "type", "base64",
+                "album", imgurConfig.getAlbumId());
+
+        Map<String, String> response = imgurUploadClient.post()
+                .header(HttpHeaders.AUTHORIZATION, imgurConfig.getAccessToken())
+                .body(BodyInserters.fromMultipartData(new LinkedMultiValueMap<>(body)))
+                .retrieve()
+                .bodyToMono(Map.class)
+                .doOnError(HttpStatusCodeException.class, e -> {
+                    log.error("Upload imgur failed with response error status code:" + e.getStatusCode());
+                    throw e;
+                })
+                .block();
+
+        String imgUrl = response.get("data");
+        if(Strings.isBlank(imgUrl)) {
+            throw new IllegalStateException("No image url in response payload");
+        }
+
+        return imgUrl;
     }
 
-    private MultiValueMap<String, Object> getUploadBody(ForumDTO forumDTO){
-        String title = String.format("%s:%s:%s", forumDTO.getId(), forumDTO.getUserId(), TimeUtil.nowStrShort());
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("title", title);
-        body.add("image", forumDTO.getImgBase64());//or upload MultipartFile, String imgBase64 = Base64.getEncoder().encodeToString(image.getBytes());
-        body.add("description", IMG_DESCRIPTION);
-        body.add("type", "base64");
-        body.add("album", imgurConfig.getAlbumId());
-        return body;
-    }
 
     public void saveToken(String accessToken, String refreshToken) {
         txnParamService.set(TxnParamKey.IMGUR_ACCESS_TOKEN, accessToken);
@@ -75,39 +74,45 @@ public class ImgurService {
     }
 
     public Map<String, String> refreshToken() {
-        Map<String, String> tokens = new HashMap<>();
-        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(getRefreshTokenBody(), getRefreshTokenHeaders());
-        ResponseEntity<Map> response = restTemplate.postForEntity(imgurConfig.getAccessTokenUrl(), request, Map.class);
-        Optional.of(response)
-                .map(ResponseEntity::getBody)
-                .ifPresentOrElse(responseBody -> {
-                    String accessToken = (String) responseBody.get("access_token");
-                    String refreshToken = (String) responseBody.get("refresh_token");
-                    tokens.put("accessToken", accessToken);
-                    tokens.put("refreshToken", refreshToken);
-                    saveToken(accessToken, refreshToken);
-                    log.info("Update token succeeded");
-                }, () -> new IllegalStateException(
-                    String.format("Get imgur refresh token failed, http status: %s", response.getStatusCode())));
+        Map<String, String> body = Map.of(
+                "refresh_token", imgurConfig.getRefreshToken(),
+                "client_id", imgurConfig.getClientId(),
+                "client_secret", imgurConfig.getClientSecret(),
+                "grant_type", "refresh_token");
 
-        return tokens;
+        Map<String, String> response = refreshTokenRequest(body);
+        String accessToken = response.get("access_token");
+        String refreshToken = response.get("refresh_token");
+        if(Strings.isBlank(accessToken) || Strings.isBlank(refreshToken)){
+            throw new IllegalStateException("No accessToken or refreshToken in response payload");
+        }
+
+        saveToken(accessToken, refreshToken);
+        log.info("Update token succeeded");
+        return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
     }
 
-    private HttpHeaders getRefreshTokenHeaders(){
-        HttpHeaders header = new HttpHeaders();
-        header.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        return header;
+    private Map<String, String> refreshTokenRequest(MultiValueMap<String, String> body){
+        WebClient.builder().de
+
+        return imgurRefreshTokenClient.post()
+                .body(BodyInserters.fromFormData(body))
+                .retrieve()
+                .bodyToMono(Map.class)
+                .doOnError(HttpStatusCodeException.class, e -> {
+                    log.error("Get imgur refresh token failed with response error status code:" + e.getStatusCode());
+                    throw e;
+                })
+                .block();
     }
 
-    private MultiValueMap<String, Object> getRefreshTokenBody(){
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("refresh_token", imgurConfig.getRefreshToken());
-        body.add("client_id", imgurConfig.getClientId());
-        body.add("client_secret", imgurConfig.getClientSecret());
-        body.add("grant_type", "refresh_token");
-        return body;
+    private <K, V> MultiValueMap<K, V> mapToMultiValueMap(Map<K, V> map){
+        MultiValueMap<K, V> multiValueMap = new LinkedMultiValueMap<>();
+        for(Map.Entry<K, V> entry : map.entrySet()){
+            multiValueMap.add(entry.getKey(), entry.getValue());
+        }
+        return multiValueMap;
     }
-
 
 
 }
