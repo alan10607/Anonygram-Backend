@@ -7,13 +7,13 @@ import io.swagger.v3.oas.annotations.info.Info;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "title",
+                title = "Anonygram Open API Document",
                 version = "1.0",
-                description = "description"
+                description = "This document is for front-end developing"
         ),
         externalDocs = @ExternalDocumentation(
-                description = "參考",
-                url = "https://github.com/"
+                description = "More information about author",
+                url = "https://github.com/alan10607/"
         )
 )
 public class OpenAPIConfig {

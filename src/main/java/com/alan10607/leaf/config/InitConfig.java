@@ -5,7 +5,6 @@ import com.alan10607.auth.dao.RoleDAO;
 import com.alan10607.auth.dao.UserDAO;
 import com.alan10607.auth.model.ForumUser;
 import com.alan10607.auth.model.Role;
-import com.alan10607.auth.service.RoleService;
 import com.alan10607.leaf.util.TimeUtil;
 import com.alan10607.system.constant.TxnParamKey;
 import com.alan10607.system.service.TxnParamService;
@@ -18,6 +17,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +44,7 @@ public class InitConfig {
                 ForumUser admin = new ForumUser("alan",
                         "alan",
                         bCryptPasswordEncoder.encode("alan"),
-                        Arrays.asList(role),
+                        Collections.singletonList(role),
                         TimeUtil.now());
                 return userDAO.save(admin);
             });

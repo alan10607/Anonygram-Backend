@@ -1,7 +1,7 @@
 package com.alan10607.redis.dto;
 
 import com.alan10607.leaf.constant.StatusType;
-import com.alan10607.leaf.dto.BaseDTO;
+import com.alan10607.leaf.util.ToolUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -46,11 +46,11 @@ public class ArticleDTO {
     }
 
     public static ArticleDTO toDTO(Object data) {
-        return BaseDTO.convertValue(data, ArticleDTO.class);
+        return ToolUtil.convertValue(data, ArticleDTO.class);
     }
 
     public Map<String, Object> toMap() {
-        return BaseDTO.convertValue(this, Map.class);
+        return ToolUtil.convertValue(this, Map.class);
     }
 
 

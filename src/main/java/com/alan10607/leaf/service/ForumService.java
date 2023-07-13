@@ -22,7 +22,6 @@ public class ForumService {
     private final ArticleService articleService;
     private final ContentService contentService;
     private final LikeService likeService;
-    private static final int DEFAULT_FIND_CONTENT_SIZE = 10;
 
     public List<String> getId(){
         return idService.get();
@@ -40,10 +39,6 @@ public class ForumService {
             forumDTO.setContList(Collections.singletonList(headContent));
         }
         return forumDTO;
-    }
-
-    public List<ContentDTO> getTopContents(String id, int no) {
-        return getTopContents(id, no, DEFAULT_FIND_CONTENT_SIZE);
     }
 
     public List<ContentDTO> getTopContents(String id, int no, int size) {

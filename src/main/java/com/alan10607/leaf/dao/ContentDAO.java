@@ -5,11 +5,9 @@ import com.alan10607.leaf.model.ContentId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,15 +27,13 @@ public interface ContentDAO extends JpaRepository<Content, ContentId> {
     @Query(value = "UPDATE Content c SET c.likes = c.likes + ?3 WHERE c.id = ?1 AND c.no = ?2")
     int increaseLikes(String id, int no, long increaseNum);
 
-    @Transactional
-    @Modifying
-    @Query(nativeQuery = true, value = "INSERT INTO content (id, no, author, likes, status, word, create_date, update_date) SELECT :id, COUNT(*), :author, 0, :status, :word, :createDate, :createDate FROM content WHERE id = :id")
-    Integer saveWithAutoNo(@Param("id") String id,
-                       @Param("author") String author,
-                       @Param("status") String status,
-                       @Param("word") String word,
-                       @Param("createDate") LocalDateTime createDate);
-
-
+//    @Transactional
+//    @Modifying
+//    @Query(nativeQuery = true, value = "INSERT INTO content (id, no, author, likes, status, word, create_date, update_date) SELECT :id, COUNT(*), :author, 0, :status, :word, :createDate, :createDate FROM content WHERE id = :id")
+//    Integer saveWithAutoNo(@Param("id") String id,
+//                       @Param("author") String author,
+//                       @Param("status") String status,
+//                       @Param("word") String word,
+//                       @Param("createDate") LocalDateTime createDate);
 
 }

@@ -2,11 +2,14 @@ package com.alan10607.leaf.controller;
 
 import com.alan10607.leaf.config.ImgurConfig;
 import com.alan10607.leaf.service.ImgurService;
-import com.alan10607.leaf.util.ResponseUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.Map;
@@ -14,13 +17,13 @@ import java.util.Map;
 @Controller
 @RequestMapping(path = "/imgur")
 @AllArgsConstructor
-@Slf4j
+@Tag(name = "Imgur")
 public class ImgurController {
     private final ImgurService imgurService;
     private final ImgurConfig imgurConfig;
-    private final ResponseUtil responseUtil;
 
     @GetMapping("/auth")
+    @Operation(summary = "Redirect to Imgur authorization URL")
     public RedirectView auth(){
         StringBuffer url = new StringBuffer().append(imgurConfig.getAuthorizeUrl())
                     .append("?client_id=").append(imgurConfig.getClientId())
@@ -29,11 +32,13 @@ public class ImgurController {
     }
 
     @PostMapping("/refreshToken")
+    @Operation(summary = "Refresh token of Imgur authorization")
     public Map<String, String> refreshToken() {
         return imgurService.refreshToken();
     }
 
     @GetMapping("/saveToken")
+    @Operation(summary = "Save token of Imgur authorization, used by Imgur redirect")
     public Map<String, String> saveToken(@RequestParam("access_token") String accessToken,
                                          @RequestParam("refresh_token") String refreshToken){
         return imgurService.saveToken(accessToken, refreshToken);

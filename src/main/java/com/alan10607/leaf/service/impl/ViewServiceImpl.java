@@ -1,9 +1,6 @@
 package com.alan10607.leaf.service.impl;
 
-import com.alan10607.leaf.constant.CountType;
-import com.alan10607.leaf.dto.LeafDTO;
 import com.alan10607.leaf.model.Leaf;
-import com.alan10607.leaf.service.ViewService;
 import com.alan10607.leaf.util.RedisKeyUtil;
 import com.alan10607.leaf.util.TimeUtil;
 import lombok.AllArgsConstructor;

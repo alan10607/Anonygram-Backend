@@ -14,6 +14,9 @@ public class AuthenticationConfig {
 
     /**
      * Set authentication verification method
+     * @param userDetailsService
+     * @param passwordEncoder
+     * @return
      */
     @Bean
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, BCryptPasswordEncoder passwordEncoder){

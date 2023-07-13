@@ -24,7 +24,6 @@ public class SimpleDTO {
     @NotNull(groups = ListGroup.class)
     List<?> list;
 
-
     public interface IntegerGroup extends Default {
     }
 

@@ -2,9 +2,6 @@ package com.alan10607.leaf.util;
 
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 @Component
 public class RedisKeyUtil {
     //格式: leaf:類別:內容
@@ -42,34 +39,5 @@ public class RedisKeyUtil {
     }
 
 
-
-    public static final String ID_SET = "data:idSet";
-    public static final String ID_STR = "data:idStr";
-    public static final String LIKE_STATIC = "data:like:static";
-    public static final String LIKE_NEW = "data:like:new";
-    public static final String LIKE_BATCH = "data:like:batch";
-    public static final int MAX_ID_SIZE = 100;
-
-
-    public String art(String artId){
-        return String.format("data:art:%s", artId);
-    }
-
-    public String cont(String contId, int no){
-        return String.format("data:cont:%s:%s", contId, no);
-    }
-
-    public String user(Object userId){
-        return String.format("data:user:%s", userId);
-    }
-
-    public String LikeValue(String contId, int no, String userId, int likeStatus){
-        return String.format("%s:%s:%s:%s", contId, no, userId, likeStatus);
-    }
-
-    public String likeBatchFailed(LocalDateTime time){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        return String.format("data:like:batchFailed:%s", time.format(formatter));
-    }
 
 }

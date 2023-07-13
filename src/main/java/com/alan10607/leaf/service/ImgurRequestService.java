@@ -19,7 +19,7 @@ public class ImgurRequestService {
     private final WebClient imgurUploadClient;
     private final WebClient imgurRefreshTokenClient;
 
-    public Map postUpload(String token, Map<String, Object> body){
+    public Map<String, String> postUpload(String token, Map<String, Object> body){
         return imgurUploadClient.post()
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .header(HttpHeaders.AUTHORIZATION, token)
@@ -33,7 +33,7 @@ public class ImgurRequestService {
                 .block();
     }
 
-    public Map postRefreshToken(Map<String, String> body){
+    public Map<String, String> postRefreshToken(Map<String, String> body){
         return imgurRefreshTokenClient.post()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData(new LinkedMultiValueMap<>(body)))

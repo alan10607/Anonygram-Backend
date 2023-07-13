@@ -26,7 +26,7 @@ public class ImgurService {
         }
 
         Map<String, Object> body = Map.of(
-                "title", String.format("%s:%s:%s", forumDTO.getId(), forumDTO.getUserId(), TimeUtil.nowStrShort()),
+                "title", String.format("%s:%s:%s", forumDTO.getId(), forumDTO.getUserId(), TimeUtil.nowShortString()),
                 "image", forumDTO.getImgBase64(),
                 "description", "User upload",
                 "type", "base64",

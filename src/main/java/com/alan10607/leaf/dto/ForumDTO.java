@@ -1,6 +1,7 @@
 package com.alan10607.leaf.dto;
 
 import com.alan10607.leaf.constant.StatusType;
+import com.alan10607.leaf.util.ToolUtil;
 import com.alan10607.redis.dto.ContentDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
@@ -43,11 +44,11 @@ public class ForumDTO {
     private String imgBase64;
 
     public static ForumDTO toDTO(Object data) {
-        return BaseDTO.convertValue(data, ForumDTO.class);
+        return ToolUtil.convertValue(data, ForumDTO.class);
     }
 
     public Map<String, Object> toMap() {
-        return BaseDTO.convertValue(this, Map.class);
+        return ToolUtil.convertValue(this, Map.class);
     }
 
     public interface CreateForumGroup extends Default {

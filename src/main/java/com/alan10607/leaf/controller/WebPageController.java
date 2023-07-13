@@ -1,7 +1,5 @@
 package com.alan10607.leaf.controller;
 
-import com.alan10607.leaf.dto.LeafDTO;
-import com.alan10607.leaf.dto.PostDTO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 @AllArgsConstructor
 @Slf4j
 public class WebPageController {
-    private final LeafService leafService;
 
     @RequestMapping("/hub")
     public String hub(PostDTO postDTO, Model model){
@@ -57,7 +54,7 @@ public class WebPageController {
         try{
             LeafDTO leafDTO = new LeafDTO();
             leafDTO.setLeafName(leafName);
-            leafDTO = leafService.find(leafDTO);
+            leafDTO = null;
             model.addAttribute("leafName", leafDTO.getLeafName());
             model.addAttribute("picFileName", "leaf.png");
         }catch (Exception e){

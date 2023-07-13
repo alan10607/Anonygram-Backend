@@ -25,17 +25,6 @@ public class LikeService {
     private final ContentDAO contentDAO;
     private final ContLikeDAO contLikeDAO;
 
-    /**
-     * 查詢是否已經有這個userId的按讚紀錄
-     * 順序: LIKE_NEW > LIKE_BATCH > LIKE_STATIC > DB
-     * LIKE_STATIC: 只能由DB放入資料, 唯讀, 禁止別的方法修改
-     * LIKE_BATCH: 若剛好在跑批會用這個替代LIKE_NEW, 批次結束後刪除, 新資料從DB重新查詢後放入LIKE_STATIC
-     * LIKE_NEW: 有任何異動優先修改這個, 查詢也優先以這個為主, 批次開始時刪除
-     * @param id
-     * @param no
-     * @param userId
-     * @return
-     */
     public boolean get(String id, int no, String userId){
         Boolean like = likeRedisService.get(id, no, userId);
         if(like == null){
@@ -57,10 +46,9 @@ public class LikeService {
     }
 
     /**
-     * 取消讚, 若已取消會跳過, 透過lua腳本實現原子操作
-
+     * Set like, and add to the update list, for batch save to DB later
+     * @param likeDTO
      * @return
-     * @throws Exception
      */
     public boolean set(LikeDTO likeDTO) {
         boolean isSuccess = likeRedisService.set(likeDTO);
@@ -72,9 +60,12 @@ public class LikeService {
 
 
     /**
-     * 透過批次將按讚資料存入DB, 除了更新ContLike的按讚資料外, 一併更新Content的likes按讚次數
-     * 時間需要 O(contId size * contNo size * userId size)
-     * 若批次失敗可以設計成保留資料後重新跑批
+     * Save the content likes from Redis to DB.
+     * In addition to updating ContLike, update the likes number of Content at the same time.
+     * It will not save to DB if the status is same between Redis and DB.
+     * If the batch fails, save the data back to the update list from Redis, wait the next batch to restart process.
+     * If the update is successful, set the expired time to the Redis like data, and remove Redis content data.
+     * The time complexity is almost update list size.
      */
     @Transactional
     @DebugDuration
@@ -141,10 +132,7 @@ public class LikeService {
     private void saveToDB(List<ContLike> createList, List<ContLike> deleteList, Map<LikeDTO, Long> likeCount) {
         contLikeDAO.saveAll(createList);
         contLikeDAO.deleteAllInBatch(deleteList);
-        likeCount.entrySet().forEach(count -> contentDAO.increaseLikes(
-                count.getKey().getId(),
-                count.getKey().getNo(),
-                count.getValue()));
+        likeCount.forEach((key, value) -> contentDAO.increaseLikes(key.getId(), key.getNo(), value));
     }
 
     private void removeCache(List<LikeDTO> updateDTOs) {

@@ -24,37 +24,37 @@ public class RedisConfig {
 //    }
 
     /**
-     * 設定redis連線實例, Spring Boots預設用Lettuce
+     * Set redis connection instance, Spring Boots uses Lettuce by default
      * @param connectionFactory
      * @return
      */
     @Bean
     public RedisTemplate<String, Long> redisTemplate(LettuceConnectionFactory connectionFactory){
-        log.info("RedisTemplate config HostName={}, Port={}",
+        log.info("RedisTemplate config start HostName={}, Port={}",
                 connectionFactory.getHostName(),
                 connectionFactory.getPort());
 
         RedisTemplate<String, Long> template = new RedisTemplate<>();
 
-        //設定連線工廠, LettuceConnectionFactory設定在application.properties
+        //Set the connection factory, LettuceConnectionFactory setting is set in application.properties
         template.setConnectionFactory(connectionFactory);
 
         /*
-        StringRedisSerializer: 一般字串的序列化
-        JdkSerializationRedisSerializer: 預設使用, 被反序列化的物件需implements Serializable
-        Jackson2JsonRedisSerializer: json格式儲存, 初始化時指定反序列化class
-        GenericJackson2JsonRedisSerializer: json格式儲存, 存入redis時會多存一個@class hashmap做為反序列化的class, 效率較低
+        StringRedisSerializer: general strings
+        JdkSerializationRedisSerializer: used by default, the object needs to implement Serializable
+        Jackson2JsonRedisSerializer: Store in json format, specify the deserialization class when initializing
+        GenericJackson2JsonRedisSerializer: Stored in json format, less efficient, when storing in redis, an additional @class hashmap will be stored as a deserialized class
          */
-        //設定序列化方式
+        //Set the serialization method
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new GenericJackson2JsonRedisSerializer());
         template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
 
-        //啟用Transaction, 預設為禁用
+        //Enable Transaction, the default is disabled
         //template.setEnableTransactionSupport(true);
 
-        //設定這些參數
+        //set these parameters
         template.afterPropertiesSet();
 
         log.info("RedisTemplate config succeeded");
@@ -62,25 +62,9 @@ public class RedisConfig {
     }
 
     @Bean
-    public DefaultRedisScript<Long> getContentLikeScript() {
-        DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
-        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/get_content_like.lua")));
-        redisScript.setResultType(Long.class);
-        return redisScript;
-    }
-
-    @Bean
     public DefaultRedisScript<Long> setContentLikeScript() {
         DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
         redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/set_content_like.lua")));
-        redisScript.setResultType(Long.class);
-        return redisScript;
-    }
-
-    @Bean
-    public DefaultRedisScript<Long> createIdSetScript() {
-        DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
-        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/create_id_set.lua")));
         redisScript.setResultType(Long.class);
         return redisScript;
     }

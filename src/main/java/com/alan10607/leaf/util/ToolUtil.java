@@ -1,19 +1,22 @@
 package com.alan10607.leaf.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.OK;
 
 @Component
 public class ToolUtil {
+
+    public static <T> T convertValue(Object fromValue, Class<T> clazz) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        return objectMapper.convertValue(fromValue, clazz);
+    }
+
     public static String getFullFunctionName(ProceedingJoinPoint pjp){
         String packageName = pjp.getSignature().getDeclaringTypeName();
         String methodName = pjp.getSignature().getName();
@@ -22,5 +25,9 @@ public class ToolUtil {
                 .collect(Collectors.joining(","));
         return String.format("%s().%s(%s)", packageName, methodName, argNames);
     }
+
+
+
+
 
 }

@@ -1,6 +1,6 @@
 package com.alan10607.redis.dto;
 
-import com.alan10607.leaf.dto.BaseDTO;
+import com.alan10607.leaf.util.ToolUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -55,11 +55,11 @@ public class LikeDTO {
     }
 
     public static LikeDTO toDTO(Object data) {
-        return BaseDTO.convertValue(data, LikeDTO.class);
+        return ToolUtil.convertValue(data, LikeDTO.class);
     }
 
     public Map<String, Object> toMap() {
-        return BaseDTO.convertValue(this, Map.class);
+        return ToolUtil.convertValue(this, Map.class);
     }
 
 }

@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-import static javax.persistence.GenerationType.*;
-
 @Entity
 @Data
 @NoArgsConstructor
@@ -41,21 +39,5 @@ public class Content {
 
     @Column(nullable = false)
     private LocalDateTime updateDate;
-
-    public Content(String id,
-                   String author,
-                   String word,
-                   long likes,
-                   StatusType status,
-                   LocalDateTime createDate,
-                   LocalDateTime updateDate) {
-        this.id = id;
-        this.author = author;
-        this.word = word;
-        this.likes = likes;
-        this.status = status;
-        this.createDate = createDate;
-        this.updateDate = updateDate;
-    }
 
 }

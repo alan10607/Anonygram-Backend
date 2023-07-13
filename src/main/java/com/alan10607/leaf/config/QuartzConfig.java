@@ -25,7 +25,7 @@ public class QuartzConfig {
      */
     @Bean
     public Trigger saveLikeTrigger(){
-        ScheduleBuilder scheduleBuilder = CronScheduleBuilder
+        ScheduleBuilder<CronTrigger> scheduleBuilder = CronScheduleBuilder
                 .cronSchedule("0 0/20 * * * ?"); //Start from 0 and execute every 20 minutes
 
         return TriggerBuilder.newTrigger()

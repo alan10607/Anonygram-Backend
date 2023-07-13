@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -33,7 +32,7 @@ public class IdService  {
             pullToRedis();
         }
         List<String> idList = idRedisService.get();
-        String idStr = idList.stream().collect(Collectors.joining(","));
+        String idStr = String.join(",", idList);
         idStrRedisService.set(idStr);
         log.info("Set idStr to redis succeed, id size={}", idList.size());
     }
