@@ -7,5 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum TxnParamKey {
     IMGUR_ACCESS_TOKEN,
-    IMGUR_REFRESH_TOKEN;
+    IMGUR_REFRESH_TOKEN
 }

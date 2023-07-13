@@ -19,7 +19,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Optional;
+import java.util.Map;
 
 @Configuration
 @Data
@@ -46,32 +46,31 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private void setAuthentication(HttpServletRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if(auth != null) return;//已經setAuthentication
+        if(auth != null) return;//already set authentication
 
         String token = getTokenFromRequest(request);
-        if(token == null) return;//token不存在
+        if(token == null) return;//token not found
 
         ForumUser user = getUserDetails(token);
-        if(user == null) return;//token無效
+        if(user == null) return;//token invalid
 
         UsernamePasswordAuthenticationToken authToken = createAuthToken(user, request);
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 
     public String getTokenFromRequest(HttpServletRequest request) {
-        Optional<String> headerToken = Optional.ofNullable(request.getHeader(AUTHORIZATION_KEY))
-                .filter(token -> token.length() > BEARER.length() && token.startsWith(BEARER))
-                .map(token -> token.substring(BEARER.length()));
-
-         if (headerToken.isPresent()) {
-            return headerToken.get();
+        String token = request.getHeader(AUTHORIZATION_KEY);
+        if(Strings.isNotBlank(token) && token.length() > BEARER.length() && token.startsWith(BEARER)){
+            return token.substring(BEARER.length());
         }
 
-        return Optional.ofNullable(request.getParameterMap())
-                .map(map -> map.get(AUTHORIZATION_KEY))
-                .map(arr -> arr[0])
-                .filter(str -> Strings.isNotBlank(str))
-                .orElse(null);
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        String[] params = parameterMap.get(AUTHORIZATION_KEY);
+        if(params.length > 0 && Strings.isNotBlank(params[0])){
+            return params[0];
+        }
+
+        return null;
     }
 
     private ForumUser getUserDetails(String token) {

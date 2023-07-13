@@ -30,7 +30,7 @@ public class ForumUser implements UserDetails {
     private String email;
     private String pw;
 
-    @ManyToMany(fetch = FetchType.EAGER)//EAGER: 關聯的資料同時取出放入內存, LAZY: 關聯的資料不即時取出, 等要使用再處理
+    @ManyToMany(fetch = FetchType.EAGER)//EAGER: Load related object immediately when queried, LAZY: Only load related object when needed
     private List<Role> role = new ArrayList<>();
 
     private LocalDateTime updatedDate;
@@ -87,7 +87,7 @@ public class ForumUser implements UserDetails {
         return true;
     }
 
-    public boolean isAnonymousId() {
+    public boolean isAnonymous() {
         return Strings.isBlank(email);
     }
 }

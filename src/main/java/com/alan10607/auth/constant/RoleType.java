@@ -7,5 +7,5 @@ public enum RoleType {
     NORMAL(1),
     ADMIN(2),
     ANONYMOUS(3);
-    public int id;
+    public final int id;
 }

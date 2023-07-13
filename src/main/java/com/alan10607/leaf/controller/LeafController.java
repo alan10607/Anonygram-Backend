@@ -1,7 +1,6 @@
 package com.alan10607.leaf.controller;
 
 import com.alan10607.leaf.dto.LeafDTO;
-import com.alan10607.leaf.service.LeafService;
 import com.alan10607.leaf.util.ResponseUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

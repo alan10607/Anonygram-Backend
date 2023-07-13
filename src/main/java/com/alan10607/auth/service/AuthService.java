@@ -10,8 +10,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import java.util.Base64;
 
 @Service
@@ -22,10 +20,6 @@ public class AuthService {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final HttpSession session;
-
-    private static final String E_EMAIL = "Email can't be blank or format not correct";
-    private static final String E_PW = "Password can't be blank";
-    private static final String E_USERNAME = "UserName can't be blank";
 
     public UserDTO login(UserDTO userDTO) {
         ForumUser user = (ForumUser) authenticationManager
@@ -63,14 +57,13 @@ public class AuthService {
      */
     private String getSessionBase64(){
         String sessionId = session.getId();//HttpSession is thread safe
-        String base64Id = Base64.getEncoder().encodeToString(hashTo6Bytes(sessionId.getBytes()));
-        return base64Id;
+        return Base64.getEncoder().encodeToString(hashTo6Bytes(sessionId.getBytes()));
     }
 
     /**
-     * 每 6 bytes循環取xor, 6 bytes透過Base64編碼剛好是8字元
-     * @param bytes
-     * @return
+     * XOR every 6 bytes in a loop, and encoding those 6 bytes with Base64 results in exactly 8 characters
+     * @param bytes session bytes
+     * @return hash id code
      */
     private byte[] hashTo6Bytes(byte[] bytes) {
         byte[] base64 = new byte[6];

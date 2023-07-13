@@ -1,7 +1,6 @@
 package com.alan10607.leaf.service.impl;
 
 import com.alan10607.leaf.constant.CountType;
-import com.alan10607.leaf.dao.LeafDAO;
 import com.alan10607.leaf.dto.LeafDTO;
 import com.alan10607.leaf.model.Leaf;
 import com.alan10607.leaf.service.ViewService;
@@ -91,7 +90,7 @@ public class ViewServiceImpl implements ViewService {
             lock.writeLock().lock();
             res = redisTemplate.opsForHash().increment(hashKey, countType.getField(), 1);
 
-            //Cache Avalanche, 防止緩存雪崩, 設定亂數過期時間
+            //Cache Avalanche, set random expiration times
             redisTemplate.expire(hashKey, redisKeyUtil.getRanExp(EXPIRE_TIME), TimeUnit.SECONDS);
         } catch (Exception e) {
             log.error("", e);

@@ -4,24 +4,18 @@ import com.alan10607.auth.constant.RoleType;
 import com.alan10607.auth.dao.RoleDAO;
 import com.alan10607.auth.dao.UserDAO;
 import com.alan10607.auth.dto.UserDTO;
-import com.alan10607.auth.model.Role;
 import com.alan10607.auth.model.ForumUser;
-import com.alan10607.leaf.util.RedisKeyUtil;
+import com.alan10607.auth.model.Role;
 import com.alan10607.leaf.util.TimeUtil;
 import com.alan10607.redis.service.UserNameRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,7 +64,7 @@ public class UserService implements UserDetailsService{
                 userDTO.getUserName(),
                 userDTO.getEmail(),
                 bCryptPasswordEncoder.encode(userDTO.getPw()),
-                Arrays.asList(role),
+                Collections.singletonList(role),
                 TimeUtil.now())
         );
     }
@@ -78,14 +72,14 @@ public class UserService implements UserDetailsService{
     public void deleteUser(String email) {
         userDAO.findByEmail(email).ifPresentOrElse(
                 forumUser -> userDAO.delete(forumUser),
-                () -> new IllegalStateException("Email not found"));
+                () -> { throw new IllegalStateException("Email not found"); });
     }
 
     /**
      * Spring security load username
-     * @param email
-     * @return
-     * @throws UsernameNotFoundException
+     * @param email login email
+     * @return UserDetails
+     * @throws UsernameNotFoundException User not found
      */
     @Override
     public ForumUser loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -93,7 +87,7 @@ public class UserService implements UserDetailsService{
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("Email not found: %s", email)));
 
         log.info("Spring security get user by email: {} succeeded", email);
-        return forumUser;//Entity need extend org.springframework.security.core.userdetails.User
+        return forumUser;//Entity need extend org.springframework.security.core.UserDetails.User
     }
     public String getUserName(String userId) {
         String userName = userNameRedisService.get(userId);

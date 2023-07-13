@@ -27,7 +27,7 @@ public class TxnParamService {
     public void delete(TxnParamKey key) {
         txnParamDAO.findById(key.name()).ifPresentOrElse(
                 txnParam -> txnParamDAO.delete(txnParam),
-                () -> new IllegalStateException("Param not found"));
+                () -> { throw new IllegalStateException("Param not found"); });
     }
 
 }

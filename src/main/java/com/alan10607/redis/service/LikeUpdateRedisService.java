@@ -37,7 +37,7 @@ public class LikeUpdateRedisService {
     public void set(List<LikeDTO> likeList) {
         String[] values = likeList.stream()
                 .map(likeDTO -> getValue(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()))
-                .toArray(size -> new String[size]);
+                .toArray(String[]::new);
         setBaseRedisService.set(KEY, values);
     }
 

@@ -5,7 +5,6 @@ import com.alan10607.auth.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 @Service
 @AllArgsConstructor

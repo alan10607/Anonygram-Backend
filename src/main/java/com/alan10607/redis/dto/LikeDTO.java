@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.groups.Default;
 import java.util.Map;
 
 @Component
@@ -48,11 +47,11 @@ public class LikeDTO {
     }
 
     public String toLikeNumberString() {
-        return this.like == true ? "1" : "0";
+        return this.like ? "1" : "0";
     }
 
     public String toLikeString() {
-        return this.like == true ? "like" : "dislike";
+        return this.like ? "like" : "dislike";
     }
 
     public static LikeDTO toDTO(Object data) {

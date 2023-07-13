@@ -6,10 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.ZSetOperations;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -19,7 +21,6 @@ public class IdRedisService {
     private static final String KEY = "data:id";
     private static final int MAX_ID_SIZE = 100;
     private static final long SCORE_BASE = 4102416000000L;//= LocalDateTime.of(2100, 1, 1, 0, 0).atZone(UTC_PLUS_8).toInstant().toEpochMilli();
-    private static final long BATCH_START = 2461449600000L;//2100EpochMilli(SCORE_BASE) - 2022EpochMilli
 
     public List<String> get() {
         return zSetBaseRedisService.get(KEY, 0, MAX_ID_SIZE - 1);
@@ -51,7 +52,7 @@ public class IdRedisService {
      * time:   1970---------2022----------------------------2100
      * score:  SCORE_BASE---BATCH_START---------------------0
      *
-     * @return
+     * @return score
      */
     private long getNowTimeScore(){
         long epochMilli = TimeUtil.now().atZone(TimeUtil.UTC_PLUS_8).toInstant().toEpochMilli();

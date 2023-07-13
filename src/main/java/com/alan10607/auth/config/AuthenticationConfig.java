@@ -13,10 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class AuthenticationConfig {
 
     /**
-     * 設定驗證方式
-     * @param userDetailsService
-     * @param passwordEncoder
-     * @return
+     * Set authentication verification method
      */
     @Bean
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, BCryptPasswordEncoder passwordEncoder){
@@ -31,10 +28,6 @@ public class AuthenticationConfig {
         return config.getAuthenticationManager();
     }
 
-    /**
-     * 用於用戶密碼的加密
-     * @return
-     */
     @Bean
     public BCryptPasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();

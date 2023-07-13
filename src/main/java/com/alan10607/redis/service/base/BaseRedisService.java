@@ -22,7 +22,7 @@ public class BaseRedisService {
     }
 
     public void expire(String key, long sec) {
-        long randomTime = ((int) (Math.random() * 60)) + sec;
+        long randomTime = ((int) (Math.random() * 60)) + sec;//Cache Avalanche, set random expiration times
         redisTemplate.expire(key, randomTime, TimeUnit.SECONDS);
     }
 

@@ -11,8 +11,7 @@ public class AuthUtil {
     public static ForumUser getUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();//取得Authentication
         if(auth instanceof UsernamePasswordAuthenticationToken){
-            ForumUser forumUser = (ForumUser) auth.getPrincipal();
-            return forumUser;
+            return (ForumUser) auth.getPrincipal();
         }
         throw new RuntimeException("Authorization failed. Please try to login");
     }

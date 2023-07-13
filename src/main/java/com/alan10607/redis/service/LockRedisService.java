@@ -26,7 +26,7 @@ public class LockRedisService {
     private void lock(String key, Runnable runnable) throws InterruptedException {
         RLock lock = redissonClient.getLock(key);
         try{
-            Boolean tryLock = lock.tryLock(LOCK_SEC, TimeUnit.SECONDS);
+            boolean tryLock = lock.tryLock(LOCK_SEC, TimeUnit.SECONDS);
             if(tryLock){
                 runnable.run();
             }else{

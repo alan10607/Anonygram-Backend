@@ -2,7 +2,6 @@ package com.alan10607.leaf.controller;
 
 import com.alan10607.leaf.dto.LeafDTO;
 import com.alan10607.leaf.dto.PostDTO;
-import com.alan10607.leaf.service.LeafService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

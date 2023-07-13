@@ -14,7 +14,6 @@ import java.util.Arrays;
 @Slf4j
 public class LikeRedisService {
     private final StringBaseRedisService stringBaseRedisService;
-    private final DefaultRedisScript getContentLikeScript;
     private final DefaultRedisScript setContentLikeScript;
     private static final int CONTENT_LIKE_EXPIRE_SEC = 3600;
 
