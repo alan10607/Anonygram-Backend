@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/redis/id")
 @AllArgsConstructor
-@Tag(name = "Id Redis")
+@Tag(name = "Redis Control")
 public class IdRedisController {
     private final IdRedisService idRedisService;
 

@@ -43,6 +43,7 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request, ServerHttpResponse response) {
         if(!needWarpResponse(request)){
+            log.info("Catch a not need warp request:{}", request.getURI().getPath());
             return body;
         }
 
@@ -62,7 +63,7 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
         String path = request.getURI().getPath();
         String[] targetPath = {FORUM_PATH, AUTH_PATH, REDIS_PATH};
         long match = Arrays.stream(targetPath).map(this::getPathPrefix)
-                .filter(pathPrefix -> path.startsWith("pathPrefix"))
+                .filter(pathPrefix -> path.startsWith(pathPrefix))
                 .count();
         return match > 0;
     }

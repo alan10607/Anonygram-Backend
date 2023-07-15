@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(path = "/redis/idStr")
 @AllArgsConstructor
-@Tag(name = "Id String Redis")
+@Tag(name = "Redis Control")
 public class IdStrRedisController {
     private final IdStrRedisService idStrRedisService;
 

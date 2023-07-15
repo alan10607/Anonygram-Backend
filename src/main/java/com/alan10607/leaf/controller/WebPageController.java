@@ -18,21 +18,21 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 public class WebPageController {
 
-    @RequestMapping("/hub")
-    public String hub(PostDTO postDTO, Model model){
-        try{
-            model.addAttribute("userId", postDTO.getUserId());
-            model.addAttribute("userName", postDTO.getUserName());
-        }catch (Exception e){
-            log.error(e.getMessage());
-        }
-        return "hub.html";//應對templates下的檔案
-    }
-
-    @RequestMapping("/")
-    public String root(PostDTO postDTO, Model model){
-        return "login.html";
-    }
+//    @RequestMapping("/hub")
+//    public String hub(PostDTO postDTO, Model model){
+//        try{
+//            model.addAttribute("userId", postDTO.getUserId());
+//            model.addAttribute("userName", postDTO.getUserName());
+//        }catch (Exception e){
+//            log.error(e.getMessage());
+//        }
+//        return "hub.html";//應對templates下的檔案
+//    }
+//
+//    @RequestMapping("/")
+//    public String root(PostDTO postDTO, Model model){
+//        return "login.html";
+//    }
 
     @RequestMapping("/index")
     public String index(Model model){
@@ -52,10 +52,10 @@ public class WebPageController {
                                     HttpServletResponse response,
                                     Model model){
         try{
-            LeafDTO leafDTO = new LeafDTO();
-            leafDTO.setLeafName(leafName);
-            leafDTO = null;
-            model.addAttribute("leafName", leafDTO.getLeafName());
+//            LeafDTO leafDTO = new LeafDTO();
+//            leafDTO.setLeafName(leafName);
+////            leafDTO = null;
+//            model.addAttribute("leafName", leafDTO.getLeafName());
             model.addAttribute("picFileName", "leaf.png");
         }catch (Exception e){
             response.setStatus(HttpStatus.NOT_FOUND.value());//查不到則回404

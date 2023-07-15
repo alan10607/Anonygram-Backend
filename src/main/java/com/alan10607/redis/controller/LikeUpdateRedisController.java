@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(path = "/redis/likeUpdate")
 @AllArgsConstructor
-@Tag(name = "Like Update Redis")
+@Tag(name = "Redis Control")
 public class LikeUpdateRedisController {
     private final LikeUpdateRedisService likeUpdateRedisService;
 

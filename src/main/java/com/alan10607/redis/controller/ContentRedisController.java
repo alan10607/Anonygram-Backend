@@ -14,7 +14,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping(path = "/redis/content")
 @AllArgsConstructor
-@Tag(name = "Content Redis")
+@Tag(name = "Redis Control")
 public class ContentRedisController {
     private final ContentRedisService contentRedisService;
 

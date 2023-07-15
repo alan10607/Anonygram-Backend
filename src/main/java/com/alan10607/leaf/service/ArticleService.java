@@ -24,10 +24,10 @@ public class ArticleService {
     private final ArticleDAO articleDAO;
     private final ContentDAO contentDAO;
 
-    public ArticleDTO get(String id) throws InterruptedException {
+    public ArticleDTO get(String id) {
         ArticleDTO articleDTO = articleRedisService.get(id);
         if(Strings.isBlank(articleDTO.getId())){
-            lockRedisService.lockByArticle(id, () -> pullToRedis(id));
+            lockRedisService.lockByArticle(id, () -> { pullToRedis(id); });
             articleDTO = articleRedisService.get(id);
         }
         articleRedisService.expire(id);

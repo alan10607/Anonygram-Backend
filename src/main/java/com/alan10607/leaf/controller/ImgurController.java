@@ -17,7 +17,7 @@ import java.util.Map;
 @Controller
 @RequestMapping(path = "/imgur")
 @AllArgsConstructor
-@Tag(name = "Imgur")
+@Tag(name = "Imgur Setting")
 public class ImgurController {
     private final ImgurService imgurService;
     private final ImgurConfig imgurConfig;

@@ -17,7 +17,10 @@ public class TxnParamService {
     public String get(TxnParamKey key) {
         return txnParamDAO.findById(key.name())
                 .map(TxnParam::getValue)
-                .orElseThrow(() -> new IllegalStateException("Param not found"));
+                .orElseGet(() -> {
+                    log.error("Param not found: {}", key);
+                    return "";
+                });
     }
 
     public void set(TxnParamKey key, String value) {
@@ -27,7 +30,7 @@ public class TxnParamService {
     public void delete(TxnParamKey key) {
         txnParamDAO.findById(key.name()).ifPresentOrElse(
                 txnParam -> txnParamDAO.delete(txnParam),
-                () -> { throw new IllegalStateException("Param not found"); });
+                () -> { log.error("Param not found: {}", key); });
     }
 
 }

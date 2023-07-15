@@ -12,7 +12,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping(path = "/redis/article")
 @AllArgsConstructor
-@Tag(name = "Article Redis")
+@Tag(name = "Redis Control")
 public class ArticleRedisController {
     private final ArticleRedisService articleRedisService;
 

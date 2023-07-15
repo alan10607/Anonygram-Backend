@@ -13,7 +13,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class LockRedisService {
     private final RedissonClient redissonClient;
-    private static final long LOCK_SEC = 3600;
+    private static final long MAX_WAIT_MS = 100;
+    private static final long KEY_EXPIRE_MS = 3000;
 
     private String getArticleLockName(String id){
         return String.format("lock:art:%s", id);
@@ -23,17 +24,28 @@ public class LockRedisService {
         return String.format("lock:cont:%s:%s", id, no);
     }
 
-    private void lock(String key, Runnable runnable) throws InterruptedException {
+    /**
+     * The runnable.run() will not start another thread, it will be the same thread as parent.
+     * @param key
+     * @param runnable
+     */
+    private void lock(String key, Runnable runnable) {
         RLock lock = redissonClient.getLock(key);
         try{
-            boolean tryLock = lock.tryLock(LOCK_SEC, TimeUnit.SECONDS);
+            boolean tryLock = lock.tryLock(MAX_WAIT_MS, KEY_EXPIRE_MS, TimeUnit.MILLISECONDS);
             if(tryLock){
+                log.info("Lock function, key: {}", key);
                 runnable.run();
             }else{
                 Thread.sleep(1000);//Hotspot Invalid, reject request if the query exists
-                log.info("Function is lock by the key: {}", key);
+                log.info("Function was locked by the key: {}", key);
                 throw new IllegalStateException("System busy for too many requests, please try again later");
             }
+        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+            log.error("Lock function interrupt, key={}", key, e);
+            throw new IllegalStateException(String.format(
+                    "Request failed because thread interrupt, please try again later"));
         } finally {
             if(lock.isLocked() && lock.isHeldByCurrentThread()){
                 lock.unlock();//Unlock only if key is locked and belongs to the current thread
@@ -41,11 +53,11 @@ public class LockRedisService {
         }
     }
 
-    public void lockByArticle(String id, Runnable runnable) throws InterruptedException {
+    public void lockByArticle(String id, Runnable runnable) {
         lock(getArticleLockName(id), runnable);
     }
 
-    public void lockByContent(String id, int no, Runnable runnable) throws InterruptedException {
+    public void lockByContent(String id, int no, Runnable runnable) {
         lock(getContentLockName(id, no), runnable);
     }
 

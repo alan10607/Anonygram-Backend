@@ -33,6 +33,7 @@ public class SecurityConfig {
     public final static String FORUM_PATH = "/forum/**";
     public final static String AUTH_PATH = "/auth/**";
     public final static String REDIS_PATH = "/redis/**";
+    public final static String IMGUR_PATH = "/imgur/**";
     public final static String SWAGGER_UI_PATH = "/swagger-ui/**";
     public final static String SWAGGER_V3_PATH = "/v3/api-docs/**";
 
@@ -66,7 +67,7 @@ public class SecurityConfig {
                     "/auth/**",
                     "/ssl",
                     //test
-                        FORUM_PATH, REDIS_PATH, AUTH_PATH, SWAGGER_UI_PATH, SWAGGER_V3_PATH
+                        FORUM_PATH, REDIS_PATH, AUTH_PATH, IMGUR_PATH, SWAGGER_UI_PATH, SWAGGER_V3_PATH
                 ).permitAll()//公開頁面
                 .and().authorizeRequests().antMatchers("/post/**")
                 .hasAnyAuthority(RoleType.NORMAL.name(), RoleType.ADMIN.name(), RoleType.ANONYMOUS.name())//限制為jwt權限訪問

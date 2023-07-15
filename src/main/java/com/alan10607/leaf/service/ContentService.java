@@ -14,12 +14,10 @@ import com.alan10607.redis.service.LockRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
-import org.redisson.api.RLock;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @AllArgsConstructor
@@ -33,33 +31,15 @@ public class ContentService {
     private final ArticleDAO articleDAO;
     private final ContentDAO contentDAO;
 
-    public ContentDTO get(String id, int no) throws InterruptedException {
+    public ContentDTO get(String id, int no) {
         ContentDTO contentDTO = contentRedisService.get(id, no);
         if(Strings.isBlank(contentDTO.getId()) || contentDTO.getNo() == null){
-            lockRedisService.lockByContent(id, no, () -> pullToRedis(id, no));
+            lockRedisService.lockByContent(id, no, () -> { pullToRedis(id, no); });
             contentDTO = contentRedisService.get(id, no);
         }
         contentRedisService.expire(id, no);
 
         return contentFilter(contentDTO);
-    }
-
-    private void lockPull(String key, Runnable runnable) throws InterruptedException {
-        RLock lock = redissonClient.getLock(key);
-        try{
-            boolean tryLock = lock.tryLock(LOCK_SEC, TimeUnit.SECONDS);
-            if(tryLock){
-                runnable.run();
-            }else{
-                Thread.sleep(1000);//Hotspot Invalid, reject request if the query exists
-                log.info("Function is lock by the key: {}", key);
-                throw new IllegalStateException("System busy for too many requests, please try again later");
-            }
-        } finally {
-            if(lock.isLocked() && lock.isHeldByCurrentThread()){
-                lock.unlock();//Unlock only if key is locked and belongs to the current thread
-            }
-        }
     }
 
     private void pullToRedis(String id, int no) {

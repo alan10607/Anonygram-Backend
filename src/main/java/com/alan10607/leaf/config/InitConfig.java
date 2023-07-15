@@ -42,7 +42,7 @@ public class InitConfig {
             Role role = roleDAO.findByRoleName(RoleType.ADMIN.name());
             userDAO.findByEmail("alan").orElseGet (() -> {
                 ForumUser admin = new ForumUser("alan",
-                        "alan",
+                        "alan@alan",
                         bCryptPasswordEncoder.encode("alan"),
                         Collections.singletonList(role),
                         TimeUtil.now());

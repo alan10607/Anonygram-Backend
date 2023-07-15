@@ -39,7 +39,7 @@ public class JwtFilter extends OncePerRequestFilter {
         try{
             setAuthentication(request);
         }catch (Exception e){
-            log.info("JwtFilter fail: " + e.getMessage());
+            log.info("JwtFilter fail", e.getMessage());
         }
         filterChain.doFilter(request, response);
     }
@@ -66,7 +66,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         Map<String, String[]> parameterMap = request.getParameterMap();
         String[] params = parameterMap.get(AUTHORIZATION_KEY);
-        if(params.length > 0 && Strings.isNotBlank(params[0])){
+        if(params != null && params.length > 0 && Strings.isNotBlank(params[0])){
             return params[0];
         }
 
