@@ -90,8 +90,20 @@ public class WebPageController {
     }
 
     @GetMapping("/ssl")
-    public String ssl(HttpServletRequest request) {
+    public String ssl() {
         return "ssl.html";
+    }
+
+    /**
+     * Use this redirect to parse url hash parameters.
+     * Need 'to' parameter in url to define the redirected url.
+     * Ex: https://localhost/redirect?to=/imgur/saveToken#access_token=abc
+     * will direct to https://localhost/imgur/saveToken?access_token=abc
+     * @return
+     */
+    @GetMapping("/redirect")
+    public String redirectHashToParameter() {
+        return "redirect.html";
     }
 
     @GetMapping("/test")

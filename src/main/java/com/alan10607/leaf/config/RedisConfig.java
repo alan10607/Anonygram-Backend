@@ -36,7 +36,7 @@ public class RedisConfig {
 
         RedisTemplate<String, Long> template = new RedisTemplate<>();
 
-        //Set the connection factory, LettuceConnectionFactory setting is set in application.properties
+        //Set the connection factory, LettuceConnectionFactory setting is set in application.yaml
         template.setConnectionFactory(connectionFactory);
 
         /*

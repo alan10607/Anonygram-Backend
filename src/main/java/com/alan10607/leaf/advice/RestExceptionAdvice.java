@@ -61,7 +61,7 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
 
     private boolean needWarpResponse(ServerHttpRequest request){
         String path = request.getURI().getPath();
-        String[] targetPath = {FORUM_PATH, AUTH_PATH, REDIS_PATH};
+        String[] targetPath = {FORUM_PATH, AUTH_PATH, REDIS_PATH, IMGUR_PATH};
         long match = Arrays.stream(targetPath).map(this::getPathPrefix)
                 .filter(pathPrefix -> path.startsWith(pathPrefix))
                 .count();

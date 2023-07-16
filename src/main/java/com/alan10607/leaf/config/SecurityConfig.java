@@ -66,6 +66,7 @@ public class SecurityConfig {
                     //react api
                     "/auth/**",
                     "/ssl",
+                    "/redirect",
                     //test
                         FORUM_PATH, REDIS_PATH, AUTH_PATH, IMGUR_PATH, SWAGGER_UI_PATH, SWAGGER_V3_PATH
                 ).permitAll()//公開頁面

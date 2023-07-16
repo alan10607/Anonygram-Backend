@@ -51,16 +51,17 @@ public class ImgurService {
 
         Map<String, String> response = imgurRequestService.postRefreshToken(body);
         String accessToken = response.get("access_token");
-        String refreshToken = response.get("refresh_token");
-        if(Strings.isBlank(accessToken) || Strings.isBlank(refreshToken)){
-            throw new IllegalStateException("No accessToken or refreshToken in response payload");
-        }
+        String refreshToken = response.get("refresh_token");;
 
         log.info("Try to refresh new access and refresh token from imgur");
         return saveToken(accessToken, refreshToken);
     }
 
     public Map<String, String> saveToken(String accessToken, String refreshToken) {
+        if(Strings.isBlank(accessToken) || Strings.isBlank(refreshToken)){
+            throw new IllegalStateException("No accessToken or refreshToken for Imgur saving token");
+        }
+
         txnParamService.set(TxnParamKey.IMGUR_ACCESS_TOKEN, accessToken);
         txnParamService.set(TxnParamKey.IMGUR_REFRESH_TOKEN, refreshToken);
         imgurConfig.setAccessToken(accessToken);
