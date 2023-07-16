@@ -19,6 +19,10 @@ public class ImgurController {
     private final ImgurService imgurService;
     private final ImgurConfig imgurConfig;
 
+    /**
+     * Need to set Imgur's redirect as https://localhost/redirect?to=/imgur/saveToken
+     * @return
+     */
     @GetMapping("/auth")
     @Operation(summary = "Redirect to Imgur authorization URL")
     public RedirectView auth(){
