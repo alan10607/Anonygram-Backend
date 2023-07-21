@@ -2,7 +2,7 @@ package com.alan10607.redis.controller;
 
 import com.alan10607.ag.dto.SimpleDTO;
 import com.alan10607.redis.dto.LikeDTO;
-import com.alan10607.redis.service.LikeUpdateRedisService;
+import com.alan10607.redis.service.UpdateLikeRedisService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -17,18 +17,18 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Tag(name = "Redis Control")
 public class LikeUpdateRedisController {
-    private final LikeUpdateRedisService likeUpdateRedisService;
+    private final UpdateLikeRedisService updateLikeRedisService;
 
     @GetMapping
     @Operation(summary = "Get all update lists that need to synchronize data to DB")
     public List<LikeDTO> get(){
-        return likeUpdateRedisService.get();
+        return updateLikeRedisService.get();
     }
 
     @GetMapping("/batch")
     @Operation(summary = "Get all batching lists that need to synchronize data to DB")
     public List<LikeDTO> getBatch(){
-        return likeUpdateRedisService.getBatch();
+        return updateLikeRedisService.getBatch();
     }
 
     @GetMapping("/exist/{id}/{no}/{userId}")
@@ -36,7 +36,7 @@ public class LikeUpdateRedisController {
     public boolean existOrBatchExist(@PathVariable("id") String id,
                                      @PathVariable("no") int no,
                                      @PathVariable("userId") String userId) {
-        return likeUpdateRedisService.existOrBatchExist(id, no, userId);
+        return updateLikeRedisService.existOrBatchExist(id, no, userId);
     }
 
     @PostMapping
@@ -46,18 +46,18 @@ public class LikeUpdateRedisController {
                 .map(LikeDTO::toDTO)
                 .collect(Collectors.toList());
 
-        likeUpdateRedisService.set(likeDTOList);
+        updateLikeRedisService.set(likeDTOList);
     }
 
     @PostMapping("/renameToBatch")
     @Operation(summary = "Move all lists from update to batching")
     public void renameToBatch(){
-        likeUpdateRedisService.renameToBatch();
+        updateLikeRedisService.renameToBatch();
     }
 
     @DeleteMapping("/batch")
     @Operation(summary = "Delete all lists from batching")
     public void deleteBatch(){
-        likeUpdateRedisService.deleteBatch();
+        updateLikeRedisService.deleteBatch();
     }
 }

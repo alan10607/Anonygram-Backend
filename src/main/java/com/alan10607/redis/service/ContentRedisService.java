@@ -1,5 +1,6 @@
 package com.alan10607.redis.service;
 
+import com.alan10607.redis.constant.RedisKey;
 import com.alan10607.redis.dto.ContentDTO;
 import com.alan10607.redis.service.base.HashBaseRedisService;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,7 @@ public class ContentRedisService {
     private static final int CONTENT_EXPIRE_SEC = 3600;
 
     private String getKey(String id, int no) {
-        return String.format("data:cont:%s:%s", id, no);
+        return String.format(RedisKey.CONTENT, id, no);
     }
 
     public ContentDTO get(String id, int no) {

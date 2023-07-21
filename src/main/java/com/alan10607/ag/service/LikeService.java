@@ -6,7 +6,7 @@ import com.alan10607.ag.dao.ContentDAO;
 import com.alan10607.redis.dto.LikeDTO;
 import com.alan10607.ag.model.ContLike;
 import com.alan10607.redis.service.LikeRedisService;
-import com.alan10607.redis.service.LikeUpdateRedisService;
+import com.alan10607.redis.service.UpdateLikeRedisService;
 import com.alan10607.redis.service.ContentRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import java.util.*;
 public class LikeService {
     private final ContentRedisService contentRedisService;
     private final LikeRedisService likeRedisService;
-    private final LikeUpdateRedisService likeUpdateRedisService;
+    private final UpdateLikeRedisService updateLikeRedisService;
     private final ContentDAO contentDAO;
     private final ContLikeDAO contLikeDAO;
 
@@ -32,7 +32,7 @@ public class LikeService {
             like = likeRedisService.get(id, no, userId);
         }
 
-        if(!likeUpdateRedisService.existOrBatchExist(id, no, userId)){
+        if(!updateLikeRedisService.existOrBatchExist(id, no, userId)){
             likeRedisService.expire(id, no, userId);
         }
 
@@ -53,7 +53,7 @@ public class LikeService {
     public boolean set(LikeDTO likeDTO) {
         boolean isSuccess = likeRedisService.set(likeDTO);
         if(isSuccess){
-            likeUpdateRedisService.set(likeDTO);
+            updateLikeRedisService.set(likeDTO);
         }
         return isSuccess;
     }
@@ -88,7 +88,7 @@ public class LikeService {
                     updateDTOs.size(), createList.size(),  deleteList.size(), likeCount.size());
         } catch (Exception e) {
             log.error("Save ContLike to DB failed:", e);
-            likeUpdateRedisService.set(updateDTOs);
+            updateLikeRedisService.set(updateDTOs);
             throw new RuntimeException(e);
         }
 
@@ -96,10 +96,10 @@ public class LikeService {
     }
 
     private List<LikeDTO> getUpdateList(){
-        if(likeUpdateRedisService.get().isEmpty()) return new ArrayList<>();
+        if(updateLikeRedisService.get().isEmpty()) return new ArrayList<>();
 
-        likeUpdateRedisService.renameToBatch();
-        return likeUpdateRedisService.getBatch();
+        updateLikeRedisService.renameToBatch();
+        return updateLikeRedisService.getBatch();
     }
 
     private void collectUpdateListAndCount(List<LikeDTO> updateDTOs,
@@ -142,7 +142,7 @@ public class LikeService {
         updateDTOs.forEach(likeDTO ->
                 contentRedisService.delete(likeDTO.getId(), likeDTO.getNo()));
 
-        likeUpdateRedisService.deleteBatch();
+        updateLikeRedisService.deleteBatch();
     }
 
 }

@@ -1,6 +1,7 @@
 package com.alan10607.redis.service;
 
 import com.alan10607.ag.exception.LockInterruptedRuntimeException;
+import com.alan10607.redis.constant.RedisKey;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -18,11 +19,11 @@ public class LockRedisService {
     private static final long KEY_EXPIRE_MS = 3000;
 
     private String getArticleLockName(String id){
-        return String.format("lock:art:%s", id);
+        return String.format(RedisKey.LOCK_ARTICLE, id);
     }
 
     private String getContentLockName(String id, int no){
-        return String.format("lock:cont:%s:%s", id, no);
+        return String.format(RedisKey.LOCK_CONTENT, id, no);
     }
 
     /**

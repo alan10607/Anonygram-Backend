@@ -1,28 +1,15 @@
 package com.alan10607.redis.constant;
 
-import lombok.AllArgsConstructor;
+public class RedisKey {
+    public static final String ID = "data:id";
+    public static final String ID_STR = "data:idStr";
+    public static final String ARTICLE = "data:art:%s";
+    public static final String CONTENT = "data:cont:%s:%s";
+    public static final String LIKE = "data:cont:%s:%s:like:%s";
+    public static final String USER = "data:user:%s";
+    public static final String UPDATE_LIKE = "update:like";
+    public static final String UPDATE_LIKE_BATCH = "update:like:batch";
+    public static final String LOCK_ARTICLE = "lock:art:%s";
+    public static final String LOCK_CONTENT = "lock:cont:%s:%s";
 
-@AllArgsConstructor
-public enum RedisKey {
-    ARTICLE("data:art:%s");
-
-    private final String format;
-
-    public static String get(RedisKey redisKey, Object... args){
-        return String.format(redisKey.format, args);
-    }
-
-    public static String articleKey(String id){
-        return get(ARTICLE, id);
-    }
-
-    private static String getContent(String id){
-        return get(ARTICLE, id);
-    }
-
-    public static class Article{
-        public static String get(String id){
-            return getKey(ARTICLE, id);
-        }
-    }
 }

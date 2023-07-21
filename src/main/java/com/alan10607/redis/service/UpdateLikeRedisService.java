@@ -1,5 +1,6 @@
 package com.alan10607.redis.service;
 
+import com.alan10607.redis.constant.RedisKey;
 import com.alan10607.redis.dto.LikeDTO;
 import com.alan10607.redis.service.base.SetBaseRedisService;
 import lombok.AllArgsConstructor;
@@ -16,11 +17,11 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class LikeUpdateRedisService {
+public class UpdateLikeRedisService {
     private final SetBaseRedisService setBaseRedisService;
     private final DefaultRedisScript isMemberMultiScript;
-    private static final String KEY = "data:likeUpdate";
-    private static final String KEY_BATCH = "data:likeUpdate:batch";
+    private static final String KEY = RedisKey.UPDATE_LIKE;
+    private static final String KEY_BATCH = RedisKey.UPDATE_LIKE_BATCH;
 
     private String getValue(String id, int no, String userId){
         return String.format("%s:%s:%s", id, no, userId);

@@ -1,6 +1,7 @@
 package com.alan10607.redis.service;
 
 import com.alan10607.ag.exception.RedisIllegalStateException;
+import com.alan10607.redis.constant.RedisKey;
 import com.alan10607.redis.dto.LikeDTO;
 import com.alan10607.redis.service.base.StringBaseRedisService;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,7 @@ public class LikeRedisService {
     private static final int CONTENT_LIKE_EXPIRE_SEC = 3600;
 
     private String getKey(String id, int no, String userId) {
-        return String.format("data:cont:%s:%s:like:%s", id, no, userId);
+        return String.format(RedisKey.LIKE, id, no, userId);
     }
 
     public Boolean get(String id, int no, String userId){
@@ -49,6 +50,5 @@ public class LikeRedisService {
     public void expire(String id, int no, String userId) {
         stringBaseRedisService.expire(getKey(id, no, userId), CONTENT_LIKE_EXPIRE_SEC);
     }
-
 
 }

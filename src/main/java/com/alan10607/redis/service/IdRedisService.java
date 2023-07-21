@@ -1,6 +1,7 @@
 package com.alan10607.redis.service;
 
 import com.alan10607.ag.util.TimeUtil;
+import com.alan10607.redis.constant.RedisKey;
 import com.alan10607.redis.service.base.ZSetBaseRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,7 @@ import java.util.Set;
 @Slf4j
 public class IdRedisService {
     private final ZSetBaseRedisService zSetBaseRedisService;
-    private static final String KEY = "data:id";
+    private static final String KEY = RedisKey.ID;
     private static final int MAX_ID_SIZE = 100;
     private static final long SCORE_BASE = 4102416000000L;//= LocalDateTime.of(2100, 1, 1, 0, 0).atZone(UTC_PLUS_8).toInstant().toEpochMilli();
 
