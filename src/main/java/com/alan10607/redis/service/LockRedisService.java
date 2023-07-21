@@ -1,6 +1,6 @@
 package com.alan10607.redis.service;
 
-import com.alan10607.leaf.exception.LockInterruptedException;
+import com.alan10607.ag.exception.LockInterruptedRuntimeException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -30,24 +30,22 @@ public class LockRedisService {
      * @param key
      * @param runnable
      */
-    private void lock(String key, Runnable runnable) throws LockInterruptedException {
+    private void lock(String key, Runnable runnable) {
         RLock lock = redissonClient.getLock(key);
         try{
             boolean tryLock = lock.tryLock(MAX_WAIT_MS, KEY_EXPIRE_MS, TimeUnit.MILLISECONDS);
             if(tryLock){
-                log.info("Lock function, key: {}", key);
+                log.info("Lock function, key={}", key);
                 runnable.run();
             }else{
                 Thread.sleep(1000);//Hotspot Invalid, reject request if the query exists
-                log.info("Function was locked by the key: {}", key);
-                throw new LockInterruptedException("System busy for too many requests, please try again later");
+                log.info("Function was locked by the key={}", key);
+                throw new LockInterruptedRuntimeException("System busy for too many requests, please try again later");
             }
-            throw new InterruptedException("E");
         } catch (InterruptedException e) {
 //            Thread.currentThread().interrupt();
             log.error("Lock function interrupt, key={}", key, e);
-            throw new LockInterruptedException(String.format(
-                    "Request failed because thread interrupt, please try again later"));
+            throw new LockInterruptedRuntimeException("Request failed because thread interrupt, please try again later");
         } finally {
             if(lock.isLocked() && lock.isHeldByCurrentThread()){
                 lock.unlock();//Unlock only if key is locked and belongs to the current thread

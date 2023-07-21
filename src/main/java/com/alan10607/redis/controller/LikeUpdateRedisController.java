@@ -1,6 +1,6 @@
 package com.alan10607.redis.controller;
 
-import com.alan10607.leaf.dto.SimpleDTO;
+import com.alan10607.ag.dto.SimpleDTO;
 import com.alan10607.redis.dto.LikeDTO;
 import com.alan10607.redis.service.LikeUpdateRedisService;
 import io.swagger.v3.oas.annotations.Operation;

@@ -1,5 +1,6 @@
 package com.alan10607.redis.service;
 
+import com.alan10607.ag.exception.RedisIllegalStateException;
 import com.alan10607.redis.dto.LikeDTO;
 import com.alan10607.redis.service.base.StringBaseRedisService;
 import lombok.AllArgsConstructor;
@@ -37,9 +38,9 @@ public class LikeRedisService {
             log.info("Already {}, skip this time, id={}, no={}, userId={}",
                 likeDTO.toLikeString(), likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId());
         }else if(isSuccess == -1) {
-            throw new RuntimeException(String.format(
-                "Update to %s failed because redis key not found, id=%s, no=%s, userId=%s",
-                likeDTO.toLikeString(), likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()));
+            throw new RedisIllegalStateException(
+                "Update to {} failed because redis key not found, id={}, no={}, userId={}",
+                likeDTO.toLikeString(), likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId());
         }
 
         return isSuccess == 1;

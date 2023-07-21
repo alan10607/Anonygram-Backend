@@ -1,6 +1,6 @@
 package com.alan10607.redis.dto;
 
-import com.alan10607.leaf.util.ToolUtil;
+import com.alan10607.ag.util.ToolUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -9,11 +9,11 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.alan10607</groupId>
-	<artifactId>leaf</artifactId>
+	<artifactId>anonygram</artifactId>
 	<version>1.3.3
 	</version>
-	<name>leaf</name>
-	<description>Leaf Spring Boot</description>
+	<name>anonygram</name>
+	<description>Anonygram Spring Boot</description>
 	<properties>
 		<java.version>11</java.version>
 	</properties>
@@ -134,7 +134,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>leaf-server</finalName>
+		<finalName>anonygram</finalName>
 	</build>
 
 </project>

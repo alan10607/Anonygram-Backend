@@ -6,7 +6,7 @@ import com.alan10607.auth.dao.UserDAO;
 import com.alan10607.auth.dto.UserDTO;
 import com.alan10607.auth.model.ForumUser;
 import com.alan10607.auth.model.Role;
-import com.alan10607.leaf.util.TimeUtil;
+import com.alan10607.ag.util.TimeUtil;
 import com.alan10607.redis.service.UserNameRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
