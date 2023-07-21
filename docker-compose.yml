@@ -6,7 +6,7 @@ services:
     ports:
       - "443:443"
     volumes:
-      - "~/docker/volume/leaf/log:/log"
+      - "~/docker/volume/anonygram/log:/log"
     environment:
       - ACTIVE=prod
     depends_on:
@@ -42,4 +42,4 @@ services:
 
 networks:
   proxy:
-    name: leaf-network
+    name: ag-network
