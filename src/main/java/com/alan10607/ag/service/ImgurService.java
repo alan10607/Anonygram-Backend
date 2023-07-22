@@ -11,6 +11,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -20,7 +21,7 @@ public class ImgurService {
     private final ImgurConfig imgurConfig;
     private final ImgurRequestService imgurRequestService;
 
-    public String upload(ForumDTO forumDTO) {
+    public ForumDTO upload(ForumDTO forumDTO) {
         if(Strings.isBlank(imgurConfig.getAccessToken())){
             throw new RuntimeException("Access token not found, need admin auth");
         }
@@ -32,14 +33,14 @@ public class ImgurService {
                 "type", "base64",
                 "album", imgurConfig.getAlbumId());
 
-        Map<String, String> response = imgurRequestService.postUpload(imgurConfig.getAccessToken(), body);
+        Map<String, Object> response = imgurRequestService.postUpload(imgurConfig.getAccessToken(), body);
 
-        String imgUrl = response.get("data");
-        if(Strings.isBlank(imgUrl)) {
-            throw new IllegalStateException("No image url in response payload");
-        }
-
-        return imgUrl;
+        String imgurUrl = Optional.ofNullable((Map<String, Object>) response.get("data"))
+                .map(data -> (String) data.get("link"))
+                .orElseThrow(() -> new IllegalStateException("No image url in response payload"));
+        forumDTO.setImgUrl(imgurUrl);//to reduce payload size
+        forumDTO.setImgBase64(null);
+        return forumDTO;
     }
 
     public Map<String, String> refreshToken() {
@@ -49,9 +50,9 @@ public class ImgurService {
                 "client_secret", imgurConfig.getClientSecret(),
                 "grant_type", "refresh_token");
 
-        Map<String, String> response = imgurRequestService.postRefreshToken(body);
-        String accessToken = response.get("access_token");
-        String refreshToken = response.get("refresh_token");;
+        Map<String, Object> response = imgurRequestService.postRefreshToken(body);
+        String accessToken = (String) response.get("access_token");
+        String refreshToken = (String) response.get("refresh_token");;
 
         log.info("Try to refresh new access and refresh token from imgur");
         return saveToken(accessToken, refreshToken);

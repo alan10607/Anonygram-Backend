@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DebugDurationAdvice {
 
-    @Around("execution(* com.alan10607.redis.service.*.*(..)) || @annotation(com.alan10607.leaf.advice.DebugDuration)")
+    @Around("execution(* com.alan10607.redis.service.*.*(..)) || @annotation(com.alan10607.ag.advice.DebugDuration)")
     public Object measureTime(ProceedingJoinPoint pjp) throws Throwable {
         long start = System.currentTimeMillis();
         try {

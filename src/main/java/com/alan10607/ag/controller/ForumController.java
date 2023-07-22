@@ -13,7 +13,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -60,7 +59,7 @@ public class ForumController {
     @PostMapping("/content/{id}")
     @Operation(summary = "Create a content to reply the article")
     public ContentDTO replyForum(@PathVariable("id") String id,
-                                 @RequestBody @Valid ForumDTO forumDTO){//TODO: NEED TEST
+                                 @RequestBody @Validated(ForumDTO.ReplyForumGroup.class) ForumDTO forumDTO){//TODO: NEED TEST
         forumDTO.setId(id);
         forumDTO.setAuthor(AuthUtil.getUserId());
         forumDTO = forumService.replyForum(forumDTO);
@@ -93,7 +92,7 @@ public class ForumController {
 
     @PostMapping("/img")
     @Operation(summary = "Upload a image in base64 format")
-    public String uploadImg(@RequestBody @Validated(ForumDTO.UploadImgGroup.class) ForumDTO forumDTO){
+    public ForumDTO uploadImg(@RequestBody @Validated(ForumDTO.UploadImgGroup.class) ForumDTO forumDTO){
         return imgurService.upload(forumDTO);
     }
 

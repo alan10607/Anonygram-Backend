@@ -45,12 +45,14 @@ public class InitConfig {
                 "imgur.client.albumId"
         };
 
-        String console = Arrays.stream(properties)
-                .map(arg -> arg + "=" + environment.getProperty(arg))
-                .collect(Collectors.joining());
+        StringBuffer console = new StringBuffer("System Properties:\n");
+        Arrays.stream(properties).forEach(arg ->
+                console.append("\n")
+                        .append(arg)
+                        .append("=")
+                        .append(environment.getProperty(arg)));
 
-        log.info("System Properties:");
-        log.info(console);
+        log.info(console.toString());
     }
 
     @Bean

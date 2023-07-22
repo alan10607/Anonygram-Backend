@@ -1,5 +1,6 @@
 package com.alan10607.ag.config;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -19,11 +20,12 @@ import java.io.IOException;
 
 @Configuration
 @ConfigurationProperties(prefix = "spring.redis")
+@Data
 @Slf4j
 public class RedisConfig {
-    public String host;
-    public String port;
-    public String password;
+    private String host;
+    private String port;
+    private String password;
 
 //    @Bean
 //    public LettuceConnectionFactory connectionFactory(){

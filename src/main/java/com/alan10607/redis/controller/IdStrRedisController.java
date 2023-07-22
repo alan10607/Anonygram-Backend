@@ -17,8 +17,10 @@ public class IdStrRedisController {
 
     @GetMapping
     @Operation(summary = "Get id string from Redis")
-    public String get(){
-        return idStrRedisService.get();
+    public SimpleDTO get(){
+        SimpleDTO simpleDTO = new SimpleDTO();
+        simpleDTO.setString(idStrRedisService.get());
+        return simpleDTO;
     }
 
     @PostMapping

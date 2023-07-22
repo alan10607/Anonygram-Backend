@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -19,11 +20,11 @@ public class ImgurRequestService {
     private final WebClient imgurUploadClient;
     private final WebClient imgurRefreshTokenClient;
 
-    public Map<String, String> postUpload(String token, Map<String, Object> body){
+    public Map<String, Object> postUpload(String token, Map<String, Object> body){
         return imgurUploadClient.post()
                 .contentType(MediaType.MULTIPART_FORM_DATA)
-                .header(HttpHeaders.AUTHORIZATION, token)
-                .body(BodyInserters.fromMultipartData(new LinkedMultiValueMap(body)))
+                .headers(h -> h.setBearerAuth(token))
+                .body(BodyInserters.fromMultipartData(toMultiValueMap(body)))
                 .retrieve()
                 .bodyToMono(Map.class)
                 .doOnError(HttpStatusCodeException.class, e -> {
@@ -33,10 +34,12 @@ public class ImgurRequestService {
                 .block();
     }
 
-    public Map<String, String> postRefreshToken(Map<String, String> body){
+    public Map<String, Object> postRefreshToken(Map<String, String> body){
+
+
         return imgurRefreshTokenClient.post()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData(new LinkedMultiValueMap(body)))
+                .body(BodyInserters.fromFormData(toMultiValueMap(body)))
                 .retrieve()
                 .bodyToMono(Map.class)
                 .doOnError(HttpStatusCodeException.class, e -> {
@@ -46,5 +49,10 @@ public class ImgurRequestService {
                 .block();
     }
 
+    private <T> MultiValueMap<String, T> toMultiValueMap(Map<String, T> map){
+        MultiValueMap multiValueMap = new LinkedMultiValueMap();
+        multiValueMap.setAll(map);
+        return multiValueMap;
+    }
 
 }
