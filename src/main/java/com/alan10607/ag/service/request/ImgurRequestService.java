@@ -34,8 +34,6 @@ public class ImgurRequestService {
     }
 
     public Map<String, Object> postRefreshToken(Map<String, String> body){
-
-
         return imgurRefreshTokenClient.post()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData(toMultiValueMap(body)))

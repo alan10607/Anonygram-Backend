@@ -78,7 +78,7 @@ public class RedisConfig {
      * @return
      * @throws IOException
      */
-    @Bean(destroyMethod = "shutdown")
+    @Bean(destroyMethod = "shutdown")//Run RedissonClient.shutdown() method after destroy
     public RedissonClient redisson() throws IOException {
         String address = String.format("redis://%s:%s", host, port);
         log.info("RedissonConfig config address={}", address);
@@ -91,17 +91,18 @@ public class RedisConfig {
 
     @Bean
     public DefaultRedisScript<Long> setContentLikeScript() {
-        DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
-        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/set_content_like.lua")));
-        redisScript.setResultType(Long.class);
-        return redisScript;
+        return getRedisScript("lua/set_content_like.lua", Long.class);
     }
 
     @Bean
     public DefaultRedisScript<Long> isMemberMultiScript() {
-        DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
-        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/is_member_multi.lua")));
-        redisScript.setResultType(Long.class);
+        return getRedisScript("lua/is_member_multi.lua", Long.class);
+    }
+
+    private <T> DefaultRedisScript<T> getRedisScript(String scriptLocation, Class<T> resultType) {
+        DefaultRedisScript<T> redisScript = new DefaultRedisScript<>();
+        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource(scriptLocation)));
+        redisScript.setResultType(resultType);
         return redisScript;
     }
 
