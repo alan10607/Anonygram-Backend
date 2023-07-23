@@ -1,7 +1,6 @@
 package com.alan10607.ag.config;
 
-import com.alan10607.auth.config.JwtFilter;
-import com.alan10607.auth.constant.RoleType;
+import com.alan10607.ag.constant.RoleType;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.server.ConfigurableWebServerFactory;

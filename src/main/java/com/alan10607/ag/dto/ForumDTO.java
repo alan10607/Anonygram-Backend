@@ -2,7 +2,6 @@ package com.alan10607.ag.dto;
 
 import com.alan10607.ag.constant.StatusType;
 import com.alan10607.ag.util.ToolUtil;
-import com.alan10607.redis.dto.ContentDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,6 +27,7 @@ public class ForumDTO {
     @NotBlank(groups = CreateForumGroup.class)
     private String title;
     private String author;
+    private String authorName;
 
     @NotBlank(groups = {CreateForumGroup.class, ReplyForumGroup.class})
     private String word;
@@ -36,9 +36,6 @@ public class ForumDTO {
     private LocalDateTime updateDate;
     private Integer contNum;
     private List<ContentDTO> contList;
-
-    @NotBlank(groups = UploadImgGroup.class)
-    private String userId;
 
     @NotBlank(groups = UploadImgGroup.class)
     private String imgBase64;

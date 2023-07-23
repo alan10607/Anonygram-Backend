@@ -1,13 +1,13 @@
 package com.alan10607.ag.config;
 
-import com.alan10607.auth.constant.RoleType;
-import com.alan10607.auth.dao.RoleDAO;
-import com.alan10607.auth.dao.UserDAO;
-import com.alan10607.auth.model.ForumUser;
-import com.alan10607.auth.model.Role;
+import com.alan10607.ag.constant.RoleType;
+import com.alan10607.ag.dao.RoleDAO;
+import com.alan10607.ag.dao.UserDAO;
+import com.alan10607.ag.model.ForumUser;
+import com.alan10607.ag.model.Role;
 import com.alan10607.ag.util.TimeUtil;
-import com.alan10607.system.constant.TxnParamKey;
-import com.alan10607.system.service.TxnParamService;
+import com.alan10607.ag.constant.TxnParamKey;
+import com.alan10607.ag.service.TxnParamService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -19,9 +19,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -59,10 +57,12 @@ public class InitConfig {
     @Order(1)
     public CommandLineRunner initRoleCommand(RoleDAO roleDAO){
         return args -> {
-            List<Role> roleList = Arrays.stream(RoleType.values())
+            Set<Role> roleSet = new HashSet<>(roleDAO.findAll());
+            List<Role> updateList = Arrays.stream(RoleType.values())
                     .map(roleType -> new Role(roleType.id, roleType.name()))
+                    .filter(role -> !roleSet.contains(role))
                     .collect(Collectors.toList());
-            roleDAO.saveAll(roleList);
+            roleDAO.saveAll(updateList);
         };
     }
 
@@ -70,11 +70,13 @@ public class InitConfig {
     @Order(2)
     public CommandLineRunner initAdminCommand(RoleDAO roleDAO, UserDAO userDAO, BCryptPasswordEncoder bCryptPasswordEncoder){
         return args -> {
+            String adminName = "alan";
+            String adminEmail = "alan@alan";
             Role role = roleDAO.findByRoleName(RoleType.ADMIN.name());
-            userDAO.findByEmail("alan").orElseGet (() -> {
-                ForumUser admin = new ForumUser("alan",
-                        "alan@alan",
-                        bCryptPasswordEncoder.encode("alan"),
+            userDAO.findByEmail(adminEmail).orElseGet (() -> {
+                ForumUser admin = new ForumUser(adminName,
+                        adminEmail,
+                        bCryptPasswordEncoder.encode(adminName),
                         Collections.singletonList(role),
                         TimeUtil.now());
                 return userDAO.save(admin);

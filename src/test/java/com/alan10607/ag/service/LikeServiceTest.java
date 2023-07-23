@@ -1,7 +1,8 @@
 package com.alan10607.ag.service;
 
-import com.alan10607.redis.dto.LikeDTO;
-import com.alan10607.redis.service.UpdateLikeRedisService;
+import com.alan10607.ag.service.forum.LikeService;
+import com.alan10607.ag.dto.LikeDTO;
+import com.alan10607.ag.service.redis.UpdateLikeRedisService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

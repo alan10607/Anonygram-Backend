@@ -1,6 +1,6 @@
 package com.alan10607.ag.schedule;
 
-import com.alan10607.ag.service.LikeService;
+import com.alan10607.ag.service.forum.LikeService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
