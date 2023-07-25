@@ -1,5 +1,6 @@
 package com.alan10607.ag.advice;
 
+import com.alan10607.ag.config.SecurityConfig;
 import com.alan10607.ag.dto.RestResponseEntity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,8 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.alan10607.ag.config.SecurityConfig.*;
 
 @RestControllerAdvice
 @AllArgsConstructor
@@ -61,7 +60,7 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
 
     private boolean needWarpResponse(ServerHttpRequest request){
         String path = request.getURI().getPath();
-        String[] targetPath = {FORUM_PATH, AUTH_PATH, REDIS_PATH, IMGUR_PATH};
+        String[] targetPath = SecurityConfig.REST_APIS;
         long match = Arrays.stream(targetPath).map(this::getPathPrefix)
                 .filter(pathPrefix -> path.startsWith(pathPrefix))
                 .count();

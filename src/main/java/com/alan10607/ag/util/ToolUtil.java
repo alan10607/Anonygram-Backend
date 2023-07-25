@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class ToolUtil {
@@ -26,8 +27,9 @@ public class ToolUtil {
         return String.format("%s().%s(%s)", packageName, methodName, argNames);
     }
 
-
-
-
+    public static Stream<Object> flatten(Object... array) {
+        return Arrays.stream(array)
+                .flatMap(o -> o instanceof Object[]? flatten((Object[])o): Stream.of(o));
+    }
 
 }

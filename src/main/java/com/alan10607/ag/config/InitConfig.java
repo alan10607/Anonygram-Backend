@@ -27,6 +27,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InitConfig {
     private final Environment environment;
+    private final RoleDAO roleDAO;
+    private final UserDAO userDAO;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final ImgurConfig imgurConfig;
+    private final TxnParamService txnParamService;
 
     @PostConstruct
     public void printProperties() {
@@ -43,7 +48,7 @@ public class InitConfig {
                 "imgur.client.albumId"
         };
 
-        StringBuffer console = new StringBuffer("System Properties:\n");
+        StringBuffer console = new StringBuffer("System Properties:");
         Arrays.stream(properties).forEach(arg ->
                 console.append("\n")
                         .append(arg)
@@ -55,7 +60,7 @@ public class InitConfig {
 
     @Bean
     @Order(1)
-    public CommandLineRunner initRoleCommand(RoleDAO roleDAO){
+    public CommandLineRunner initRoleCommand(){
         return args -> {
             Set<Role> roleSet = new HashSet<>(roleDAO.findAll());
             List<Role> updateList = Arrays.stream(RoleType.values())
@@ -68,7 +73,7 @@ public class InitConfig {
 
     @Bean
     @Order(2)
-    public CommandLineRunner initAdminCommand(RoleDAO roleDAO, UserDAO userDAO, BCryptPasswordEncoder bCryptPasswordEncoder){
+    public CommandLineRunner initAdminCommand(){
         return args -> {
             String adminName = "alan";
             String adminEmail = "alan@alan";
@@ -86,7 +91,7 @@ public class InitConfig {
 
     @Bean
     @Order(3)
-    public CommandLineRunner initImgurConfigCommand(ImgurConfig imgurConfig, TxnParamService txnParamService){
+    public CommandLineRunner initImgurConfigCommand(){
         return args -> {
             String accessToken = txnParamService.get(TxnParamKey.IMGUR_ACCESS_TOKEN);
             String refreshToken = txnParamService.get(TxnParamKey.IMGUR_REFRESH_TOKEN);
@@ -99,7 +104,5 @@ public class InitConfig {
             }
         };
     }
-
-
 
 }

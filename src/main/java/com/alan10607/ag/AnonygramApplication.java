@@ -11,15 +11,6 @@ public class AnonygramApplication {
 
 	public static void main(String[] args) {
 		ConfigurableApplicationContext rn = SpringApplication.run(AnonygramApplication.class, args);
-		for(String name : rn.getBeanDefinitionNames()){
-			System.out.println(name);
-		}
-
-		log.trace("1");
-		log.debug("2");
-		log.info("3");
-		log.warn("4");
-		log.error("5");
 	}
 
 }
