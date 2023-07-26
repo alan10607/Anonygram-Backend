@@ -4,6 +4,7 @@ import com.alan10607.ag.constant.RoleType;
 import com.alan10607.ag.dao.RoleDAO;
 import com.alan10607.ag.dao.UserDAO;
 import com.alan10607.ag.dto.UserDTO;
+import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.ForumUser;
 import com.alan10607.ag.model.Role;
 import com.alan10607.ag.service.redis.LockRedisService;
@@ -39,7 +40,7 @@ public class UserService implements UserDetailsService{
                         gramUser.getEmail(),
                         gramUser.getRole(),
                         gramUser.getUpdatedDate()))
-                .orElseThrow(() -> new IllegalStateException("User not found"));
+                .orElseThrow(() -> new AnonygramIllegalStateException("User not found"));
     }
 
     public List<UserDTO> findAllUser() {
@@ -54,11 +55,11 @@ public class UserService implements UserDetailsService{
 
     public void createUser(UserDTO userDTO, RoleType roleType) {
         userDAO.findByEmail(userDTO.getEmail()).ifPresent(gramUser -> {
-            throw new IllegalStateException("Email already exist");
+            throw new AnonygramIllegalStateException("Email already exist");
         });
 
         userDAO.findByUserName(userDTO.getUserName()).ifPresent(gramUser -> {
-            throw new IllegalStateException("UserName already exist");
+            throw new AnonygramIllegalStateException("UserName already exist");
         });
 
         Role role = roleService.findRole(roleType.name());
@@ -74,7 +75,7 @@ public class UserService implements UserDetailsService{
     public void deleteUser(String email) {
         userDAO.findByEmail(email).ifPresentOrElse(
                 forumUser -> userDAO.delete(forumUser),
-                () -> { throw new IllegalStateException("Email not found"); });
+                () -> { throw new AnonygramIllegalStateException("Email not found"); });
     }
 
     /**
@@ -88,7 +89,7 @@ public class UserService implements UserDetailsService{
         ForumUser forumUser = userDAO.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("Email not found: %s", email)));
 
-        log.info("Spring security get user by email: {} succeeded", email);
+        log.debug("Spring security get user by email: {} succeeded", email);
         return forumUser;//Entity need extend org.springframework.security.core.UserDetails.User
     }
     public String getUserName(String userId) {

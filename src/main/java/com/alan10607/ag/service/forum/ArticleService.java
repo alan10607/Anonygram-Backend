@@ -4,6 +4,7 @@ import com.alan10607.ag.constant.StatusType;
 import com.alan10607.ag.dao.ArticleDAO;
 import com.alan10607.ag.dao.ContentDAO;
 import com.alan10607.ag.dto.ArticleDTO;
+import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.Article;
 import com.alan10607.ag.model.Content;
 import com.alan10607.ag.util.TimeUtil;
@@ -56,8 +57,7 @@ public class ArticleService {
     private ArticleDTO articleFilter(ArticleDTO articleDTO) {
         switch(articleDTO.getStatus()){
             case UNKNOWN :
-                throw new IllegalStateException(
-                        String.format("Article not found, id=%s", articleDTO.getId()));
+                throw new AnonygramIllegalStateException("Article not found, id={}", articleDTO.getId());
             case DELETED :
                 return new ArticleDTO(articleDTO.getId(), StatusType.DELETED);
             default :
@@ -67,7 +67,7 @@ public class ArticleService {
 
     public void create(ArticleDTO articleDTO) {
         articleDAO.findById(articleDTO.getId()).ifPresent((a) -> {
-            throw new IllegalStateException(String.format("Article already exist, id=%s", articleDTO.getId()));
+            throw new AnonygramIllegalStateException("Article already exist, id={}", articleDTO.getId());
         });
 
         Article article = new Article(articleDTO.getId(),
@@ -82,13 +82,13 @@ public class ArticleService {
 
     public void updateArticleStatus(String id, String userId, StatusType status) {
         Article article = articleDAO.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Article not found"));
+                .orElseThrow(() -> new AnonygramIllegalStateException("Article not found"));
 
         Content content = contentDAO.findByIdAndNo(id, 0)
-                .orElseThrow(() -> new IllegalStateException("Content no 0 not found"));
+                .orElseThrow(() -> new AnonygramIllegalStateException("Content no 0 not found"));
 
         if(!userId.equals(content.getAuthor())) {
-            throw new IllegalStateException("No authority to modify");
+            throw new AnonygramIllegalStateException("No authority to modify");
         }
 
         article.setStatus(status);

@@ -22,16 +22,12 @@ public class AuthController {
     @GetMapping("/test")
     @Operation(summary = "Check login authorization")
     public UserDTO test(){
-        try {
-            ForumUser user = AuthUtil.getUser();
-            return new UserDTO(user.getId(),
-                    user.getUsername(),
-                    user.getEmail(),
-                    user.getRole(),
-                    user.getUpdatedDate());
-        }catch (Exception e){
-            throw new RuntimeException("Token invalid or expired");
-        }
+        ForumUser user = AuthUtil.getUser();
+        return new UserDTO(user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                user.getUpdatedDate());
     }
 
     @PostMapping("/login")

@@ -1,6 +1,7 @@
 package com.alan10607.ag.service.forum;
 
 import com.alan10607.ag.config.ImgurConfig;
+import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.service.request.ImgurRequestService;
 import com.alan10607.ag.util.TimeUtil;
 import com.alan10607.ag.constant.TxnParamKey;
@@ -23,7 +24,7 @@ public class ImgurService {
 
     public String upload(String id, String author, String imgBase64) {
         if(Strings.isBlank(imgurConfig.getAccessToken())){
-            throw new RuntimeException("Access token not found, need admin auth");
+            throw new AnonygramIllegalStateException("Access token not found, need admin auth");
         }
 
         Map<String, Object> body = Map.of(
@@ -37,7 +38,7 @@ public class ImgurService {
 
         return Optional.ofNullable((Map<String, Object>) response.get("data"))
                 .map(data -> (String) data.get("link"))
-                .orElseThrow(() -> new IllegalStateException("No image url in response payload"));
+                .orElseThrow(() -> new AnonygramIllegalStateException("No image url in response payload"));
     }
 
     public Map<String, String> refreshToken() {
@@ -57,7 +58,7 @@ public class ImgurService {
 
     public Map<String, String> saveToken(String accessToken, String refreshToken) {
         if(Strings.isBlank(accessToken) || Strings.isBlank(refreshToken)){
-            throw new IllegalStateException("No accessToken or refreshToken for Imgur saving token");
+            throw new AnonygramIllegalStateException("No accessToken or refreshToken for Imgur saving token");
         }
 
         txnParamService.set(TxnParamKey.IMGUR_ACCESS_TOKEN, accessToken);

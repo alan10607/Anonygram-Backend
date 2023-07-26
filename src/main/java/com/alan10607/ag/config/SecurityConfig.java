@@ -36,7 +36,7 @@ public class SecurityConfig {
     private static final String IMGUR_PATH = "/imgur/**";
     private static final String[] SWAGGER_PATH = { "/swagger-ui/**", "/v3/api-docs/**" };
     private static final String[] WEB_STATIC_PATH = { "/css/**", "/js/**", "/pic/**" };
-    private static final String[] PUBLIC_TEMPLATE_PATH = { "/index", ERROR_PAGE_PATH, "/ssl" };
+    private static final String[] PUBLIC_TEMPLATE_PATH = { "/", "/index", ERROR_PAGE_PATH, "/ssl" };
     private static final String[] PRIVATE_TEMPLATE_PATH = { "/redirect" };
 
     public static final String[] REST_APIS = { FORUM_PATH, AUTH_PATH, REDIS_PATH, IMGUR_PATH };
@@ -53,12 +53,12 @@ public class SecurityConfig {
             .cors()
             .and()
                 .authorizeRequests()
-                .antMatchers(flatPaths(SWAGGER_PATH, WEB_STATIC_PATH, PUBLIC_TEMPLATE_PATH))
+                .antMatchers(flatPaths(SWAGGER_PATH, AUTH_PATH, WEB_STATIC_PATH, PUBLIC_TEMPLATE_PATH))
                 .permitAll()//公開頁面
             .and()
                 .authorizeRequests()
-                .antMatchers(flatPaths(FORUM_PATH, AUTH_PATH))
-                .hasAnyAuthority(RoleType.NORMAL.name(), RoleType.ANONYMOUS.name())//Need login and jwt token
+                .antMatchers(flatPaths(FORUM_PATH))
+                .hasAnyAuthority(RoleType.NORMAL.name(), RoleType.ANONYMOUS.name(), RoleType.ADMIN.name())//Need login and jwt token
             .and()
                 .authorizeRequests()
                 .anyRequest()

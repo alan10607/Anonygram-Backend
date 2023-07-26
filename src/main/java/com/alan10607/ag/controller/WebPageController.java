@@ -12,6 +12,12 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping(path = "/")
 @AllArgsConstructor
 public class WebPageController {
+
+    @RequestMapping()
+    public String root(){
+        return index();
+    }
+
     @RequestMapping("/index")
     public String index(){
         return "index.html";

@@ -26,10 +26,6 @@ public class ImgurRequestService {
                 .body(BodyInserters.fromMultipartData(toMultiValueMap(body)))
                 .retrieve()
                 .bodyToMono(Map.class)
-                .doOnError(HttpStatusCodeException.class, e -> {
-                    log.error("Upload imgur failed with response error status code:" + e.getStatusCode());
-                    throw e;
-                })
                 .block();
     }
 
@@ -39,10 +35,6 @@ public class ImgurRequestService {
                 .body(BodyInserters.fromFormData(toMultiValueMap(body)))
                 .retrieve()
                 .bodyToMono(Map.class)
-                .doOnError(HttpStatusCodeException.class, e -> {
-                    log.error("Get imgur refresh token failed with response error status code:" + e.getStatusCode());
-                    throw e;
-                })
                 .block();
     }
 

@@ -6,7 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Method;
 
 @Aspect
 @Component
@@ -22,7 +25,12 @@ public class DebugDurationAdvice {
             return pjp.proceed();
         } finally {
             long end = System.currentTimeMillis();
-            log.info("Debug {} duration: {}ms", ToolUtil.getFullFunctionName(pjp), (end - start));
+            long duration = end - start;
+            if(duration > 1000){
+                log.info("Debug {} duration: {}ms", ToolUtil.getFullFunctionName(pjp), duration);
+            }else{
+                log.debug("Debug {} duration: {}ms", ToolUtil.getFullFunctionName(pjp), duration);
+            }
         }
     }
 

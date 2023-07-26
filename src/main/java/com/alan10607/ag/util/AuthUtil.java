@@ -1,5 +1,6 @@
 package com.alan10607.ag.util;
 
+import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.ForumUser;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,7 +14,7 @@ public class AuthUtil {
         if(auth instanceof UsernamePasswordAuthenticationToken){
             return (ForumUser) auth.getPrincipal();
         }
-        throw new RuntimeException("Authorization failed. Please try to login");
+        throw new AnonygramIllegalStateException("Authorization failed. Please try to login");
     }
 
     public static String getUserId() {

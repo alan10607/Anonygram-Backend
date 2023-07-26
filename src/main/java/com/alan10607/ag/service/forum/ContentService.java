@@ -1,5 +1,6 @@
 package com.alan10607.ag.service.forum;
 
+import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.service.auth.UserService;
 import com.alan10607.ag.constant.StatusType;
 import com.alan10607.ag.dao.ArticleDAO;
@@ -66,8 +67,7 @@ public class ContentService {
     private ContentDTO contentFilter(ContentDTO contentDTO) {
         switch(contentDTO.getStatus()){
             case UNKNOWN :
-                throw new IllegalStateException(
-                        String.format("Content not found, id=%s, no=%s", contentDTO.getId(), contentDTO.getNo()));
+                throw new AnonygramIllegalStateException("Content not found, id={}, no={}", contentDTO.getId(), contentDTO.getNo());
             case DELETED :
                 return new ContentDTO(contentDTO.getId(), contentDTO.getNo(), StatusType.DELETED);
             default :
@@ -85,7 +85,7 @@ public class ContentService {
      */
     public int create(ContentDTO contentDTO) {
         articleDAO.findById(contentDTO.getId()).orElseThrow(() ->
-                new IllegalStateException(String.format("Article not found, id=%s", contentDTO.getId())));
+                new AnonygramIllegalStateException("Article not found, id={}", contentDTO.getId()));
 
         List<Object[]> query = contentDAO.countByIdWithLock(contentDTO.getId());
         int no = ((BigInteger) query.get(0)[0]).intValue();
@@ -108,10 +108,10 @@ public class ContentService {
 
     public void updateContentStatus(String id, int no, String userId, StatusType status) {
         Content content = contentDAO.findByIdAndNo(id, no).orElseThrow(() ->
-                new IllegalStateException(String.format("Content not found, id=%s, no=%s", id, no)));
+                new AnonygramIllegalStateException("Content not found, id=%s, no={}", id, no));
 
         if(!userId.equals(content.getAuthor()))
-            throw new IllegalStateException("No authority to modify");
+            throw new AnonygramIllegalStateException("No authority to modify");
 
         content.setStatus(status);
         content.setUpdateDate(TimeUtil.now());

@@ -2,6 +2,7 @@ package com.alan10607.ag.advice;
 
 import com.alan10607.ag.config.SecurityConfig;
 import com.alan10607.ag.dto.RestResponseEntity;
+import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -85,13 +86,24 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
         }
     }
 
+    private Map<String, String> toErrorMap(Throwable throwable){
+        Map<String, String> errMap = new HashMap<>();
+        errMap.put("error", throwable.getMessage());
+        return errMap;
+    }
+
     @ExceptionHandler(value = { Throwable.class })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleException(Throwable ex) {
         log.error("", ex);
-        Map<String, String> errMap = new HashMap<>();
-        errMap.put("error", ex.getMessage());
-        return errMap;
+        return toErrorMap(ex);
+    }
+
+    @ExceptionHandler(value = { AnonygramIllegalStateException.class })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleAnonygramIllegalStateException(AnonygramIllegalStateException ex) {
+        log.error("", ex.getMessage());
+        return toErrorMap(ex);
     }
 
     @ExceptionHandler(value = { MethodArgumentNotValidException.class })

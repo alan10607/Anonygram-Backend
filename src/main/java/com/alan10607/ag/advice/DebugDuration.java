@@ -6,4 +6,5 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DebugDuration {
+    boolean alwaysPrint() default false;
 }

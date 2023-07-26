@@ -20,7 +20,7 @@ spring:
       # How to execute the ddl command when the service starts
       ddl-auto: update
     # Print SQL in log or not
-    show-sql: true
+    show-sql: false
 
   # =================================
   # Redis
