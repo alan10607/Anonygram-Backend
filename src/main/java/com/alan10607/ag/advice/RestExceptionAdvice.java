@@ -102,7 +102,7 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
     @ExceptionHandler(value = { AnonygramIllegalStateException.class })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleAnonygramIllegalStateException(AnonygramIllegalStateException ex) {
-        log.error("", ex.getMessage());
+        log.error("{}", ex.getMessage());
         return toErrorMap(ex);
     }
 
