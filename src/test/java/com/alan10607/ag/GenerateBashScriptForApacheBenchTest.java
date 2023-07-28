@@ -12,11 +12,17 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @SpringBootTest
 @Slf4j
 public class GenerateBashScriptForApacheBenchTest {
+
+    @Autowired
+    private RequestMappingHandlerMapping handlerMapping;
+    private static final String CONTROLLER_PATH = "/forum";
     private static final String BASH_FILE_PATH = "src/test/ab/";
     private static final String OUTPUT_FILE_PATH = "src/test/ab/out";
     private static final String BODY_FILE_PATH = "src/test/ab/body";
@@ -29,26 +35,17 @@ public class GenerateBashScriptForApacheBenchTest {
     private static final String POST_NUMBER = "10";
     private static final String TIME = "60";
 
-    private static final String $HOST = "$HOST";
-    private static final String $BEARER = "$BEARER";
-    private static final String $NOW = "$NOW";
-    private static final String $ID = "$ID";
-    private static final String $NO = "$NO";
-
     private static final Map<String, String> VARIABLE_MAPPING = Map.of(
-            "\\{id\\}", "\\" + $ID,
-            "\\{no\\}", "\\" + $NO
+            "HOST", "https://localhost",
+            "NOW", "$(date +\"%Y-%m-%d.%H:%M:%S\")"
     );
-
-    @Autowired
-    private RequestMappingHandlerMapping handlerMapping;
 
     @Test
     public void generateBashScriptForApacheBench() {
         mkdirFolder(BASH_FILE_PATH, OUTPUT_FILE_PATH, BODY_FILE_PATH);
         generateCommonFile();
 
-         Map<RequestMethod, List<String>> methodToPath = getControllerPaths("/forum");
+         Map<RequestMethod, List<String>> methodToPath = getControllerPaths(CONTROLLER_PATH);
         for(Map.Entry<RequestMethod, List<String>> entry : methodToPath.entrySet()){
             for(String path : entry.getValue()){
                 generateEachMethodBash(entry.getKey(), path);
@@ -90,19 +87,17 @@ public class GenerateBashScriptForApacheBenchTest {
 
         StringBuffer script = new StringBuffer("#!/bin/bash\n\n")
                 .append("clear\n")
-                .append("HOST=https://localhost\n")
-                .append("NOW=$(date +\"%Y-%m-%d.%H:%M:%S\")\n")
-                .append("read -r BEARER < \"" + TOKEN_FILE_NAME + "\"\n")
-                .append("ID=\n")
-                .append("NO=0\n");
+                .append("read -r BEARER < \"" + TOKEN_FILE_NAME + "\"\n");
+
+        VARIABLE_MAPPING.forEach((k, v) -> script.append(k).append("=").append(v).append("\n"));
 
         writeFile(commonFilePath, script.toString());
     }
 
     private void generateEachMethodBash(RequestMethod method, String path) {
         String fileName = getFileName(method, path);
-        String filePath = BASH_FILE_PATH + fileName + ".sh";
         String script = getScript(method, path, fileName);
+        String filePath = BASH_FILE_PATH + fileName + ".sh";
         writeFile(filePath, script);
     }
 
@@ -126,51 +121,56 @@ public class GenerateBashScriptForApacheBenchTest {
         }
     }
 
-    private String formatPath(String path){
-        for(Map.Entry<String, String> entry : VARIABLE_MAPPING.entrySet()){
-            path = path.replaceAll(entry.getKey(), entry.getValue());
-        }
-        return path;
-    }
-
     private String getFileName(RequestMethod method, String path){
         return method.name() + ":" + path.replaceAll("/", "_");
     }
 
     private String getScript(RequestMethod method, String path, String fileName){
         StringBuffer script = new StringBuffer("#!/bin/bash\n\n")
-                .append("source ").append(COMMON_FILE_NAME).append("\n\n")
-                .append(getApacheBenchScript(method, path, fileName))
-                .append(" 2>&1 | tee \"out/")
-                .append(fileName)
-                .append("." + $NOW + ".txt\"");
+                .append(getSourceScript()).append("\n\n")
+                .append(getApacheBenchScript(method, path, fileName)).append(" \n")
+                .append(getTeeScript(fileName));
         return script.toString();
     }
 
-    private String getApacheBenchScript(RequestMethod method, String path, String fileName){
-        String[] ab = new String[0];
-        path = formatPath(path);
-        switch(method) {
-            case GET:
-                ab = new String[]{ "ab", "-n", GET_NUMBER,
-                        "-c", GET_CONCURRENCY,
-                        "-t", TIME,
-                        "-H", "\"Authorization: Bearer " + $BEARER + "\"",
-                        $HOST + path };
-                break;
-            case POST:
-                ab = new String[]{ "ab", "-n", POST_NUMBER,
-                        "-c", POST_CONCURRENCY,
-                        "-t", TIME,
-                        "-H", "\"Authorization: Bearer " + $BEARER + "\"",
-                        "-T", "application/json",
-                        "-p", "body/" + fileName + ".json",
-                        $HOST + path };
-                break;
-        }
-
-        return String.join(" ", ab);
+    private String getSourceScript(){
+        return String.format("source %s", COMMON_FILE_NAME);
     }
 
+    private String getTeeScript(String fileName){
+        return String.format("2>&1 | tee \"out/%s.$NOW.txt\"", fileName);
+    }
+
+    private String getApacheBenchScript(RequestMethod method, String path, String fileName){
+        String formattedPath = formatPath(path);
+        switch(method) {
+            case GET:
+                return String.format("ab -n %s -c %s -t %s -H \"Authorization: Bearer $BEARER\" $HOST%s",
+                        GET_NUMBER, GET_CONCURRENCY, TIME, formattedPath);
+            case POST:
+            case PATCH:
+                return String.format("ab -n %s -c %s -t %s -H \"Authorization: Bearer $BEARER\" -T application/json -p \"body/%s.json\" $HOST%s",
+                        POST_NUMBER, POST_CONCURRENCY, TIME, fileName, formattedPath);
+            case PUT:
+                return String.format("ab -n %s -c %s -t %s -H \"Authorization: Bearer $BEARER\" -T application/json -u \"body/%s.json\" $HOST%s",
+                        POST_NUMBER, POST_CONCURRENCY, TIME, fileName, formattedPath);
+            default:
+                return "exit #Not support";
+        }
+    }
+
+    private String formatPath(String path){
+        Pattern pattern = Pattern.compile("\\{(.*?)\\}");
+        Matcher matcher = pattern.matcher(path);
+        StringBuffer formattedPath = new StringBuffer();
+        while (matcher.find()) {
+            String variable = matcher.group(1);
+            matcher.appendReplacement(formattedPath, "\\$" + variable);
+            VARIABLE_MAPPING.put(variable, "");
+        }
+        matcher.appendTail(formattedPath);
+
+        return formattedPath.toString();
+    }
 
 }
