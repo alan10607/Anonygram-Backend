@@ -28,7 +28,7 @@ service.interceptors.request.use(config => {
 service.interceptors.response.use(res => {
   removePending(res.config);
 
-  if (res.config.url === "auth/login" || res.config.url === "auth/anony") {
+  if (res.config.url === "/auth/login" || res.config.url === "/auth/anony") {
     const jwt = res.data.result.token;
     setJwt(jwt);
   }

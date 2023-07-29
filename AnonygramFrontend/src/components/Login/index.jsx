@@ -6,51 +6,56 @@ import { locationTo } from '../../util/locationTo';
 import { ICON_LOGO, VERSION, BACKEND_API_URL } from '../../util/constant';
 import authService from '../../service/request/authService';
 import './index.scss'
+import { useLocalSetting } from '../../util/localSetting';
 
 export default function Login() {
   const emailRef = useRef();
   const pwRef = useRef();
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
   const [hint, setHint] = useState("");
-  const [done, setDone] = useState(false);
+  const [logged, setlogged] = useState(false);
+  const [{ jwt }, { setJwtByToken }] = useLocalSetting();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  useEffect(() => {//測試用, 確認後台ssl
+  useEffect(() => {//For testing, check user SSL confirmation
     authService.testSsl().then((res) => { })
-      .catch((e) => {//跳轉到後台後再返回
-        const sslUrl = `${BACKEND_API_URL}ssl?callbackUrl=${window.location.href}`;
-        console.log("Check ssl move to:", sslUrl)
+      .catch((e) => {//If does not conform SSL then redirect to the backend
+        const sslUrl = `${BACKEND_API_URL}/ssl?callbackUrl=${window.location.href}`;
+        console.log("Redirect backend for ssl", sslUrl)
         locationTo(sslUrl);
       });
   }, []);
 
   useEffect(() => {//取得新的jwt後跳轉
-    if (done) {
+    if (logged) {
       navigate("/hub");
     }
-  }, [done]);
+  }, [logged]);
 
   const login = (event) => {
     event.preventDefault();
 
-    authService.login({
-      email: emailRef.current.value,
-      pw: pwRef.current.value,
-    }).then((res) => {
-      setDone(true);
-    }).catch((e) => {
-      setHint(t("login-err"));
-    });
+    authService.login({ email, password }).then((res) => {
+        setJwtByToken(res.token);
+        setlogged(true);
+        navigate("/hub");
+      }).catch((e) => {
+        setHint(t("login-err"));
+      });
   }
 
   const loginAnony = (event) => {
     event.preventDefault();
 
-    if (isJwtValid()) {
+    if (jwt.isVaild) {
       setDone(true);
     } else {
       authService.anony().then((res) => {
-        setDone(true);
+        setJwtByToken(res.token);
+        setlogged(true);
+        navigate("/hub");
       }).catch((e) => {
         setHint(t("login-anony-err"));
       });
@@ -63,8 +68,19 @@ export default function Login() {
         <img className="icon logo" src={ICON_LOGO} alt="ICON_LOGO" />
         <div className="col-flex">
           <form onSubmit={login}>
-            <input ref={emailRef} type="text" placeholder="Email" autoComplete="on" required autoFocus />
-            <input ref={pwRef} type="password" placeholder={t("pw")} autoComplete="on" required />
+            <input value={email}
+              onChange={(event) => { setEmail(event.target.value) }}
+              type="text"
+              placeholder="Email"
+              autoComplete="on"
+              required
+              autoFocus />
+            <input value={password}
+              onChange={(event) => { setPassword(event.target.value) }}
+              type="password"
+              placeholder={t("pw")}
+              autoComplete="on"
+              required />
             {/* <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" /> */}
             <input type="submit" value={t("login")} />
           </form>
