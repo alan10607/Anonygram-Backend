@@ -25,7 +25,7 @@ public class JwtService {
     private static final String ID = "id";
     private static final String USERNAME = "username";
     private static final String EMAIL = "email";
-    private static final int VALID_HOUR = 1;
+    public static final int VALID_HOUR = 1;
 
     public String extractSubject(String token){
         return extractClaims(token, Claims::getSubject);

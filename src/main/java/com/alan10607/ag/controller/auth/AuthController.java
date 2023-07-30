@@ -3,14 +3,19 @@ package com.alan10607.ag.controller.auth;
 import com.alan10607.ag.dto.UserDTO;
 import com.alan10607.ag.model.ForumUser;
 import com.alan10607.ag.service.auth.AuthService;
+import com.alan10607.ag.service.auth.JwtService;
 import com.alan10607.ag.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.time.Duration;
 
 @RestController
 @RequestMapping(path = "/auth")
@@ -32,7 +37,15 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "To login system")
-    public UserDTO login(@RequestBody @Valid UserDTO userDTO){
+    public UserDTO login(@RequestBody @Valid UserDTO userDTO, HttpServletResponse response){
+        userDTO = authService.login(userDTO);
+        ResponseCookie cookie = ResponseCookie.from(HttpHeaders.AUTHORIZATION, userDTO.getToken())
+                .httpOnly(true)
+                .secure(true)
+                .maxAge(Duration.ofHours(JwtService.VALID_HOUR))
+                .sameSite("Lax")  // sameSite
+                .build();
+        response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return authService.login(userDTO);
     }
 
