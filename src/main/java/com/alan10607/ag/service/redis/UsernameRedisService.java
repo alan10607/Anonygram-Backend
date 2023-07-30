@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class UserNameRedisService {
+public class UsernameRedisService {
     private final StringBaseRedisService stringBaseRedisService;
     private static final int USER_NAME_EXPIRE_SEC = 3600;
 

@@ -26,23 +26,23 @@ public class ForumUser implements UserDetails {
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid")
     private String id;
-    private String userName;
+    private String username;
     private String email;
-    private String pw;
+    private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)//EAGER: Load related object immediately when queried, LAZY: Only load related object when needed
     private List<Role> role = new ArrayList<>();
 
     private LocalDateTime updatedDate;
 
-    public ForumUser(String userName,
+    public ForumUser(String username,
                      String email,
-                     String pw,
+                     String password,
                      List<Role> role,
                      LocalDateTime updatedDate) {
-        this.userName = userName;
+        this.username = username;
         this.email = email;
-        this.pw = pw;
+        this.password = password;
         this.role = role;
         this.updatedDate = updatedDate;
     }
@@ -59,12 +59,12 @@ public class ForumUser implements UserDetails {
 
     @Override
     public String getPassword() {
-        return pw;
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return userName;
+        return username;
     }
 
     @Override

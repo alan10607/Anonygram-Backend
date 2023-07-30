@@ -21,25 +21,25 @@ public class UserDTO {
     private String id;
 
     @NotBlank(groups = registerGroup.class)
-    private String userName;
+    private String username;
 
     @NotBlank
     @Email
     private String email;
 
     @NotBlank
-    private String pw;
+    private String password;
     private List<Role> userRole;
     private LocalDateTime updatedDate;
     private String token;
 
     public UserDTO(String id,
-                   String userName,
+                   String username,
                    String email,
                    List<Role> userRole,
                    LocalDateTime updatedDate) {
         this.id = id;
-        this.userName = userName;
+        this.username = username;
         this.email = email;
         this.userRole = userRole;
         this.updatedDate = updatedDate;

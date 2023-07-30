@@ -9,7 +9,7 @@ import com.alan10607.ag.model.ForumUser;
 import com.alan10607.ag.model.Role;
 import com.alan10607.ag.service.redis.LockRedisService;
 import com.alan10607.ag.util.TimeUtil;
-import com.alan10607.ag.service.redis.UserNameRedisService;
+import com.alan10607.ag.service.redis.UsernameRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserService implements UserDetailsService{
     private final RoleService roleService;
-    private final UserNameRedisService userNameRedisService;
+    private final UsernameRedisService usernameRedisService;
     private final LockRedisService lockRedisService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserDAO userDAO;
@@ -58,15 +58,15 @@ public class UserService implements UserDetailsService{
             throw new AnonygramIllegalStateException("Email already exist");
         });
 
-        userDAO.findByUserName(userDTO.getUserName()).ifPresent(gramUser -> {
+        userDAO.findByUsername(userDTO.getUsername()).ifPresent(gramUser -> {
             throw new AnonygramIllegalStateException("UserName already exist");
         });
 
         Role role = roleService.findRole(roleType.name());
         userDAO.save(new ForumUser(
-                userDTO.getUserName(),
+                userDTO.getUsername(),
                 userDTO.getEmail(),
-                bCryptPasswordEncoder.encode(userDTO.getPw()),
+                bCryptPasswordEncoder.encode(userDTO.getPassword()),
                 Collections.singletonList(role),
                 TimeUtil.now())
         );
@@ -92,25 +92,25 @@ public class UserService implements UserDetailsService{
         log.debug("Spring security get user by email: {} succeeded", email);
         return forumUser;//Entity need extend org.springframework.security.core.UserDetails.User
     }
-    public String getUserName(String userId) {
-        String userName = userNameRedisService.get(userId);
-        if(Strings.isEmpty(userName)){
+    public String getUsername(String userId) {
+        String username = usernameRedisService.get(userId);
+        if(Strings.isEmpty(username)){
             lockRedisService.lockByUser(userId, () -> { pullToRedis(userId); });
-            userName = userNameRedisService.get(userId);
+            username = usernameRedisService.get(userId);
         }
-        userNameRedisService.expire(userId);
-        return userName;
+        usernameRedisService.expire(userId);
+        return username;
     }
 
     private void pullToRedis(String userId) {
-        String userName = userDAO.findById(userId)
+        String username = userDAO.findById(userId)
                 .map(ForumUser::getId)
                 .orElseGet(() -> {
                     log.error("Pull user failed, userId={}, will put userId as name to redis", userId);
                     return userId;
                 });
-        userNameRedisService.set(userId, userName);
-        userNameRedisService.expire(userId);
+        usernameRedisService.set(userId, username);
+        usernameRedisService.expire(userId);
         log.info("Pull user to redis succeed, userId={}", userId);
     }
     

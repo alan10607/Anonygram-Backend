@@ -23,7 +23,7 @@ public class AuthService {
 
     public UserDTO login(UserDTO userDTO) {
         ForumUser user = (ForumUser) authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPw()))
+                .authenticate(new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()))
                 .getPrincipal();
 
         userDTO = new UserDTO(user.getId(),
