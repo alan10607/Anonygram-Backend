@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -28,16 +29,17 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final JwtFilter jwtFilter;
+    private final CsrfDoubleSubmitFilter csrfDoubleSubmitFilter;
     private final AuthenticationProvider authenticationProvider;
-    private static final String ERROR_PAGE_PATH = "/err";//Redirect error status to this page
-    private static final String FORUM_PATH = "/forum/**";
-    private static final String AUTH_PATH = "/auth/**";
-    private static final String REDIS_PATH = "/redis/**";
-    private static final String IMGUR_PATH = "/imgur/**";
-    private static final String[] SWAGGER_PATH = { "/swagger-ui/**", "/v3/api-docs/**" };
-    private static final String[] WEB_STATIC_PATH = { "/css/**", "/js/**", "/pic/**" };
-    private static final String[] PUBLIC_TEMPLATE_PATH = { "/", "/index", ERROR_PAGE_PATH, "/ssl" };
-    private static final String[] PRIVATE_TEMPLATE_PATH = { "/redirect" };
+    public static final String ERROR_PAGE_PATH = "/err";//Redirect error status to this page
+    public static final String FORUM_PATH = "/forum/**";
+    public static final String AUTH_PATH = "/auth/**";
+    public static final String REDIS_PATH = "/redis/**";
+    public static final String IMGUR_PATH = "/imgur/**";
+    public static final String[] SWAGGER_PATH = { "/swagger-ui/**", "/v3/api-docs/**" };
+    public static final String[] WEB_STATIC_PATH = { "/css/**", "/js/**", "/pic/**" };
+    public static final String[] PUBLIC_TEMPLATE_PATH = { "/", "/index", ERROR_PAGE_PATH, "/ssl" };
+    public static final String[] PRIVATE_TEMPLATE_PATH = { "/redirect" };
 
     public static final String[] REST_APIS = { FORUM_PATH, AUTH_PATH, REDIS_PATH, IMGUR_PATH };
     
@@ -49,7 +51,7 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()//Cross-site request forgery, disable for testing
+        http.csrf().disable()//disable spring security default Cross-site request forgery
             .cors()
             .and()
                 .authorizeRequests()
@@ -71,7 +73,8 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)//no session
             .and()
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(csrfDoubleSubmitFilter, CsrfFilter.class);
         return http.build();
     }
 

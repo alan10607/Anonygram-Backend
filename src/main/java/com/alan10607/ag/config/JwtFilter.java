@@ -3,10 +3,12 @@ package com.alan10607.ag.config;
 import com.alan10607.ag.model.ForumUser;
 import com.alan10607.ag.service.auth.JwtService;
 import com.alan10607.ag.service.auth.UserService;
+import com.alan10607.ag.util.RequestServletUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,7 +21,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 
 @Configuration
 @Data
@@ -28,14 +29,13 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsServices;
     private final UserService userService;
-    private static final String AUTHORIZATION_KEY = "Authorization";
+    private static final String AUTHORIZATION_NAME = HttpHeaders.AUTHORIZATION;
     private static final String BEARER = "Bearer ";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain
-    ) throws ServletException, IOException {
+                                    FilterChain filterChain) throws ServletException, IOException {
         try{
             setAuthentication(request);
         }catch (Exception e){
@@ -59,18 +59,17 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     public String getTokenFromRequest(HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_KEY);
+        String token = RequestServletUtil.getFromCookie(request, AUTHORIZATION_NAME);
+        if(Strings.isNotBlank(token)) {
+            return token;
+        }
+
+        token = request.getHeader(AUTHORIZATION_NAME);
         if(Strings.isNotBlank(token) && token.length() > BEARER.length() && token.startsWith(BEARER)){
             return token.substring(BEARER.length());
         }
 
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        String[] params = parameterMap.get(AUTHORIZATION_KEY);
-        if(params != null && params.length > 0 && Strings.isNotBlank(params[0])){
-            return params[0];
-        }
-
-        return null;
+        return RequestServletUtil.getFromParameter(request, AUTHORIZATION_NAME);
     }
 
     private ForumUser getUserDetails(String token) {
