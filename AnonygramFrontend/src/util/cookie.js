@@ -1,3 +1,5 @@
+import Cookies from 'universal-cookie'
+
 export const getCookie = (key) => {
   return document.cookie
           .split("; ")

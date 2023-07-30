@@ -1,26 +1,27 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
-import { isJwtValid } from '../../service/jwt';
 import { locationTo } from '../../util/locationTo';
+import { setUser } from '../../redux/actions/user';
 import { ICON_LOGO, VERSION, BACKEND_API_URL } from '../../util/constant';
 import authService from '../../service/request/authService';
 import './index.scss'
-import { useLocalSetting } from '../../util/localSetting';
 
 export default function Login() {
-  const emailRef = useRef();
-  const pwRef = useRef();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [hint, setHint] = useState("");
   const [logged, setlogged] = useState(false);
-  const [{ jwt }, { setJwtByToken }] = useLocalSetting();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const { userId } = useSelector(state => ({
+    userId: state.user.id
+  }), shallowEqual);
 
   useEffect(() => {//For testing, check user SSL confirmation
-    authService.testSsl().then((res) => { })
+    authService.ssl().then((res) => { })
       .catch((e) => {//If does not conform SSL then redirect to the backend
         const sslUrl = `${BACKEND_API_URL}/ssl?callbackUrl=${window.location.href}`;
         console.log("Redirect backend for ssl", sslUrl)
@@ -37,29 +38,29 @@ export default function Login() {
   const login = (event) => {
     event.preventDefault();
 
-    authService.login({ email, password }).then((res) => {
-        setJwtByToken(res.token);
-        setlogged(true);
-        navigate("/hub");
-      }).catch((e) => {
-        setHint(t("login-err"));
-      });
+    authService.login(email, password).then((res) => {
+      dispatch(setUser(res.id, res.username, false));
+      navigate("/hub");
+    }).catch((e) => {
+      setHint(t("login-err"));
+    });
   }
 
-  const loginAnony = (event) => {
+  const loginAnonymous = (event) => {
     event.preventDefault();
 
-    if (jwt.isVaild) {
-      setDone(true);
-    } else {
-      authService.anony().then((res) => {
-        setJwtByToken(res.token);
-        setlogged(true);
-        navigate("/hub");
-      }).catch((e) => {
-        setHint(t("login-anony-err"));
-      });
+    if (userId) {
+      navigate("/hub");
+      return;
     }
+
+    authService.anonymous().then((res) => {
+      dispatch(setUser(res.id, res.username, true));
+      navigate("/hub");
+    }).catch((e) => {
+      setHint(t("login-anony-err"));
+    });
+
   }
 
   return (
@@ -81,7 +82,6 @@ export default function Login() {
               placeholder={t("pw")}
               autoComplete="on"
               required />
-            {/* <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" /> */}
             <input type="submit" value={t("login")} />
           </form>
           <div className="login-info">
@@ -90,7 +90,7 @@ export default function Login() {
           </div>
           <div className="hint">{hint}</div>
           <div className="line-word">{t("or")}</div>
-          <input type="button" value={t("as-anony")} onClick={loginAnony} />
+          <input type="button" value={t("as-anony")} onClick={loginAnonymous} />
         </div>
         <div className="version">{VERSION}</div>
       </div>
