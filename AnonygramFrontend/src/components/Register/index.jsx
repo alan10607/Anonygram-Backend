@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import { ICON_LOGO } from '../../util/constant';
-import authService from '../../service/request/authService';
+import authRequest from '../../service/request/authRequest';
 import '../Login/index.scss'
 
 export default function Register() {
@@ -21,7 +21,7 @@ export default function Register() {
       return setHint(errorStr);
     }
 
-    authService.register(email, username, password).then((res) => {
+    authRequest.register(email, username, password).then((res) => {
       waitThenGo(3);
     }).catch((e) => {
       setHint(t("register-err"));

@@ -3,7 +3,8 @@ import { SET_USER, DELETE_USER } from "../actions/user";
 const initUserState = {
   userId: null,
   username: null,
-  isAnonymous: null
+  isAnonymous: null,
+  expiredTime: null
 };
 
 export default function userReducer(preState = initUserState, action) {
@@ -11,8 +12,7 @@ export default function userReducer(preState = initUserState, action) {
 
   switch (type) {
     case SET_USER:
-      const { userId, username, isAnonymous } = data;
-      return Object.assign({}, preState, { userId, username, isAnonymous });
+      return Object.assign({}, preState, data);
 
     case DELETE_USER:
       return initUserState;

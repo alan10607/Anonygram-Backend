@@ -1,5 +1,5 @@
 import i18next from "i18next";
-import postService from "../../service/request/postService";
+import postService from "../../service/request/forumService";
 import { resetUserData } from "./user";
 import { resetReplyData, replyAddImg } from "./reply";
 import {

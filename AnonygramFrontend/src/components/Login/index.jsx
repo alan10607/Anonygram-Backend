@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { locationTo } from '../../util/locationTo';
 import { setUser } from '../../redux/actions/user';
 import { ICON_LOGO, VERSION, BACKEND_API_URL } from '../../util/constant';
-import authService from '../../service/request/authService';
+import authRequest from '../../service/request/authRequest';
 import './index.scss'
 
 export default function Login() {
@@ -21,7 +21,7 @@ export default function Login() {
   }), shallowEqual);
 
   useEffect(() => {//For testing, check user SSL confirmation
-    authService.ssl().then((res) => { })
+    authRequest.ssl().then((res) => { })
       .catch((e) => {//If does not conform SSL then redirect to the backend
         const sslUrl = `${BACKEND_API_URL}/ssl?callbackUrl=${window.location.href}`;
         console.log("Redirect backend for ssl", sslUrl)
@@ -38,8 +38,8 @@ export default function Login() {
   const login = (event) => {
     event.preventDefault();
 
-    authService.login(email, password).then((res) => {
-      dispatch(setUser(res.id, res.username, false));
+    authRequest.login(email, password).then((res) => {
+      dispatch(setUser(res.id, res.username, false, res.tokenMaxAge));
       navigate("/hub");
     }).catch((e) => {
       setHint(t("login-err"));
@@ -54,8 +54,8 @@ export default function Login() {
       return;
     }
 
-    authService.anonymous().then((res) => {
-      dispatch(setUser(res.id, res.username, true));
+    authRequest.anonymous().then((res) => {
+      dispatch(setUser(res.id, res.username, true, res.tokenMaxAge));
       navigate("/hub");
     }).catch((e) => {
       setHint(t("login-anony-err"));

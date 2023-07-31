@@ -12,6 +12,7 @@ import ContDel from './Cont/ContDel';
 import Reply from './Reply';
 import Move from './Move';
 import './index.scss';
+import authRequest from '../../../service/request/authRequest';
 
 export default function Art() {
   const findPostLock = useRef(false);
@@ -19,33 +20,39 @@ export default function Art() {
   const { post, replyId, replyIsOpen } = useSelector(state => ({
     post: state.post,
     replyId: state.reply.id,
-    replyIsOpen: state.reply.isOpen
+    replyIsOpen: state.reply.isOpen,
+    userId: state.user.userId
   }), shallowEqual);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const idList = [...post.keys()];
   const findPostList = idList.filter(id => !post.get(id));
 
+  const checkJwtValid = async () => {
+    try {
+      const valid = await authRequest.test();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const isJwtVaild = checkJwtValid();
+
+
   /* --- 初始化頁面 --- */
   useEffect(() => {//檢查Jwt
-    const jwt = getJwt();
-    if (!jwt) {
+    if (!userId) {
       console.log("Jwt not found, navigate to login...");
       navigate("/login");
       return;
     }
 
-    const payload = getJwtPayload(jwt);
-    const expStr = new Date(payload.exp * 1000).toLocaleString();
-    if (!isJwtValid(jwt)) {
-      console.log(`Jwt was expired at ${expStr}, navigate to login...`);
+    if (!isJwtVaild) {
+      console.log(`Jwt was expired, navigate to login...`);
       navigate("/login");
       return;
     }
-
-    dispatch(saveUserData(payload));
-    console.log("Load jwt payload", payload,);
-    console.log(`Jwt will expire at ${expStr}`);
   }, [])
 
   useEffect(() => {//reply click
@@ -56,7 +63,7 @@ export default function Art() {
   }, [])
 
   useEffect(() => {//初始化查詢文章id
-    if (getJwt() && idList.length === 0) {
+    if (isJwtVaild && idList.length === 0) {
       dispatch(findIdSet());
       console.log("Load id set");
     }
@@ -84,7 +91,7 @@ export default function Art() {
       console.log("Already find all arts, skip find art");
       return;
     }
-    
+
     if (findPostLock.current) {
       console.log("Skip find art because findPostLock=true");
       return;

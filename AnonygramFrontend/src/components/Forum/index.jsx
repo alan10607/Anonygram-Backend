@@ -10,8 +10,6 @@ export default function Hub() {
     <div id="hub">
       <Header />
       <Body />
-      <New />
-      <Setting />
       <Art />
     </div>
   )
