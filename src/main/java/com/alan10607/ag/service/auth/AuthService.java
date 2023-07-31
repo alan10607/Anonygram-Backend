@@ -31,7 +31,10 @@ public class AuthService {
                 user.getEmail(),
                 user.getRole(),
                 user.getUpdatedDate());
-        userDTO.setToken(jwtService.createToken(user));
+
+        String token = jwtService.createToken(user);
+        userDTO.setToken(token);
+        userDTO.setTokenMaxAge(jwtService.extractMaxAge(token));
         return userDTO;
     }
 

@@ -41,6 +41,9 @@ public class ForumDTO {
     private String imgBase64;
     private String imgUrl;
 
+    @NotBlank(groups = LikeContentGroup.class)
+    private Boolean like;
+
     public static ForumDTO toDTO(Object data) {
         return ToolUtil.convertValue(data, ForumDTO.class);
     }
@@ -56,5 +59,8 @@ public class ForumDTO {
     }
 
     public interface UploadImgGroup extends Default {
+    }
+
+    public interface LikeContentGroup extends Default {
     }
 }

@@ -70,19 +70,12 @@ public class ForumController {
         forumService.deleteContent(id, no, AuthUtil.getUserId());
     }
 
-    @PatchMapping("/like/{id}/{no}")
+    @PatchMapping("/content/{id}/{no}/like")
     @Operation(summary = "To like a content")
     public boolean likeContent(@PathVariable("id") String id,
-                               @PathVariable("no") int no){
-        LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId(), true);
-        return forumService.likeOrDislikeContent(likeDTO);
-    }
-
-    @PatchMapping("/dislike/{id}/{no}")
-    @Operation(summary = "To dislike a content")
-    public boolean dislikeContent(@PathVariable("id") String id,
-                                  @PathVariable("no") int no){
-        LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId(), false);
+                               @PathVariable("no") int no,
+                               @RequestBody @Validated(ForumDTO.LikeContentGroup.class) ForumDTO forumDTO){
+        LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId(), forumDTO.getLike());
         return forumService.likeOrDislikeContent(likeDTO);
     }
 

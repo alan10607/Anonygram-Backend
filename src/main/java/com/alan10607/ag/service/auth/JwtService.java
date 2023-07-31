@@ -25,7 +25,7 @@ public class JwtService {
     private static final String ID = "id";
     private static final String USERNAME = "username";
     private static final String EMAIL = "email";
-    public static final int VALID_HOUR = 1;
+    private static final int VALID_HOUR = 1;
 
     public String extractSubject(String token){
         return extractClaims(token, Claims::getSubject);
@@ -77,6 +77,14 @@ public class JwtService {
 
     private Date extractExpiration(String token){
         return extractClaims(token, Claims::getExpiration);
+    }
+
+    private Date extractIssuedAt(String token){
+        return extractClaims(token, Claims::getIssuedAt);
+    }
+
+    public long extractMaxAge(String token){
+        return extractExpiration(token).getTime() - extractIssuedAt(token).getTime();
     }
 
     private Claims extractAllClaims(String token){

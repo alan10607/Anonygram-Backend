@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.time.Duration;
 
 @RestController
 @RequestMapping(path = "/auth")
@@ -23,6 +22,7 @@ import java.time.Duration;
 @Tag(name = "Login Authorization")
 public class AuthController {
     private final AuthService authService;
+    private final JwtService jwtService;
 
     @GetMapping("/test")
     @Operation(summary = "Check login authorization")
@@ -42,11 +42,11 @@ public class AuthController {
         ResponseCookie cookie = ResponseCookie.from(HttpHeaders.AUTHORIZATION, userDTO.getToken())
                 .httpOnly(true)
                 .secure(true)
-                .maxAge(Duration.ofHours(JwtService.VALID_HOUR))
-                .sameSite("Lax")  // sameSite
+                .maxAge(userDTO.getTokenMaxAge())
+                .sameSite("Lax")
                 .build();
-        response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        return authService.login(userDTO);
+        response.setHeader(HttpHeaders.AUTHORIZATION, cookie.toString());
+        return userDTO;
     }
 
     @PostMapping("/anonymous")
