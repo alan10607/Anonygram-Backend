@@ -31,8 +31,11 @@ const deleteContent = (id) => request.deleteMethod(
 );
 
 const likeContent = (id, no, like) => request.patchMethod(
-  `/forum/content/${id}/${no}/like`,
-  { like }
+  `/forum/like/${id}/${no}`
+)
+
+const dislikeContent = (id, no, like) => request.patchMethod(
+  `/forum/dislike/${id}/${no}`
 )
 
 const uploadImg = (id, imgBase64) => request.postMethod(

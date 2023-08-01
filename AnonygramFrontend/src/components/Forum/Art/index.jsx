@@ -1,7 +1,7 @@
-import { Fragment, useEffect, useRef } from 'react';
+import { Fragment, useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { findIdSet, findPost } from '../../../redux/actions/post';
+import { setAllId, setArticle } from '../../../redux/actions/forum';
 import { saveUserData } from '../../../redux/actions/user';
 import { replySetOpen } from '../../../redux/actions/reply';
 import { getJwt, getJwtPayload, isJwtValid } from '../../../service/jwt';
@@ -13,47 +13,22 @@ import Reply from './Reply';
 import Move from './Move';
 import './index.scss';
 import authRequest from '../../../service/request/authRequest';
+import forumRequest from '../../../service/request/forumRequest';
 
 export default function Art() {
-  const findPostLock = useRef(false);
-  const findPostSize = 10;
-  const { post, replyId, replyIsOpen } = useSelector(state => ({
-    post: state.post,
+  const { forum, replyId, replyIsOpen } = useSelector(state => ({
+
+    forum: state.forum,
     replyId: state.reply.id,
     replyIsOpen: state.reply.isOpen,
     userId: state.user.userId
   }), shallowEqual);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const idList = [...post.keys()];
-  const findPostList = idList.filter(id => !post.get(id));
-
-  const checkJwtValid = async () => {
-    try {
-      const valid = await authRequest.test();
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const isJwtVaild = checkJwtValid();
-
-
-  /* --- 初始化頁面 --- */
-  useEffect(() => {//檢查Jwt
-    if (!userId) {
-      console.log("Jwt not found, navigate to login...");
-      navigate("/login");
-      return;
-    }
-
-    if (!isJwtVaild) {
-      console.log(`Jwt was expired, navigate to login...`);
-      navigate("/login");
-      return;
-    }
-  }, [])
+  const idList = [...forum.keys()];
+  const queryLock = useRef(false);
+  const querySize = 10;
+  const queryPendingId = useRef(new Set());
 
   useEffect(() => {//reply click
     window.addEventListener("click", clickReply);
@@ -63,42 +38,27 @@ export default function Art() {
   }, [])
 
   useEffect(() => {//初始化查詢文章id
-    if (isJwtVaild && idList.length === 0) {
-      dispatch(findIdSet());
-      console.log("Load id set");
+    if (idList.length === 0) {
+      forumRequest.getId().then(res => {
+        dispatch(setAllId(res.idList));
+      }).catch((e) => {
+        dispatch(showConsole(i18next.t("findIdSet-err")));
+      });
     }
-  }, [idList])
+  }, [])
 
-  useEffect(() => {//往下滑動找更多文章
-    if (idList.length > 0 && findPostList.length > 0 && checkInBottom()) {
-      doFindPost();//初始化時載入, 載入完後有仍有空位則繼續載入
-    } else {
-      findPostLock.current = false;
-      // console.log("Load posts done");
-    }
+  useEffect(() => {
+    queryArticle();
 
-    window.addEventListener("scroll", scrollDown);
+    window.addEventListener("scroll", scrollDownQuery);
     return () => {
-      window.removeEventListener("scroll", scrollDown);
+      window.removeEventListener("scroll", scrollDownQuery);
     }
-  }, [idList, findPostList])
+  }, [queryIdList, queryPendingId])//???????????????????????????有需要?
 
   /* --- EventListener --- */
-  const scrollDown = (event) => {
-    if (!checkInBottom()) return;
-
-    if (findPostList.length === 0) {
-      console.log("Already find all arts, skip find art");
-      return;
-    }
-
-    if (findPostLock.current) {
-      console.log("Skip find art because findPostLock=true");
-      return;
-    }
-
-    findPostLock.current = true;
-    doFindPost();
+  const scrollDownQuery = (event) => {
+    queryArticle();
   }
 
   const clickReply = (event) => {//關閉留言區
@@ -108,12 +68,53 @@ export default function Art() {
   }
 
   /* --- 其他 --- */
-  const doFindPost = () => {
-    console.log("Load posts from index", idList.indexOf(findPostList[0]));
-    dispatch(findPost({
-      idList: findPostList.slice(0, findPostSize)
-    }));
+  const canQueryArticle = () => {
+    if (!checkInBottom()) {
+      return false;
+    }
+
+    
+    if (queryIdList.length === 0) {
+      console.log("Already query all articles, skip query");
+      return false;
+    }
+
+    if (queryPendingId.current.size > 0) {
+      console.log("Skip query articles because have pending query");
+      return false;
+    }
+
+    return true;
   }
+
+  const getQueryId = idList.filter(id => !forum.get(id)).slice(0, querySize);
+
+  const queryArticle = () => {
+    if (!canQueryArticle()) return;
+
+    const queryIdList = idList.filter(id => !forum.get(id)).slice(0, querySize);
+    if(ids.length === 0){
+
+    }
+    queryIdList.forEach(id => queryPendingId.add(id));
+    queryIdList.forEach(id => httpGetArticle(id));
+  }
+
+  const httpGetArticle = () => {
+    forumRequest.getArticle(id).then(article => {
+      dispatch(setArticle(article));
+    }).catch((e) => {
+      dispatch(showConsole(i18next.t("findPost-err")));
+    }).finally(() => {
+      queryPendingId.delete(id);
+      console.log("Query article finishe", id);
+    });
+
+  }
+
+  useEffect(() => {
+    queryLock.current = pendingId.size > 0;
+  }, [pendingId])
 
   const checkInBottom = () => {
     const clientHeight = document.documentElement.clientHeight;

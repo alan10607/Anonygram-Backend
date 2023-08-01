@@ -16,6 +16,7 @@ export default function forumReducer(preState = initForumMap, action) {
   const { type, data } = action;
   const newState = new Map(preState);
 
+  console.log("Reducer get data, type=", type, "data=", data);
   switch (type) {
     case SET_ALL_ID:
       data.forEach(id => newState.set(id, null));
@@ -29,7 +30,7 @@ export default function forumReducer(preState = initForumMap, action) {
       return newState;
     
     case SET_ARTICLE:
-      newState.get(data.id).contNum = Math.max(newState.get(data.id).contNum + 1, data.no);
+      // newState.get(data.id).contNum = Math.max(newState.get(data.id).contNum + 1, data.no);
       newState.get(data.id).contList[data.no] = data;
       return newState;
 
