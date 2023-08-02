@@ -70,7 +70,7 @@ public class ForumController {
         forumService.deleteContent(id, no, AuthUtil.getUserId());
     }
 
-    @PatchMapping("/content/{id}/{no}/like")
+    @PatchMapping("/like/{id}/{no}")
     @Operation(summary = "To like a content")
     public boolean likeContent(@PathVariable("id") String id,
                                @PathVariable("no") int no,
