@@ -72,11 +72,12 @@ public class ForumController {
 
     @PatchMapping("/like/{id}/{no}")
     @Operation(summary = "To like a content")
-    public boolean likeContent(@PathVariable("id") String id,
+    public LikeDTO likeContent(@PathVariable("id") String id,
                                @PathVariable("no") int no,
                                @RequestBody @Validated(ForumDTO.LikeContentGroup.class) ForumDTO forumDTO){
         LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId(), forumDTO.getLike());
-        return forumService.likeOrDislikeContent(likeDTO);
+        forumService.likeOrDislikeContent(likeDTO);
+        return likeDTO;
     }
 
     @PostMapping("/img")

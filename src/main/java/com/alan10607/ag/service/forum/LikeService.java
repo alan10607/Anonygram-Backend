@@ -50,12 +50,9 @@ public class LikeService {
      * @param likeDTO
      * @return
      */
-    public boolean set(LikeDTO likeDTO) {
-        boolean isSuccess = likeRedisService.set(likeDTO);
-        if(isSuccess){
-            updateLikeRedisService.set(likeDTO);
-        }
-        return isSuccess;
+    public void set(LikeDTO likeDTO) {
+        likeRedisService.set(likeDTO);
+        updateLikeRedisService.set(likeDTO);
     }
 
 

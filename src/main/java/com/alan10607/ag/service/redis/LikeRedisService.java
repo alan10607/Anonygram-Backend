@@ -30,21 +30,25 @@ public class LikeRedisService {
         return null;
     }
 
-    public boolean set(LikeDTO likeDTO) {
+    public void set(LikeDTO likeDTO) {
         Long isSuccess = stringBaseRedisService.execute(setContentLikeScript,
                 Arrays.asList(getKey(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId())),
                 likeDTO.toLikeNumberString());
-
-        if(isSuccess == 0){
-            log.info("Already {}, skip this time, id={}, no={}, userId={}",
-                likeDTO.toLikeString(), likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId());
-        }else if(isSuccess == -1) {
-            throw new RedisIllegalStateException(
-                "Update to {} failed because redis key not found, id={}, no={}, userId={}",
-                likeDTO.toLikeString(), likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId());
+        if(isSuccess == 1) {
+            return;
         }
 
-        return isSuccess == 1;
+        Object[] exceptionParams = new Object[]{ likeDTO.toLikeString(), likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId() };
+        if(isSuccess == 0){
+            throw new RedisIllegalStateException(
+                "Already {}, skip this time, id={}, no={}, userId={}", exceptionParams);
+        }else if(isSuccess == -1) {
+            throw new RedisIllegalStateException(
+                "Update to {} failed because redis key not found, id={}, no={}, userId={}", exceptionParams);
+        }else {
+            throw new RedisIllegalStateException(
+                "Update to {} failed because unknown state, id={}, no={}, userId={}", exceptionParams);
+        }
     }
 
     public void expire(String id, int no, String userId) {

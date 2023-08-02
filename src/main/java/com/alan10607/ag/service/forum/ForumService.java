@@ -83,11 +83,10 @@ public class ForumService {
         contentService.updateContentStatus(id, no, userId, StatusType.DELETED);
     }
 
-    public boolean likeOrDislikeContent(LikeDTO likeDTO) {
+    public void likeOrDislikeContent(LikeDTO likeDTO) {
         contentService.get(likeDTO.getId(), likeDTO.getNo());//check content is exist
-        boolean isSuccess = likeService.set(likeDTO);
+        likeService.set(likeDTO);
         contentService.increaseLikes(likeDTO.getId(), likeDTO.getNo(), likeDTO.getLike() ? 1 : -1);
-        return isSuccess;
     }
 
 
