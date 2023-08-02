@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
-import { ICON_LOGO } from '../../util/constant';
-import authRequest from '../../service/request/authRequest';
+import { ICON_LOGO } from 'util/constant';
+import authRequest from 'service/request/authRequest';
 import '../Login/index.scss'
 
 export default function Register() {

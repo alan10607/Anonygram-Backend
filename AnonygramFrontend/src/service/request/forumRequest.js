@@ -26,16 +26,13 @@ const setContent = (id, word) => request.postMethod(
   { word }
 );
 
-const deleteContent = (id) => request.deleteMethod(
-  `/forum/content/${id}`
+const deleteContent = (id, no) => request.deleteMethod(
+  `/forum/content/${id}/${no}`
 );
 
 const likeContent = (id, no, like) => request.patchMethod(
-  `/forum/like/${id}/${no}`
-)
-
-const dislikeContent = (id, no, like) => request.patchMethod(
-  `/forum/dislike/${id}/${no}`
+  `/forum/like/${id}/${no}`,
+  { like }
 )
 
 const uploadImg = (id, imgBase64) => request.postMethod(

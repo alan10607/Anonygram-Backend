@@ -1,42 +1,28 @@
 import { Fragment, useState, useEffect, useRef, useMemo } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { setAllId, setArticle } from '../../../redux/actions/forum';
-import { saveUserData } from '../../../redux/actions/user';
-import { replySetOpen } from '../../../redux/actions/reply';
-import { getJwt, getJwtPayload, isJwtValid } from '../../../service/jwt';
-import { CONT_STATUS_TYPE, REPLY_BOX } from '../../../util/constant';
-import ArtCont from './ArtCont';
-import Cont from './Cont';
-import ContDel from './Cont/ContDel';
+import { setAllId, setArticle } from 'redux/actions/forum';
+import { replySetOpen } from 'redux/actions/reply';
+import { CONT_STATUS_TYPE, REPLY_BOX } from 'util/constant';
+import forumRequest from 'service/request/forumRequest';
+import Article from './Article';
+import Content from './Content';
+import ContDel from './Content/ContDel';
 import Reply from './Reply';
 import Move from './Move';
 import './index.scss';
-import authRequest from '../../../service/request/authRequest';
-import forumRequest from '../../../service/request/forumRequest';
 
 export default function Forum() {
-  const { forum, replyId, replyIsOpen } = useSelector(state => ({
-
+  const { forum, replyIsOpen } = useSelector(state => ({
     forum: state.forum,
-    replyId: state.reply.id,
     replyIsOpen: state.reply.isOpen
   }), shallowEqual);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const idList = useMemo(() => [...forum.keys()], [id]);
-  const queryLock = useRef(false);
   const querySize = 10;
   const queryPendingId = useRef(new Set());
 
-  useEffect(() => {//reply click
-    window.addEventListener("click", clickReply);
-    return () => {
-      window.removeEventListener("click", clickReply);
-    }
-  }, [])
-
-  useEffect(() => {//初始化查詢文章id
+  /* --- Loading id & article --- */
+  useEffect(() => {
     if (idList.length === 0) {
       forumRequest.getId().then(res => {
         dispatch(setAllId(res.idList));
@@ -46,12 +32,7 @@ export default function Forum() {
     }
   }, [])
 
-  useEffect(() => {
-    queryArticle();
-    console.log("Init article")
-  }, [idList])
-
-  useEffect(() => {
+  useEffect(() => {//dynamic loading article
     queryArticle();
 
     window.addEventListener("scroll", scrollDownQuery);
@@ -60,18 +41,19 @@ export default function Forum() {
     }
   }, [idList, queryPendingId])
 
-  /* --- EventListener --- */
+
   const scrollDownQuery = (event) => {
     queryArticle();
   }
 
-  const clickReply = (event) => {//關閉留言區
-    if (replyIsOpen && !event.target.closest(`[${REPLY_BOX}]`)) {
-      dispatch(replySetOpen(false));
-    }
+  const queryArticle = () => {
+    if (!canQueryArticle()) return;
+
+    const queryIdList = getQueryIdList();
+    queryIdList.forEach(id => queryPendingId.add(id));
+    queryIdList.forEach(id => httpGetArticle(id));
   }
 
-  /* --- 其他 --- */
   const canQueryArticle = () => {
     if (!checkInBottom()) {
       return false;
@@ -90,16 +72,15 @@ export default function Forum() {
     return true;
   }
 
-  const getQueryIdList = () => {
-    return idList.filter(id => !forum.get(id)).slice(0, querySize);
+  const checkInBottom = () => {
+    const clientHeight = document.documentElement.clientHeight;
+    const scrollTop = document.documentElement.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight;
+    return clientHeight + scrollTop + 100 > scrollHeight;
   }
 
-  const queryArticle = () => {
-    if (!canQueryArticle()) return;
-
-    const queryIdList = getQueryIdList();
-    queryIdList.forEach(id => queryPendingId.add(id));
-    queryIdList.forEach(id => httpGetArticle(id));
+  const getQueryIdList = () => {
+    return idList.filter(id => !forum.get(id)).slice(0, querySize);
   }
 
   const httpGetArticle = () => {
@@ -113,54 +94,59 @@ export default function Forum() {
     });
   }
 
-  useEffect(() => {
-    queryLock.current = pendingId.size > 0;
-  }, [pendingId])
 
-  const checkInBottom = () => {
-    const clientHeight = document.documentElement.clientHeight;
-    const scrollTop = document.documentElement.scrollTop;
-    const scrollHeight = document.documentElement.scrollHeight;
-    return clientHeight + scrollTop + 100 > scrollHeight;
+  /* --- Close reply box --- */
+  useEffect(() => {
+    window.addEventListener("click", clickReply);
+    return () => {
+      window.removeEventListener("click", clickReply);
+    }
+  }, [])
+
+  const clickReply = (event) => {
+    if (replyIsOpen && !event.target.closest(`[${REPLY_BOX}]`)) {
+      dispatch(replySetOpen(false));
+    }
   }
 
-  /* --- 頁面生成 --- */
-  const createArt = () => {
-    const allArt = [];
-    for (let [id, a] of post) {
-      if (!a) continue;//未讀取, 就跳過
 
-      allArt.push(
+  /* --- Create view --- */
+  const getAllArticles = () => {
+    const allArticle = [];
+    for (let [id, article] of post) {
+      if (!article) continue;//未讀取, 就跳過
+
+      allArticle.push(
         <div key={id} id={id} className="art">
-          <ArtCont id={id} />
-          <Fragment>{createCont(a.contList)}</Fragment>
+          <Article id={id} />
+          <Fragment>{getAllContents(article.contList)}</Fragment>
           <Move id={id} />
           {id === replyId && <Reply id={id} />}
         </div>
       );
     }
-    return allArt;
+    return allArticle;
   }
 
-  const createCont = (contList) => {
-    const allCont = [];
+  const getAllContents = (contList) => {
+    const allContent = [];
     for (let i = 1; i < contList.length; ++i) {
-      const c = contList[i];
-      if (!c) continue;//未讀取, 就跳過
+      const content = contList[i];
+      if (!content) continue;//未讀取, 就跳過
 
-      const k = `${c.id}_${c.no}`;
-      allCont.push(
-        c.status === CONT_STATUS_TYPE.DELETED ?
-          <ContDel key={k} id={c.id} no={c.no} /> :
-          <Cont key={k} id={c.id} no={c.no} />
+      const key = `${content.id}_${content.no}`;
+      allContent.push(
+        content.status === CONT_STATUS_TYPE.DELETED ?
+          <ContDel key={key} id={content.id} no={content.no} /> :
+          <Content key={key} id={content.id} no={content.no} />
       );
     }
-    return allCont;
+    return allContent;
   }
 
   return (
     <div>
-      {createArt()}
+      {getAllArticles()}
     </div>
   )
 }

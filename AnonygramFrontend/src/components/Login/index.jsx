@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
-import { locationTo } from '../../util/locationTo';
-import { setUser } from '../../redux/actions/user';
-import { ICON_LOGO, VERSION, BACKEND_API_URL } from '../../util/constant';
-import authRequest from '../../service/request/authRequest';
+import { setUser } from 'redux/actions/user';
+import { ICON_LOGO, VERSION, BACKEND_API_URL } from 'util/constant';
+import { locationTo } from 'util/locationTo';
+import authRequest from 'service/request/authRequest';
 import './index.scss'
 
 export default function Login() {

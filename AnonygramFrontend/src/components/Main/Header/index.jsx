@@ -1,5 +1,5 @@
 import { useSelector, shallowEqual } from 'react-redux';
-import { ICON_ADD, ICON_OPTION } from '../../../util/constant';
+import { ICON_ADD, ICON_OPTION } from 'util/constant';
 import "./index.scss";
 
 export default function Header() {
