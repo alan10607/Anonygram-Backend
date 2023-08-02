@@ -5,7 +5,7 @@ import "./index.scss";
 export default function Header() {
   const { username, isAnonyUser } = useSelector(state => ({
     username: state.user.username,
-    isAnonyUser: state.user.isAnonyUser
+    isAnonumous: state.user.isAnonumous
   }), shallowEqual);
   const user = (isAnonyUser ? "#" : "") + username;
 

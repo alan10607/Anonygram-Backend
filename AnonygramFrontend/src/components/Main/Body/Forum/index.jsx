@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect, useRef } from 'react';
+import { Fragment, useState, useEffect, useRef, useMemo } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setAllId, setArticle } from '../../../redux/actions/forum';
@@ -15,17 +15,16 @@ import './index.scss';
 import authRequest from '../../../service/request/authRequest';
 import forumRequest from '../../../service/request/forumRequest';
 
-export default function Art() {
+export default function Forum() {
   const { forum, replyId, replyIsOpen } = useSelector(state => ({
 
     forum: state.forum,
     replyId: state.reply.id,
-    replyIsOpen: state.reply.isOpen,
-    userId: state.user.userId
+    replyIsOpen: state.reply.isOpen
   }), shallowEqual);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const idList = [...forum.keys()];
+  const idList = useMemo(() => [...forum.keys()], [id]);
   const queryLock = useRef(false);
   const querySize = 10;
   const queryPendingId = useRef(new Set());
@@ -49,12 +48,17 @@ export default function Art() {
 
   useEffect(() => {
     queryArticle();
+    console.log("Init article")
+  }, [idList])
+
+  useEffect(() => {
+    queryArticle();
 
     window.addEventListener("scroll", scrollDownQuery);
     return () => {
       window.removeEventListener("scroll", scrollDownQuery);
     }
-  }, [queryIdList, queryPendingId])//???????????????????????????有需要?
+  }, [idList, queryPendingId])
 
   /* --- EventListener --- */
   const scrollDownQuery = (event) => {
@@ -73,8 +77,7 @@ export default function Art() {
       return false;
     }
 
-    
-    if (queryIdList.length === 0) {
+    if (getQueryIdList().length === 0) {
       console.log("Already query all articles, skip query");
       return false;
     }
@@ -87,15 +90,14 @@ export default function Art() {
     return true;
   }
 
-  const getQueryId = idList.filter(id => !forum.get(id)).slice(0, querySize);
+  const getQueryIdList = () => {
+    return idList.filter(id => !forum.get(id)).slice(0, querySize);
+  }
 
   const queryArticle = () => {
     if (!canQueryArticle()) return;
 
-    const queryIdList = idList.filter(id => !forum.get(id)).slice(0, querySize);
-    if(ids.length === 0){
-
-    }
+    const queryIdList = getQueryIdList();
     queryIdList.forEach(id => queryPendingId.add(id));
     queryIdList.forEach(id => httpGetArticle(id));
   }
@@ -109,7 +111,6 @@ export default function Art() {
       queryPendingId.delete(id);
       console.log("Query article finishe", id);
     });
-
   }
 
   useEffect(() => {
