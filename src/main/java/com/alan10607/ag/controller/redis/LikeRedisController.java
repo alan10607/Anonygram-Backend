@@ -26,8 +26,8 @@ public class LikeRedisController {
 
     @PostMapping()
     @Operation(summary = "Save a content like to Redis")
-    public boolean set(@RequestBody @Valid LikeDTO likeDTO) {
-        return likeRedisService.set(likeDTO);
+    public void set(@RequestBody @Valid LikeDTO likeDTO) {
+        likeRedisService.set(likeDTO);
     }
 
     @PatchMapping("/expire/{id}/{no}/{userId}")

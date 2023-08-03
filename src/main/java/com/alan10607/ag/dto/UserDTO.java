@@ -31,8 +31,6 @@ public class UserDTO {
     private String password;
     private List<Role> userRole;
     private LocalDateTime updatedDate;
-    private String token;
-    private Long tokenMaxAge;
 
     public UserDTO(String id,
                    String username,

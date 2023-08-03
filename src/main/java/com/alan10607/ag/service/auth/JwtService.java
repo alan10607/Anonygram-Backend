@@ -8,6 +8,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -84,7 +85,7 @@ public class JwtService {
     }
 
     public long extractMaxAge(String token){
-        return extractExpiration(token).getTime() - extractIssuedAt(token).getTime();
+        return (extractExpiration(token).getTime() - extractIssuedAt(token).getTime()) / 1000;
     }
 
     private Claims extractAllClaims(String token){

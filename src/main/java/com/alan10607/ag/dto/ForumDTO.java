@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,7 +42,7 @@ public class ForumDTO {
     private String imgBase64;
     private String imgUrl;
 
-    @NotBlank(groups = LikeContentGroup.class)
+    @NotNull(groups = LikeContentGroup.class)
     private Boolean like;
 
     public static ForumDTO toDTO(Object data) {

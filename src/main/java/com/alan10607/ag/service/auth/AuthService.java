@@ -5,10 +5,13 @@ import com.alan10607.ag.dto.UserDTO;
 import com.alan10607.ag.model.ForumUser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Base64;
 
@@ -21,7 +24,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final HttpSession session;
 
-    public UserDTO login(UserDTO userDTO) {
+    public UserDTO login(UserDTO userDTO, HttpServletResponse response) {
         ForumUser user = (ForumUser) authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()))
                 .getPrincipal();
@@ -32,21 +35,31 @@ public class AuthService {
                 user.getRole(),
                 user.getUpdatedDate());
 
-        String token = jwtService.createToken(user);
-        userDTO.setToken(token);
-        userDTO.setTokenMaxAge(jwtService.extractMaxAge(token));
+        response.setHeader(HttpHeaders.SET_COOKIE, getJwtCookie(user).toString());
         return userDTO;
     }
 
-    public UserDTO loginAnonymity() {
+    public UserDTO loginAnonymity(HttpServletResponse response) {
         ForumUser user = userService.getTempAnonymousUser(getSessionBase64());
         UserDTO userDTO = new UserDTO(user.getId(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getRole(),
                 user.getUpdatedDate());
-        userDTO.setToken(jwtService.createToken(user));
+
+        response.setHeader(HttpHeaders.SET_COOKIE, getJwtCookie(user).toString());
         return userDTO;
+    }
+
+    public ResponseCookie getJwtCookie(ForumUser user) {
+        String token = jwtService.createToken(user);
+        return ResponseCookie.from(HttpHeaders.AUTHORIZATION, token)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(jwtService.extractMaxAge(token))
+                .sameSite("Lax")
+                .build();
     }
 
     public void register(UserDTO userDTO) {

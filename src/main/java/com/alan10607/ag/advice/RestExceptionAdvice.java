@@ -1,8 +1,9 @@
 package com.alan10607.ag.advice;
 
-import com.alan10607.ag.config.SecurityConfig;
 import com.alan10607.ag.dto.RestResponseEntity;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
+import com.alan10607.ag.exception.RedisIllegalStateException;
+import com.alan10607.ag.exception.base.AnonygramRuntimeException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +43,6 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request, ServerHttpResponse response) {
         if(!needWarpResponse(request)){
-            log.info("Catch a not need warp request:{}", request.getURI().getPath());
             return body;
         }
 
@@ -60,17 +59,8 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
     }
 
     private boolean needWarpResponse(ServerHttpRequest request){
-        String path = request.getURI().getPath();
-        String[] targetPath = SecurityConfig.REST_APIS;
-        long match = Arrays.stream(targetPath).map(this::getPathPrefix)
-                .filter(pathPrefix -> path.startsWith(pathPrefix))
-                .count();
-        return match > 0;
-    }
-
-    private String getPathPrefix(String webConfigPath){
-        int secondSlash = webConfigPath.indexOf("/", 1);
-        return webConfigPath.substring(0, secondSlash);
+        return false;
+//        return HttpUtil.isMatchPath(request.getURI().getPath(), SecurityConfig.REST_APIS);
     }
 
     private HttpStatus getHttpStatus(ServerHttpResponse response){
@@ -99,9 +89,9 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
         return toErrorMap(ex);
     }
 
-    @ExceptionHandler(value = { AnonygramIllegalStateException.class })
+    @ExceptionHandler(value = { AnonygramIllegalStateException.class, RedisIllegalStateException.class })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleAnonygramIllegalStateException(AnonygramIllegalStateException ex) {
+    public Map<String, String> handleAnonygramIllegalStateException(AnonygramRuntimeException ex) {
         log.error("{}", ex.getMessage());
         return toErrorMap(ex);
     }

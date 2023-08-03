@@ -57,12 +57,8 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers(flatPaths(SWAGGER_PATH, AUTH_PATH, WEB_STATIC_PATH, PUBLIC_TEMPLATE_PATH))
                 .permitAll()//公開頁面
-            .and()
-                .authorizeRequests()
                 .antMatchers(flatPaths(FORUM_PATH))
                 .hasAnyAuthority(RoleType.NORMAL.name(), RoleType.ANONYMOUS.name(), RoleType.ADMIN.name())//Need login and jwt token
-            .and()
-                .authorizeRequests()
                 .anyRequest()
                 .hasAuthority(RoleType.ADMIN.name())
             .and()
@@ -73,8 +69,8 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)//no session
             .and()
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(csrfDoubleSubmitFilter, CsrfFilter.class);
+                .addFilterBefore(csrfDoubleSubmitFilter, CsrfFilter.class)
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

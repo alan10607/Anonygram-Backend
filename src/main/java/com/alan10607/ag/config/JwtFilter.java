@@ -3,7 +3,7 @@ package com.alan10607.ag.config;
 import com.alan10607.ag.model.ForumUser;
 import com.alan10607.ag.service.auth.JwtService;
 import com.alan10607.ag.service.auth.UserService;
-import com.alan10607.ag.util.RequestServletUtil;
+import com.alan10607.ag.util.HttpUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -59,7 +59,7 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     public String getTokenFromRequest(HttpServletRequest request) {
-        String token = RequestServletUtil.getFromCookie(request, AUTHORIZATION_NAME);
+        String token = HttpUtil.getFromCookie(request, AUTHORIZATION_NAME);
         if(Strings.isNotBlank(token)) {
             return token;
         }
@@ -69,7 +69,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return token.substring(BEARER.length());
         }
 
-        return RequestServletUtil.getFromParameter(request, AUTHORIZATION_NAME);
+        return HttpUtil.getFromParameter(request, AUTHORIZATION_NAME);
     }
 
     private ForumUser getUserDetails(String token) {

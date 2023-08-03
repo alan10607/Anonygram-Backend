@@ -38,21 +38,13 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "To login system")
     public UserDTO login(@RequestBody @Valid UserDTO userDTO, HttpServletResponse response){
-        userDTO = authService.login(userDTO);
-        ResponseCookie cookie = ResponseCookie.from(HttpHeaders.AUTHORIZATION, userDTO.getToken())
-                .httpOnly(true)
-                .secure(true)
-                .maxAge(userDTO.getTokenMaxAge())
-                .sameSite("Lax")
-                .build();
-        response.setHeader(HttpHeaders.AUTHORIZATION, cookie.toString());
-        return userDTO;
+        return authService.login(userDTO, response);
     }
 
     @PostMapping("/anonymous")
     @Operation(summary = "To login as anonymous user")
-    public UserDTO loginAnonymity(){
-        return authService.loginAnonymity();
+    public UserDTO loginAnonymity(HttpServletResponse response){
+        return authService.loginAnonymity(response);
     }
 
     @PostMapping("/register")

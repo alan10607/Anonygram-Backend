@@ -1,4 +1,4 @@
-package com.alan10607.ag.exception;
+package com.alan10607.ag.exception.base;
 
 import org.slf4j.helpers.MessageFormatter;
 
