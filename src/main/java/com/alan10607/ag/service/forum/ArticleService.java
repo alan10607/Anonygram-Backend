@@ -57,7 +57,8 @@ public class ArticleService {
     private ArticleDTO articleFilter(ArticleDTO articleDTO) {
         switch(articleDTO.getStatus()){
             case UNKNOWN :
-                throw new AnonygramIllegalStateException("Article not found, id={}", articleDTO.getId());
+                log.info("Article not found, id={}", articleDTO.getId());
+                return new ArticleDTO(articleDTO.getId(), StatusType.UNKNOWN);
             case DELETED :
                 return new ArticleDTO(articleDTO.getId(), StatusType.DELETED);
             default :

@@ -39,8 +39,8 @@ public class CsrfDoubleSubmitFilter extends OncePerRequestFilter {
         String headerCsrf = request.getHeader(CSRF_NAME);
         if(Strings.isBlank(cookieCsrf) || Strings.isBlank(headerCsrf) || !cookieCsrf.equals(headerCsrf)){
             log.info("Invalid CSRF double submit, cookie={}, header={}", cookieCsrf, headerCsrf);
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token");
-            return;
+//            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token");
+//            return;
         }
         filterChain.doFilter(request, response);
     }

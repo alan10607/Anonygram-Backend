@@ -54,11 +54,11 @@ public class AuthService {
     public ResponseCookie getJwtCookie(ForumUser user) {
         String token = jwtService.createToken(user);
         return ResponseCookie.from(HttpHeaders.AUTHORIZATION, token)
+                .maxAge(jwtService.extractMaxAge(token))
+                .path("/")
                 .httpOnly(true)
                 .secure(true)
-                .path("/")
-                .maxAge(jwtService.extractMaxAge(token))
-                .sameSite("Lax")
+                .sameSite("None")//or default value is Lax
                 .build();
     }
 

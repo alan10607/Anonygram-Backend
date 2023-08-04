@@ -67,7 +67,8 @@ public class ContentService {
     private ContentDTO contentFilter(ContentDTO contentDTO) {
         switch(contentDTO.getStatus()){
             case UNKNOWN :
-                throw new AnonygramIllegalStateException("Content not found, id={}, no={}", contentDTO.getId(), contentDTO.getNo());
+                log.info("Content not found, id={}, no={}", contentDTO.getId(), contentDTO.getNo());
+                return new ContentDTO(contentDTO.getId(), contentDTO.getNo(), StatusType.UNKNOWN);
             case DELETED :
                 return new ContentDTO(contentDTO.getId(), contentDTO.getNo(), StatusType.DELETED);
             default :
