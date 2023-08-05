@@ -104,7 +104,7 @@ public class UserService implements UserDetailsService{
 
     private void pullToRedis(String userId) {
         String username = userDAO.findById(userId)
-                .map(ForumUser::getId)
+                .map(ForumUser::getUsername)
                 .orElseGet(() -> {
                     log.error("Pull user failed, userId={}, will put userId as name to redis", userId);
                     return userId;

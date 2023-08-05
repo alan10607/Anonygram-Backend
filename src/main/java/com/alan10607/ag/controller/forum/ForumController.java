@@ -34,41 +34,51 @@ public class ForumController {
         return forumService.getId();
     }
 
+    @GetMapping("/article/{id}")
+    @Operation(summary = "Get a article with the first content")
+    public ForumDTO getArticle(@PathVariable("id") String id){
+        return forumService.getArticle(id);
+    }
+
     @GetMapping("/articles/{idList}")
-    @Operation(summary = "Get a article with the original poster content")
-    public List<ForumDTO> getFirstForums(@PathVariable("idList") List<String> idList){
+    @Operation(summary = "Get article list with the first content")
+    public List<ForumDTO> getArticles(@PathVariable("idList") List<String> idList){
         validListSize(idList, 0, 10);
         return forumService.getArticles(idList);
     }
 
-
-
-
     @PostMapping("/article")
     @Operation(summary = "Create a article with the original poster content")
-    public ForumDTO createForum(@RequestBody @Validated(ForumDTO.CreateForumGroup.class) ForumDTO forumDTO){
+    public ForumDTO createArticle(@RequestBody @Validated(ForumDTO.CreateForumGroup.class) ForumDTO forumDTO){
         forumDTO.setAuthor(AuthUtil.getUserId());
         return forumService.createArticle(forumDTO);
     }
 
     @DeleteMapping("/article/{id}")
     @Operation(summary = "Delete a article")
-    public void deleteContent(@PathVariable("id") String id){
-        forumService.deleteArticle(id, AuthUtil.getUserId());
+    public void deleteArticle(@PathVariable("id") String id){
+         forumService.deleteArticle(id, AuthUtil.getUserId());
+    }
+
+    @GetMapping("/content/{id}/{no}")
+    @Operation(summary = "Get a content")
+    public ContentDTO getContent(@PathVariable("id") String id,
+                                 @PathVariable("no") int no){
+        return forumService.getContent(id, no);
     }
 
     @GetMapping("/contents/{id}/{noList}")
-    @Operation(summary = "Get top 10 of the content")
-    public List<ContentDTO> getTopContents(@PathVariable("id") String id,
-                                           @PathVariable("noList") List<Integer> noList){
+    @Operation(summary = "Get contents list")
+    public List<ContentDTO> getContents(@PathVariable("id") String id,
+                                        @PathVariable("noList") List<Integer> noList){
         validListSize(noList, 0, 10);
         return forumService.getContents(id, noList);
     }
 
     @PostMapping("/content/{id}")
     @Operation(summary = "Create a content to reply the article")
-    public ContentDTO replyForum(@PathVariable("id") String id,
-                                 @RequestBody @Validated(ForumDTO.ReplyForumGroup.class) ForumDTO forumDTO){
+    public ContentDTO createContent(@PathVariable("id") String id,
+                                    @RequestBody @Validated(ForumDTO.ReplyForumGroup.class) ForumDTO forumDTO){
         forumDTO.setId(id);
         forumDTO.setAuthor(AuthUtil.getUserId());
         forumDTO = forumService.createContent(forumDTO);
