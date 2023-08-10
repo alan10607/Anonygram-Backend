@@ -22,13 +22,13 @@ public class ImgurService {
     private final ImgurConfig imgurConfig;
     private final ImgurRequestService imgurRequestService;
 
-    public String upload(String id, String author, String imgBase64) {
+    public String upload(String userId, String imgBase64) {
         if(Strings.isBlank(imgurConfig.getAccessToken())){
             throw new AnonygramIllegalStateException("Access token not found, need admin auth");
         }
 
         Map<String, Object> body = Map.of(
-                "title", String.format("%s:%s:%s", id, author, TimeUtil.nowShortString()),
+                "title", String.format("%s:%s", userId, TimeUtil.nowShortString()),
                 "image", imgBase64,
                 "description", "User upload",
                 "type", "base64",

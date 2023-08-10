@@ -4,6 +4,7 @@ import com.alan10607.ag.constant.LanguageType;
 import com.alan10607.ag.constant.ThemeType;
 import com.alan10607.ag.model.Role;
 import com.alan10607.ag.util.ToolUtil;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserDTO {
 
     private String id;

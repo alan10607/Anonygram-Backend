@@ -16,18 +16,19 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}")
+    @Operation(summary = "Get a user")
     public UserDTO get(@PathVariable("userId") String userId){
         return userService.getUser(userId);
     }
 
     @PatchMapping("/{userId}/language")
-    @Operation(summary = "Reset a content like Redis expiration")
+    @Operation(summary = "Update for user preference language")
     public void updateLanguage(UserDTO userDTO) {
         userService.updateLanguage(userDTO.getLanguage());
     }
 
     @PatchMapping("/{userId}/theme")
-    @Operation(summary = "Reset a content like Redis expiration")
+    @Operation(summary = "Update for user preference theme")
     public void updateTheme(UserDTO userDTO) {
         userService.updateTheme(userDTO.getTheme());
     }
