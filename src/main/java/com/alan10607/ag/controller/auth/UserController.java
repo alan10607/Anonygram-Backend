@@ -3,6 +3,7 @@ package com.alan10607.ag.controller.auth;
 import com.alan10607.ag.constant.RoleType;
 import com.alan10607.ag.dto.UserDTO;
 import com.alan10607.ag.service.auth.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,19 +15,20 @@ import javax.validation.Valid;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/{email}")
-    public UserDTO findUser(@PathVariable("email") String email){
-        return userService.findUser(email);
+    @GetMapping("/{userId}")
+    public UserDTO get(@PathVariable("userId") String userId){
+        return userService.getUser(userId);
     }
 
-    @PostMapping()
-    public void createUser(@RequestBody @Valid UserDTO userDTO){
-        userService.createUser(userDTO, RoleType.NORMAL);
+    @PatchMapping("/{userId}/language")
+    @Operation(summary = "Reset a content like Redis expiration")
+    public void updateLanguage(UserDTO userDTO) {
+        userService.updateLanguage(userDTO.getLanguage());
     }
 
-    @DeleteMapping("/{email}")
-    public void deleteUser(@PathVariable("email") String email){
-        userService.deleteUser(email);
+    @PatchMapping("/{userId}/theme")
+    @Operation(summary = "Reset a content like Redis expiration")
+    public void updateTheme(UserDTO userDTO) {
+        userService.updateTheme(userDTO.getTheme());
     }
-
 }

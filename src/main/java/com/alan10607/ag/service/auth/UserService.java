@@ -1,6 +1,8 @@
 package com.alan10607.ag.service.auth;
 
+import com.alan10607.ag.constant.LanguageType;
 import com.alan10607.ag.constant.RoleType;
+import com.alan10607.ag.constant.ThemeType;
 import com.alan10607.ag.dao.RoleDAO;
 import com.alan10607.ag.dao.UserDAO;
 import com.alan10607.ag.dto.UserDTO;
@@ -8,8 +10,8 @@ import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.ForumUser;
 import com.alan10607.ag.model.Role;
 import com.alan10607.ag.service.redis.LockRedisService;
+import com.alan10607.ag.service.redis.UserRedisService;
 import com.alan10607.ag.util.TimeUtil;
-import com.alan10607.ag.service.redis.UsernameRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -27,7 +29,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserService implements UserDetailsService{
     private final RoleService roleService;
-    private final UsernameRedisService usernameRedisService;
+    private final UserRedisService userRedisService;
     private final LockRedisService lockRedisService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserDAO userDAO;
@@ -35,21 +37,27 @@ public class UserService implements UserDetailsService{
 
     public UserDTO findUser(String email) {
         return userDAO.findByEmail(email)
-                .map(gramUser -> new UserDTO(gramUser.getId(),
-                        gramUser.getUsername(),
-                        gramUser.getEmail(),
-                        gramUser.getRole(),
-                        gramUser.getUpdatedDate()))
+                .map(user -> new UserDTO(user.getId(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getRole(),
+                        user.getHeadUrl(),
+                        user.getLanguage(),
+                        user.getTheme(),
+                        user.getUpdatedDate()))
                 .orElseThrow(() -> new AnonygramIllegalStateException("User not found"));
     }
 
     public List<UserDTO> findAllUser() {
         return userDAO.findAll().stream()
-                .map(gramUser -> new UserDTO(gramUser.getId(),
-                        gramUser.getUsername(),
-                        gramUser.getEmail(),
-                        gramUser.getRole(),
-                        gramUser.getUpdatedDate()))
+                .map(user -> new UserDTO(user.getId(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getRole(),
+                        user.getHeadUrl(),
+                        user.getLanguage(),
+                        user.getTheme(),
+                        user.getUpdatedDate()))
                 .collect(Collectors.toList());
     }
 
@@ -92,36 +100,43 @@ public class UserService implements UserDetailsService{
         log.debug("Spring security get user by email: {} succeeded", email);
         return forumUser;//Entity need extend org.springframework.security.core.UserDetails.User
     }
-    public String getUsername(String userId) {
-        String username = usernameRedisService.get(userId);
-        if(Strings.isEmpty(username)){
+
+    public UserDTO getUser(String userId) {
+        UserDTO userDTO = userRedisService.get(userId);
+        if(Strings.isBlank(userDTO.getId())){
             lockRedisService.lockByUser(userId, () -> { pullToRedis(userId); });
-            username = usernameRedisService.get(userId);
+            userDTO = userRedisService.get(userId);
         }
-        usernameRedisService.expire(userId);
-        return username;
+        userRedisService.expire(userId);
+        return userDTO;
     }
 
     private void pullToRedis(String userId) {
-        String username = userDAO.findById(userId)
-                .map(ForumUser::getUsername)
+        UserDTO userDTO = userDAO.findById(userId)
+                .map(user -> new UserDTO(user.getId(),
+                        user.getUsername(),
+                        user.getHeadUrl()))
                 .orElseGet(() -> {
-                    log.error("Pull user failed, userId={}, will put userId as name to redis", userId);
-                    return userId;
+                    log.error("Pull user failed, id={}, will put empty data to redis", userId);
+                    return new UserDTO(userId, userId, "");
                 });
-        usernameRedisService.set(userId, username);
-        usernameRedisService.expire(userId);
+
+        userRedisService.set(userDTO);
+        userRedisService.expire(userId);
         log.info("Pull user to redis succeed, userId={}", userId);
     }
     
     public ForumUser getTempAnonymousUser(String tempId) {
         Role role = roleDAO.findByRoleName(RoleType.ANONYMOUS.name());
-        return new ForumUser(tempId,
-                tempId,
-                "",
-                "",
-                Collections.singletonList(role),
-                TimeUtil.now());
+        ForumUser user = new ForumUser();
+        user.setId(tempId);
+        user.setUsername(tempId);
+        user.setRole(Collections.singletonList(role));
+        user.setHeadUrl("");
+        user.setLanguage(LanguageType.ENGLISH);
+        user.setTheme(ThemeType.DARK);
+        user.setUpdatedDate(TimeUtil.now());
+        return user;
     }
 
 }

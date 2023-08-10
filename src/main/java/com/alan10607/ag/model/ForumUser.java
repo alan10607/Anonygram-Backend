@@ -1,5 +1,7 @@
 package com.alan10607.ag.model;
 
+import com.alan10607.ag.constant.LanguageType;
+import com.alan10607.ag.constant.ThemeType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,6 +34,15 @@ public class ForumUser implements UserDetails {
 
     @ManyToMany(fetch = FetchType.EAGER)//EAGER: Load related object immediately when queried, LAZY: Only load related object when needed
     private List<Role> role = new ArrayList<>();
+    private String headUrl;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private LanguageType language;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ThemeType theme;
 
     private LocalDateTime updatedDate;
 

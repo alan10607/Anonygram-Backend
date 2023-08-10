@@ -44,7 +44,7 @@ public class ArticleService {
                 article.getCreateDate(),
                 article.getUpdateDate(),
                 contentService.getContentSizeById(id)))
-            .orElseGet(() -> {//need test
+            .orElseGet(() -> {
                 log.error("Pull Article failed, id={}, will put empty data to redis", id);
                 return new ArticleDTO(id, StatusType.UNKNOWN);
             });
