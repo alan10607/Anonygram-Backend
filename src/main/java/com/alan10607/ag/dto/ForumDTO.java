@@ -13,7 +13,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @Data
@@ -27,7 +26,7 @@ public class ForumDTO extends BaseDTO{
 
     @NotBlank(groups = CreateForumGroup.class)
     private String title;
-    private String author;
+    private String authorId;
     private String authorName;
 
     @NotBlank(groups = {CreateForumGroup.class, ReplyForumGroup.class})

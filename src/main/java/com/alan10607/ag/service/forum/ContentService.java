@@ -1,5 +1,6 @@
 package com.alan10607.ag.service.forum;
 
+import com.alan10607.ag.dto.UserDTO;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.service.auth.UserService;
 import com.alan10607.ag.constant.StatusType;
@@ -45,16 +46,19 @@ public class ContentService {
 
     private void pullToRedis(String id, int no) {
         ContentDTO contentDTO = contentDAO.findByIdAndNo(id, no)
-            .map(content -> new ContentDTO(content.getId(),
-                content.getNo(),
-                content.getAuthor(),
-                userService.getUser(content.getAuthor()).getUsername(),
-                content.getWord(),
-                content.getLikes(),
-                content.getStatus(),
-                content.getCreateDate(),
-                content.getUpdateDate()))
-            .orElseGet(() -> {
+            .map(content -> {
+                UserDTO userDTO = userService.getUser(content.getAuthorId());
+                return new ContentDTO(content.getId(),
+                        content.getNo(),
+                        content.getAuthorId(),
+                        userDTO.getUsername(),
+                        userDTO.getHeadUrl(),
+                        content.getWord(),
+                        content.getLikes(),
+                        content.getStatus(),
+                        content.getCreateDate(),
+                        content.getUpdateDate());
+            }).orElseGet(() -> {
                 log.error("Pull Content failed, id={}, no={}, put empty data to redis", id, no);
                 return new ContentDTO(id, no, StatusType.UNKNOWN);
             });
@@ -92,7 +96,7 @@ public class ContentService {
         int no = ((BigInteger) query.get(0)[0]).intValue();
         Content content = new Content(contentDTO.getId(),
                 no,
-                contentDTO.getAuthor(),
+                contentDTO.getAuthorId(),
                 contentDTO.getWord(),
                 0L,
                 StatusType.NORMAL,
@@ -111,7 +115,7 @@ public class ContentService {
         Content content = contentDAO.findByIdAndNo(id, no).orElseThrow(() ->
                 new AnonygramIllegalStateException("Content not found, id=%s, no={}", id, no));
 
-        if(!userId.equals(content.getAuthor()))
+        if(!userId.equals(content.getAuthorId()))
             throw new AnonygramIllegalStateException("No authority to modify");
 
         content.setStatus(status);

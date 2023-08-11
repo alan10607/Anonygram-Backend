@@ -12,7 +12,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Component
 @Data
@@ -28,7 +27,7 @@ public class ContentDTO extends BaseDTO{
     private Integer no;
 
     @NotBlank
-    private String author;
+    private String authorId;
 
     @NotBlank
     private String word;
@@ -48,11 +47,13 @@ public class ContentDTO extends BaseDTO{
 
     private Boolean like;
     private String authorName;
+    private String authorHeadUrl;
 
     public ContentDTO(String id,
                    Integer no,
-                   String author,
+                   String authorId,
                    String authorName,
+                   String authorHeadUrl,
                    String word,
                    Long likes,
                    StatusType status,
@@ -60,8 +61,9 @@ public class ContentDTO extends BaseDTO{
                    LocalDateTime updateDate) {
         this.id = id;
         this.no = no;
-        this.author = author;
+        this.authorId = authorId;
         this.authorName = authorName;
+        this.authorHeadUrl = authorHeadUrl;
         this.word = word;
         this.status = status;
         this.likes = likes;

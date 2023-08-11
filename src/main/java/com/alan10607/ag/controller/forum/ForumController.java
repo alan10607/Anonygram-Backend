@@ -9,16 +9,9 @@ import com.alan10607.ag.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springframework.core.MethodParameter;
-import org.springframework.validation.*;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -50,7 +43,7 @@ public class ForumController {
     @PostMapping("/article")
     @Operation(summary = "Create a article with the original poster content")
     public ForumDTO createArticle(@RequestBody @Validated(ForumDTO.CreateForumGroup.class) ForumDTO forumDTO){
-        forumDTO.setAuthor(AuthUtil.getUserId());
+        forumDTO.setAuthorId(AuthUtil.getUserId());
         return forumService.createArticle(forumDTO);
     }
 
@@ -80,7 +73,7 @@ public class ForumController {
     public ContentDTO createContent(@PathVariable("id") String id,
                                     @RequestBody @Validated(ForumDTO.ReplyForumGroup.class) ForumDTO forumDTO){
         forumDTO.setId(id);
-        forumDTO.setAuthor(AuthUtil.getUserId());
+        forumDTO.setAuthorId(AuthUtil.getUserId());
         forumDTO = forumService.createContent(forumDTO);
         return forumService.getContent(forumDTO.getId(), forumDTO.getNo());
     }
@@ -105,7 +98,7 @@ public class ForumController {
     @PostMapping("/img")
     @Operation(summary = "Upload a image in base64 format")
     public ForumDTO uploadImg(@RequestBody @Validated(ForumDTO.UploadImgGroup.class) ForumDTO forumDTO){
-        forumDTO.setAuthor(AuthUtil.getUserId());
+        forumDTO.setAuthorId(AuthUtil.getUserId());
         return forumService.upload(forumDTO);
     }
 

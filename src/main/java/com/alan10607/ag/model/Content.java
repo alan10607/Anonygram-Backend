@@ -22,7 +22,7 @@ public class Content {
     private Integer no;
 
     @Column(nullable = false)
-    private String author;
+    private String authorId;
 
     @Column(nullable = false, columnDefinition="TEXT")
     private String word;

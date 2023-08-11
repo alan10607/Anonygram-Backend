@@ -62,7 +62,7 @@ public class ForumService {
         forumDTO.setNo(0);
         forumDTO.setId(UUID.randomUUID().toString());
         forumDTO.setCreateDate(TimeUtil.now());
-        articleService.create(new ArticleDTO().from(forumDTO));
+        articleService.create(ArticleDTO.from(forumDTO));
         contentService.create(ContentDTO.from(forumDTO));
         idService.set(forumDTO.getId());
         return forumDTO;
@@ -93,7 +93,7 @@ public class ForumService {
 
 
     public ForumDTO upload(ForumDTO forumDTO) {
-        String imgUrl = imgurService.upload(forumDTO.getId(), forumDTO.getAuthor(), forumDTO.getImageBase64());
+        String imgUrl = imgurService.upload(forumDTO.getId(), forumDTO.getAuthorId(), forumDTO.getImageBase64());
         forumDTO.setImgUrl(imgUrl);
         forumDTO.setImageBase64(null);//to reduce payload size
         return forumDTO;

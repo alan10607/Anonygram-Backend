@@ -88,7 +88,7 @@ public class ArticleService {
         Content content = contentDAO.findByIdAndNo(id, 0)
                 .orElseThrow(() -> new AnonygramIllegalStateException("Content no 0 not found"));
 
-        if(!userId.equals(content.getAuthor())) {
+        if(!userId.equals(content.getAuthorId())) {
             throw new AnonygramIllegalStateException("No authority to modify");
         }
 
