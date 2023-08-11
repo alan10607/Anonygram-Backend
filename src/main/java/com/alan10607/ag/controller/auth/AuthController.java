@@ -8,8 +8,6 @@ import com.alan10607.ag.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,11 +26,7 @@ public class AuthController {
     @Operation(summary = "Check login authorization")
     public UserDTO test(){
         ForumUser user = AuthUtil.getUser();
-        return new UserDTO(user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getRole(),
-                user.getUpdatedDate());
+        return UserDTO.toDTO(user);
     }
 
     @PostMapping("/login")
@@ -44,7 +38,7 @@ public class AuthController {
     @PostMapping("/anonymous")
     @Operation(summary = "To login as anonymous user")
     public UserDTO loginAnonymity(HttpServletResponse response){
-        return authService.loginAnonymity(response);
+        return authService.anonymousLogin(response);
     }
 
     @PostMapping("/register")

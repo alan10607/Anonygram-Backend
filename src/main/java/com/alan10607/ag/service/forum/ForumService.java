@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -63,7 +62,7 @@ public class ForumService {
         forumDTO.setNo(0);
         forumDTO.setId(UUID.randomUUID().toString());
         forumDTO.setCreateDate(TimeUtil.now());
-        articleService.create(ArticleDTO.toDTO(forumDTO));
+        articleService.create(new ArticleDTO().toDTO(forumDTO));
         contentService.create(ContentDTO.toDTO(forumDTO));
         idService.set(forumDTO.getId());
         return forumDTO;
@@ -94,9 +93,9 @@ public class ForumService {
 
 
     public ForumDTO upload(ForumDTO forumDTO) {
-        String imgUrl = imgurService.upload(forumDTO.getId(), forumDTO.getAuthor(), forumDTO.getImgBase64());
+        String imgUrl = imgurService.upload(forumDTO.getId(), forumDTO.getAuthor(), forumDTO.getImageBase64());
         forumDTO.setImgUrl(imgUrl);
-        forumDTO.setImgBase64(null);//to reduce payload size
+        forumDTO.setImageBase64(null);//to reduce payload size
         return forumDTO;
     }
 }

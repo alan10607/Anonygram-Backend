@@ -12,7 +12,9 @@ public class AuthUtil {
     public static ForumUser getUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();//取得Authentication
         if(auth instanceof UsernamePasswordAuthenticationToken){
-            return (ForumUser) auth.getPrincipal();
+            ForumUser user = (ForumUser) auth.getPrincipal();
+            user.setPassword(null);
+            return user;
         }
         throw new AnonygramIllegalStateException("Authorization failed. Please try to login");
     }

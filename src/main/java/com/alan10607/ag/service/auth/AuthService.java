@@ -35,9 +35,8 @@ public class AuthService {
         return userDTO;
     }
 
-    public UserDTO loginAnonymity(HttpServletResponse response) {
+    public UserDTO anonymousLogin(HttpServletResponse response) {
         ForumUser user = userService.getTempAnonymousUser(getSessionBase64());
-        user.setPassword(null);
         UserDTO userDTO = UserDTO.toDTO(user);
 
         response.setHeader(HttpHeaders.SET_COOKIE, getJwtCookie(user).toString());

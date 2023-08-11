@@ -39,7 +39,7 @@ public class ForumDTO {
     private List<ContentDTO> contList;
 
     @NotBlank(groups = UploadImgGroup.class)
-    private String imgBase64;
+    private String imageBase64;
     private String imgUrl;
 
     @NotNull(groups = LikeContentGroup.class)

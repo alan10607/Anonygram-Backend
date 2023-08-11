@@ -36,12 +36,12 @@ public class SecurityConfig {
     public static final String AUTH_PATH = "/auth/**";
     public static final String REDIS_PATH = "/redis/**";
     public static final String IMGUR_PATH = "/imgur/**";
+    public static final String USER_PATH = "/user/**";
     public static final String[] SWAGGER_PATH = { "/swagger-ui/**", "/v3/api-docs/**" };
-    public static final String[] WEB_STATIC_PATH = { "/css/**", "/js/**", "/pic/**" };
-    public static final String[] PUBLIC_TEMPLATE_PATH = { "/", "/index", ERROR_PAGE_PATH, "/ssl" };
+    public static final String[] WEB_STATIC_PATH = { "/css/**", "/js/**", "/pic/**", "/", "/index", ERROR_PAGE_PATH, "/ssl" };
     public static final String[] PRIVATE_TEMPLATE_PATH = { "/redirect" };
 
-    public static final String[] REST_APIS = { FORUM_PATH, AUTH_PATH, REDIS_PATH, IMGUR_PATH };
+    public static final String[] REST_APIS = { FORUM_PATH, AUTH_PATH, REDIS_PATH, IMGUR_PATH, USER_PATH };
     
     /**
      * Web security, replace WebSecurityConfigurerAdapter.configure(HttpSecurity http)
@@ -55,9 +55,9 @@ public class SecurityConfig {
             .cors()
             .and()
                 .authorizeRequests()
-                .antMatchers(flatPaths(SWAGGER_PATH, AUTH_PATH, WEB_STATIC_PATH, PUBLIC_TEMPLATE_PATH))
+                .antMatchers(flatPaths(WEB_STATIC_PATH, SWAGGER_PATH, AUTH_PATH))
                 .permitAll()//公開頁面
-                .antMatchers(flatPaths(FORUM_PATH))
+                .antMatchers(flatPaths(FORUM_PATH, USER_PATH))
                 .hasAnyAuthority(RoleType.NORMAL.name(), RoleType.ANONYMOUS.name(), RoleType.ADMIN.name())//Need login and jwt token
                 .anyRequest()
                 .hasAuthority(RoleType.ADMIN.name())

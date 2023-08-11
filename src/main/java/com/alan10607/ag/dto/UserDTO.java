@@ -22,7 +22,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserDTO {
+public class UserDTO extends BaseDTO{
 
     private String id;
 
@@ -40,6 +40,8 @@ public class UserDTO {
     private LanguageType language;
     private ThemeType theme;
     private LocalDateTime updatedDate;
+
+    private String headBase64;
 
     public UserDTO(String id,
                    String username,

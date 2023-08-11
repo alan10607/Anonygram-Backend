@@ -75,13 +75,14 @@ public class InitConfig {
     @Order(2)
     public CommandLineRunner initAdminCommand(){
         return args -> {
-            String adminName = "alan";
+            String adminName = "alan10607";
             String adminEmail = "alan@alan";
+            String adminPw = "alan";
             Role role = roleDAO.findByRoleName(RoleType.ADMIN.name());
             userDAO.findByEmail(adminEmail).orElseGet (() -> {
                 ForumUser admin = new ForumUser(adminName,
                         adminEmail,
-                        bCryptPasswordEncoder.encode(adminName),
+                        bCryptPasswordEncoder.encode(adminPw),
                         Collections.singletonList(role),
                         TimeUtil.now());
                 return userDAO.save(admin);

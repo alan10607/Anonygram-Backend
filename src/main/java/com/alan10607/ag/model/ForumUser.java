@@ -36,11 +36,9 @@ public class ForumUser implements UserDetails {
     private List<Role> role = new ArrayList<>();
     private String headUrl;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private LanguageType language;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ThemeType theme;
 

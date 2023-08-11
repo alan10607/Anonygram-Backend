@@ -9,6 +9,7 @@ import com.alan10607.ag.dto.UserDTO;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.ForumUser;
 import com.alan10607.ag.model.Role;
+import com.alan10607.ag.service.forum.ImgurService;
 import com.alan10607.ag.service.redis.LockRedisService;
 import com.alan10607.ag.service.redis.UserRedisService;
 import com.alan10607.ag.util.TimeUtil;
@@ -21,70 +22,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 @Slf4j
 public class UserService implements UserDetailsService{
     private final RoleService roleService;
+    private final ImgurService imgurService;
     private final UserRedisService userRedisService;
     private final LockRedisService lockRedisService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserDAO userDAO;
     private final RoleDAO roleDAO;
-
-    public UserDTO findUser(String email) {
-        return userDAO.findByEmail(email)
-                .map(user -> new UserDTO(user.getId(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getRole(),
-                        user.getHeadUrl(),
-                        user.getLanguage(),
-                        user.getTheme(),
-                        user.getUpdatedDate()))
-                .orElseThrow(() -> new AnonygramIllegalStateException("User not found"));
-    }
-
-    public List<UserDTO> findAllUser() {
-        return userDAO.findAll().stream()
-                .map(user -> new UserDTO(user.getId(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getRole(),
-                        user.getHeadUrl(),
-                        user.getLanguage(),
-                        user.getTheme(),
-                        user.getUpdatedDate()))
-                .collect(Collectors.toList());
-    }
-
-    public void createUser(UserDTO userDTO, RoleType roleType) {
-        userDAO.findByEmail(userDTO.getEmail()).ifPresent(gramUser -> {
-            throw new AnonygramIllegalStateException("Email already exist");
-        });
-
-        userDAO.findByUsername(userDTO.getUsername()).ifPresent(gramUser -> {
-            throw new AnonygramIllegalStateException("UserName already exist");
-        });
-
-        Role role = roleService.findRole(roleType.name());
-        userDAO.save(new ForumUser(
-                userDTO.getUsername(),
-                userDTO.getEmail(),
-                bCryptPasswordEncoder.encode(userDTO.getPassword()),
-                Collections.singletonList(role),
-                TimeUtil.now())
-        );
-    }
-
-    public void deleteUser(String email) {
-        userDAO.findByEmail(email).ifPresentOrElse(
-                forumUser -> userDAO.delete(forumUser),
-                () -> { throw new AnonygramIllegalStateException("Email not found"); });
-    }
 
     /**
      * Spring security load username
@@ -125,18 +74,77 @@ public class UserService implements UserDetailsService{
         userRedisService.expire(userId);
         log.info("Pull user to redis succeed, userId={}", userId);
     }
-    
+
     public ForumUser getTempAnonymousUser(String tempId) {
         Role role = roleDAO.findByRoleName(RoleType.ANONYMOUS.name());
         ForumUser user = new ForumUser();
         user.setId(tempId);
         user.setUsername(tempId);
+        user.setEmail("");
         user.setRole(Collections.singletonList(role));
-        user.setHeadUrl("");
-        user.setLanguage(LanguageType.ENGLISH);
-        user.setTheme(ThemeType.DARK);
         user.setUpdatedDate(TimeUtil.now());
         return user;
+    }
+
+    public void createUser(UserDTO userDTO, RoleType roleType) {
+        userDAO.findByEmail(userDTO.getEmail()).ifPresent(gramUser -> {
+            throw new AnonygramIllegalStateException("Email already exist");
+        });
+
+        userDAO.findByUsername(userDTO.getUsername()).ifPresent(gramUser -> {
+            throw new AnonygramIllegalStateException("UserName already exist");
+        });
+
+        Role role = roleService.findRole(roleType.name());
+        userDAO.save(new ForumUser(userDTO.getUsername(),
+                                userDTO.getEmail(),
+                                bCryptPasswordEncoder.encode(userDTO.getPassword()),
+                                Collections.singletonList(role),
+                                TimeUtil.now())
+        );
+    }
+
+    public void update(UserDTO userDTO) {
+        ForumUser user = userDAO.findById(userDTO.getId())
+                .orElseThrow(() -> new AnonygramIllegalStateException("User not found"));
+
+        if(Strings.isNotBlank(userDTO.getHeadBase64())){
+            String headUrl = imgurService.upload("head", userDTO.getId(), userDTO.getHeadBase64());
+            user.setHeadUrl(headUrl);
+        }
+
+        if(userDTO.getLanguage() != null){
+            user.setLanguage(userDTO.getLanguage());
+        }
+
+        if(userDTO.getTheme() != null){
+            user.setTheme(userDTO.getTheme());
+        }
+
+        userDAO.save(user);
+    }
+
+    public void updateLanguage(String userId, LanguageType language) {
+        ForumUser user = userDAO.findById(userId)
+                .orElseThrow(() -> new AnonygramIllegalStateException("User not found"));
+
+        user.setLanguage(language);
+        userDAO.save(user);
+    }
+
+
+    public void updateTheme(String userId, ThemeType theme) {
+        ForumUser user = userDAO.findById(userId)
+                .orElseThrow(() -> new AnonygramIllegalStateException("User not found"));
+
+        user.setTheme(theme);
+        userDAO.save(user);
+    }
+
+    public void deleteUser(String email) {
+        userDAO.findByEmail(email).ifPresentOrElse(
+                forumUser -> userDAO.delete(forumUser),
+                () -> { throw new AnonygramIllegalStateException("Email not found"); });
     }
 
 }
