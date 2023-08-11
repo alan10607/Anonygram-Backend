@@ -37,7 +37,7 @@ public class ForumService {
 
     public ForumDTO getArticle(String id) {
         ArticleDTO articleDTO = articleService.get(id);
-        ForumDTO forumDTO = ForumDTO.toDTO(articleDTO);
+        ForumDTO forumDTO = ForumDTO.from(articleDTO);
         if(forumDTO.getStatus() == StatusType.NORMAL) {
             ContentDTO headContent = getContent(id, 0);
             forumDTO.setContList(Collections.singletonList(headContent));
@@ -62,8 +62,8 @@ public class ForumService {
         forumDTO.setNo(0);
         forumDTO.setId(UUID.randomUUID().toString());
         forumDTO.setCreateDate(TimeUtil.now());
-        articleService.create(new ArticleDTO().toDTO(forumDTO));
-        contentService.create(ContentDTO.toDTO(forumDTO));
+        articleService.create(new ArticleDTO().from(forumDTO));
+        contentService.create(ContentDTO.from(forumDTO));
         idService.set(forumDTO.getId());
         return forumDTO;
     }
@@ -71,7 +71,7 @@ public class ForumService {
     @Transactional
     public ForumDTO createContent(ForumDTO forumDTO) {
         forumDTO.setCreateDate(TimeUtil.now());
-        int no = contentService.create(ContentDTO.toDTO(forumDTO));
+        int no = contentService.create(ContentDTO.from(forumDTO));
         idService.set(forumDTO.getId());
         forumDTO.setNo(no);
         return forumDTO;

@@ -73,13 +73,8 @@ public class UserDTO extends BaseDTO{
     public interface registerGroup extends Default {
     }
 
-    public static UserDTO toDTO(Object data) {
+    public static UserDTO from(Object data) {
         return ToolUtil.convertValue(data, UserDTO.class);
     }
-
-    public Map<String, Object> toMap() {
-        return ToolUtil.convertValue(this, Map.class);
-    }
-
 
 }

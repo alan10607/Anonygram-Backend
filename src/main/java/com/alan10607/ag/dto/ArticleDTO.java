@@ -19,7 +19,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ArticleDTO {
+public class ArticleDTO extends BaseDTO{
     @NotNull
     public String id;
 
@@ -45,13 +45,8 @@ public class ArticleDTO {
         this.status = status;
     }
 
-    public static ArticleDTO toDTO(Object data) {
+    public static ArticleDTO from(Object data) {
         return ToolUtil.convertValue(data, ArticleDTO.class);
     }
-
-    public Map<String, Object> toMap() {
-        return ToolUtil.convertValue(this, Map.class);
-    }
-
 
 }

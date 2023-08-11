@@ -29,7 +29,7 @@ public class AuthService {
                 .authenticate(new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()))
                 .getPrincipal();
         user.setPassword(null);
-        userDTO = UserDTO.toDTO(user);
+        userDTO = UserDTO.from(user);
 
         response.setHeader(HttpHeaders.SET_COOKIE, getJwtCookie(user).toString());
         return userDTO;
@@ -37,7 +37,7 @@ public class AuthService {
 
     public UserDTO anonymousLogin(HttpServletResponse response) {
         ForumUser user = userService.getTempAnonymousUser(getSessionBase64());
-        UserDTO userDTO = UserDTO.toDTO(user);
+        UserDTO userDTO = UserDTO.from(user);
 
         response.setHeader(HttpHeaders.SET_COOKIE, getJwtCookie(user).toString());
         return userDTO;

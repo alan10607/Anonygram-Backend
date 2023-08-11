@@ -19,7 +19,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ContentDTO {
+public class ContentDTO extends BaseDTO{
     @NotNull
     public String id;
 
@@ -77,12 +77,9 @@ public class ContentDTO {
         this.status = status;
     }
 
-    public static ContentDTO toDTO(Object data) {
+    public static ContentDTO from(Object data) {
         return ToolUtil.convertValue(data, ContentDTO.class);
     }
 
-    public Map<String, Object> toMap() {
-        return ToolUtil.convertValue(this, Map.class);
-    }
 
 }

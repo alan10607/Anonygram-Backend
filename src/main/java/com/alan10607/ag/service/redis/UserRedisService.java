@@ -22,11 +22,11 @@ public class UserRedisService {
 
     public UserDTO get(String userId){
         Map<String, Object> dataMap = hashBaseRedisService.get(getKey(userId));
-        return UserDTO.toDTO(dataMap);
+        return UserDTO.from(dataMap);
     }
 
     public void set(UserDTO userDTO) {
-        Map<String, Object> dataMap = userDTO.toMap();
+        Map<String, Object> dataMap = userDTO.to(Map.class);
         hashBaseRedisService.set(getKey(userDTO.getId()), dataMap);
     }
 

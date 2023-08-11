@@ -20,11 +20,11 @@ public class ArticleRedisService {
 
     public ArticleDTO get(String id) {
         Map<String, Object> dataMap = hashBaseRedisService.get(getKey(id));
-        return ArticleDTO.toDTO(dataMap);
+        return ArticleDTO.from(dataMap);
     }
 
     public void set(ArticleDTO articleDTO) {
-        Map<String, Object> dataMap = articleDTO.toMap();
+        Map<String, Object> dataMap = articleDTO.to(Map.class);
         hashBaseRedisService.set(getKey(articleDTO.getId()), dataMap);
     }
 

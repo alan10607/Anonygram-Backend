@@ -43,7 +43,7 @@ public class LikeUpdateRedisController {
     @Operation(summary = "Set a update like data to Redis")
     public void set(@RequestBody @Validated({ SimpleDTO.ListGroup.class }) SimpleDTO simpleDTO){
         List<LikeDTO> likeDTOList = simpleDTO.getList().stream()
-                .map(LikeDTO::toDTO)
+                .map(LikeDTO::from)
                 .collect(Collectors.toList());
 
         updateLikeRedisService.set(likeDTOList);

@@ -4,17 +4,10 @@ import com.alan10607.ag.util.ToolUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import java.util.Map;
+public abstract class BaseDTO {
 
-public abstract class BaseDTO  {
-
-    public <T> T to(Class<T> toClass) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        return objectMapper.convertValue(this, toClass);
+    public <T> T to(Class<T> clazz) {
+        return ToolUtil.convertValue(this, clazz);
     }
 
-    public Map<String, Object> toMap() {
-        return ToolUtil.convertValue(this, Map.class);
-    }
 }

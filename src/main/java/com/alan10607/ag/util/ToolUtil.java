@@ -12,10 +12,10 @@ import java.util.stream.Stream;
 @Component
 public class ToolUtil {
 
-    public static <T> T convertValue(Object fromValue, Class<T> clazz) {
+    public static <T> T convertValue(Object fromValue, Class<T> toClass) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        return objectMapper.convertValue(fromValue, clazz);
+        return objectMapper.convertValue(fromValue, toClass);
     }
 
     public static String getFullFunctionName(ProceedingJoinPoint pjp){

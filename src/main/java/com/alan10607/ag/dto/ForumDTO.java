@@ -20,7 +20,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ForumDTO {
+public class ForumDTO extends BaseDTO{
     @NotBlank(groups = UploadImgGroup.class)
     private String id;
     private Integer no;
@@ -45,12 +45,8 @@ public class ForumDTO {
     @NotNull(groups = LikeContentGroup.class)
     private Boolean like;
 
-    public static ForumDTO toDTO(Object data) {
+    public static ForumDTO from(Object data) {
         return ToolUtil.convertValue(data, ForumDTO.class);
-    }
-
-    public Map<String, Object> toMap() {
-        return ToolUtil.convertValue(this, Map.class);
     }
 
     public interface CreateForumGroup extends Default {

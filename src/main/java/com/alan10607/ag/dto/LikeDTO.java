@@ -10,14 +10,13 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Map;
 
 @Component
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LikeDTO {
+public class LikeDTO extends BaseDTO{
 
     @NotBlank
     private String id;
@@ -54,12 +53,9 @@ public class LikeDTO {
         return this.like ? "like" : "dislike";
     }
 
-    public static LikeDTO toDTO(Object data) {
+    public static LikeDTO from(Object data) {
         return ToolUtil.convertValue(data, LikeDTO.class);
     }
 
-    public Map<String, Object> toMap() {
-        return ToolUtil.convertValue(this, Map.class);
-    }
 
 }

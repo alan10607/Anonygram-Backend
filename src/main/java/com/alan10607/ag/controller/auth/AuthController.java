@@ -26,7 +26,7 @@ public class AuthController {
     @Operation(summary = "Check login authorization")
     public UserDTO test(){
         ForumUser user = AuthUtil.getUser();
-        return UserDTO.toDTO(user);
+        return UserDTO.from(user);
     }
 
     @PostMapping("/login")
