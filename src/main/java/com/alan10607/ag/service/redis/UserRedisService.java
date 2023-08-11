@@ -30,8 +30,13 @@ public class UserRedisService {
         hashBaseRedisService.set(getKey(userDTO.getId()), dataMap);
     }
 
-    public void expire(String id) {
-        hashBaseRedisService.expire(getKey(id), USER_NAME_EXPIRE_SEC);
+    public void expire(String userId) {
+        hashBaseRedisService.expire(getKey(userId), USER_NAME_EXPIRE_SEC);
+    }
+
+
+    public void delete(String userId){
+        hashBaseRedisService.delete(getKey(userId));
     }
 
 }

@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ContentDTO extends BaseDTO{
+public class ContentDTO extends BaseDTO {
     @NotNull
     public String id;
 

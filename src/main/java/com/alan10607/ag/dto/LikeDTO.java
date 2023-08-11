@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LikeDTO extends BaseDTO{
+public class LikeDTO extends BaseDTO {
 
     @NotBlank
     private String id;

@@ -31,18 +31,17 @@ public class ForumService {
         return idService.get();
     }
 
-    public List<ForumDTO> getArticles(List<String> idList) {
+    public List<ArticleDTO> getArticles(List<String> idList) {
         return idList.stream().map(id -> getArticle(id)).collect(Collectors.toList());
     }
 
-    public ForumDTO getArticle(String id) {
+    public ArticleDTO getArticle(String id) {
         ArticleDTO articleDTO = articleService.get(id);
-        ForumDTO forumDTO = ForumDTO.from(articleDTO);
-        if(forumDTO.getStatus() == StatusType.NORMAL) {
+        if(articleDTO.getStatus() == StatusType.NORMAL) {
             ContentDTO headContent = getContent(id, 0);
-            forumDTO.setContList(Collections.singletonList(headContent));
+            articleDTO.setContentList(Collections.singletonList(headContent));
         }
-        return forumDTO;
+        return articleDTO;
     }
 
     public List<ContentDTO> getContents(String id, List<Integer> noList) {
@@ -85,16 +84,16 @@ public class ForumService {
         contentService.updateContentStatus(id, no, userId, StatusType.DELETED);
     }
 
-    public void likeOrDislikeContent(LikeDTO likeDTO) {
-        contentService.get(likeDTO.getId(), likeDTO.getNo());//check content is exist
-        likeService.set(likeDTO);
-        contentService.increaseLikes(likeDTO.getId(), likeDTO.getNo(), likeDTO.getLike() ? 1 : -1);
+    public void likeOrDislikeContent(String id, int no, String userId, boolean like) {
+        contentService.get(id, no);//check content is exist
+        likeService.set(new LikeDTO(id, no, userId, like));
+        contentService.increaseLikes(id, no, like ? 1 : -1);
     }
 
 
-    public ForumDTO upload(ForumDTO forumDTO) {
-        String imgUrl = imgurService.upload(forumDTO.getId(), forumDTO.getAuthorId(), forumDTO.getImageBase64());
-        forumDTO.setImgUrl(imgUrl);
+    public ForumDTO uploadImage(ForumDTO forumDTO) {
+        String imgUrl = imgurService.upload("forum", forumDTO.getAuthorId(), forumDTO.getImageBase64());
+        forumDTO.setImageUrl(imgUrl);
         forumDTO.setImageBase64(null);//to reduce payload size
         return forumDTO;
     }

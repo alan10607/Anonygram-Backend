@@ -1,10 +1,10 @@
 package com.alan10607.ag.service.auth;
 
-import com.alan10607.ag.constant.LanguageType;
 import com.alan10607.ag.constant.RoleType;
 import com.alan10607.ag.constant.ThemeType;
 import com.alan10607.ag.dao.RoleDAO;
 import com.alan10607.ag.dao.UserDAO;
+import com.alan10607.ag.dto.ImageDTO;
 import com.alan10607.ag.dto.UserDTO;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.ForumUser;
@@ -108,11 +108,6 @@ public class UserService implements UserDetailsService{
         ForumUser user = userDAO.findById(userDTO.getId())
                 .orElseThrow(() -> new AnonygramIllegalStateException("User not found"));
 
-        if(Strings.isNotBlank(userDTO.getHeadBase64())){
-            String headUrl = imgurService.upload("head", userDTO.getId(), userDTO.getHeadBase64());
-            user.setHeadUrl(headUrl);
-        }
-
         if(userDTO.getLanguage() != null){
             user.setLanguage(userDTO.getLanguage());
         }
@@ -122,14 +117,17 @@ public class UserService implements UserDetailsService{
         }
 
         userDAO.save(user);
+        userRedisService.delete(userDTO.getId());
     }
 
-    public void updateLanguage(String userId, LanguageType language) {
-        ForumUser user = userDAO.findById(userId)
+    public void updateHeadUrl(ImageDTO imageDTO) {
+        ForumUser user = userDAO.findById(imageDTO.getUserId())
                 .orElseThrow(() -> new AnonygramIllegalStateException("User not found"));
 
-        user.setLanguage(language);
+        String headUrl = imgurService.upload("head", imageDTO.getUserId(), imageDTO.getImageBase64());
+        user.setHeadUrl(headUrl);
         userDAO.save(user);
+        userRedisService.delete(imageDTO.getUserId());
     }
 
 

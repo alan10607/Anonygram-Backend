@@ -1,6 +1,7 @@
 package com.alan10607.ag.controller.auth;
 
 import com.alan10607.ag.dto.UserDTO;
+import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.ForumUser;
 import com.alan10607.ag.service.auth.AuthService;
 import com.alan10607.ag.service.auth.JwtService;
@@ -25,8 +26,12 @@ public class AuthController {
     @GetMapping("/test")
     @Operation(summary = "Check login authorization")
     public UserDTO test(){
-        ForumUser user = AuthUtil.getUser();
-        return UserDTO.from(user);
+        try {
+            ForumUser user = AuthUtil.getUser();
+            return UserDTO.from(user);
+        }catch(AnonygramIllegalStateException e) {
+            return new UserDTO();
+        }
     }
 
     @PostMapping("/login")

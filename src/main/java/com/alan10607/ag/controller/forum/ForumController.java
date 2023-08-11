@@ -1,8 +1,8 @@
 package com.alan10607.ag.controller.forum;
 
+import com.alan10607.ag.dto.ArticleDTO;
 import com.alan10607.ag.dto.ContentDTO;
 import com.alan10607.ag.dto.ForumDTO;
-import com.alan10607.ag.dto.LikeDTO;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.service.forum.ForumService;
 import com.alan10607.ag.util.AuthUtil;
@@ -29,22 +29,23 @@ public class ForumController {
 
     @GetMapping("/article/{id}")
     @Operation(summary = "Get a article with the first content")
-    public ForumDTO getArticle(@PathVariable("id") String id){
+    public ArticleDTO getArticle(@PathVariable("id") String id){
         return forumService.getArticle(id);
     }
 
     @GetMapping("/articles/{idList}")
     @Operation(summary = "Get article list with the first content")
-    public List<ForumDTO> getArticles(@PathVariable("idList") List<String> idList){
+    public List<ArticleDTO> getArticles(@PathVariable("idList") List<String> idList){
         validListSize(idList, 0, 10);
         return forumService.getArticles(idList);
     }
 
     @PostMapping("/article")
     @Operation(summary = "Create a article with the original poster content")
-    public ForumDTO createArticle(@RequestBody @Validated(ForumDTO.CreateForumGroup.class) ForumDTO forumDTO){
+    public ArticleDTO createArticle(@RequestBody @Validated(ForumDTO.CreateArticleGroup.class) ForumDTO forumDTO){
         forumDTO.setAuthorId(AuthUtil.getUserId());
-        return forumService.createArticle(forumDTO);
+        forumDTO = forumService.createArticle(forumDTO);
+        return forumService.getArticle(forumDTO.getId());
     }
 
     @DeleteMapping("/article/{id}")
@@ -87,19 +88,17 @@ public class ForumController {
 
     @PatchMapping("/like/{id}/{no}")
     @Operation(summary = "To like a content")
-    public LikeDTO likeContent(@PathVariable("id") String id,
+    public void likeContent(@PathVariable("id") String id,
                                @PathVariable("no") int no,
                                @RequestBody @Validated(ForumDTO.LikeContentGroup.class) ForumDTO forumDTO){
-        LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId(), forumDTO.getLike());
-        forumService.likeOrDislikeContent(likeDTO);
-        return likeDTO;
+        forumService.likeOrDislikeContent(id, no, AuthUtil.getUserId(), forumDTO.getLike());
     }
 
-    @PostMapping("/img")
+    @PostMapping("/image")
     @Operation(summary = "Upload a image in base64 format")
-    public ForumDTO uploadImg(@RequestBody @Validated(ForumDTO.UploadImgGroup.class) ForumDTO forumDTO){
+    public ForumDTO uploadImage(@RequestBody @Validated(ForumDTO.UploadImageGroup.class) ForumDTO forumDTO){
         forumDTO.setAuthorId(AuthUtil.getUserId());
-        return forumService.upload(forumDTO);
+        return forumService.uploadImage(forumDTO);
     }
 
     private <T> void validListSize(List<T> list, int min, int max){

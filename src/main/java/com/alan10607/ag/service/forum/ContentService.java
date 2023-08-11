@@ -113,7 +113,7 @@ public class ContentService {
 
     public void updateContentStatus(String id, int no, String userId, StatusType status) {
         Content content = contentDAO.findByIdAndNo(id, no).orElseThrow(() ->
-                new AnonygramIllegalStateException("Content not found, id=%s, no={}", id, no));
+                new AnonygramIllegalStateException("Content not found, id={}, no={}", id, no));
 
         if(!userId.equals(content.getAuthorId()))
             throw new AnonygramIllegalStateException("No authority to modify");
