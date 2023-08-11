@@ -1,7 +1,5 @@
 package com.alan10607.ag.dto;
 
-import com.alan10607.ag.constant.LanguageType;
-import com.alan10607.ag.constant.ThemeType;
 import com.alan10607.ag.model.Role;
 import com.alan10607.ag.util.ToolUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -15,7 +13,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.groups.Default;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @Data
@@ -37,9 +34,11 @@ public class UserDTO extends BaseDTO {
     private String password;
     private List<Role> userRole;
     private String headUrl;
-    private LanguageType language;
-    private ThemeType theme;
+    private String language;
+    private String theme;
     private LocalDateTime updatedDate;
+
+    private String imageBase64;
 
     public UserDTO(String id,
                    String username,
@@ -55,8 +54,8 @@ public class UserDTO extends BaseDTO {
                    String email,
                    List<Role> userRole,
                    String headUrl,
-                   LanguageType language,
-                   ThemeType theme,
+                   String language,
+                   String theme,
                    LocalDateTime updatedDate) {
         this.id = id;
         this.username = username;

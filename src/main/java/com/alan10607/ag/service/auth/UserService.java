@@ -1,7 +1,6 @@
 package com.alan10607.ag.service.auth;
 
 import com.alan10607.ag.constant.RoleType;
-import com.alan10607.ag.constant.ThemeType;
 import com.alan10607.ag.dao.RoleDAO;
 import com.alan10607.ag.dao.UserDAO;
 import com.alan10607.ag.dto.ImageDTO;
@@ -22,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -108,35 +108,11 @@ public class UserService implements UserDetailsService{
         ForumUser user = userDAO.findById(userDTO.getId())
                 .orElseThrow(() -> new AnonygramIllegalStateException("User not found"));
 
-        if(userDTO.getLanguage() != null){
-            user.setLanguage(userDTO.getLanguage());
-        }
-
-        if(userDTO.getTheme() != null){
-            user.setTheme(userDTO.getTheme());
-        }
-
+        Optional.ofNullable(userDTO.getHeadUrl()).ifPresent(headUrl -> user.setHeadUrl(headUrl));
+        Optional.ofNullable(userDTO.getLanguage()).ifPresent(language -> user.setLanguage(language));
+        Optional.ofNullable(userDTO.getTheme()).ifPresent(theme -> user.setTheme(theme));
         userDAO.save(user);
         userRedisService.delete(userDTO.getId());
-    }
-
-    public void updateHeadUrl(ImageDTO imageDTO) {
-        ForumUser user = userDAO.findById(imageDTO.getUserId())
-                .orElseThrow(() -> new AnonygramIllegalStateException("User not found"));
-
-        String headUrl = imgurService.upload("head", imageDTO.getUserId(), imageDTO.getImageBase64());
-        user.setHeadUrl(headUrl);
-        userDAO.save(user);
-        userRedisService.delete(imageDTO.getUserId());
-    }
-
-
-    public void updateTheme(String userId, ThemeType theme) {
-        ForumUser user = userDAO.findById(userId)
-                .orElseThrow(() -> new AnonygramIllegalStateException("User not found"));
-
-        user.setTheme(theme);
-        userDAO.save(user);
     }
 
     public void deleteUser(String email) {

@@ -92,8 +92,8 @@ public class ForumService {
 
 
     public ForumDTO uploadImage(ForumDTO forumDTO) {
-        String imgUrl = imgurService.upload("forum", forumDTO.getAuthorId(), forumDTO.getImageBase64());
-        forumDTO.setImageUrl(imgUrl);
+        String imageUrl = imgurService.upload(forumDTO.getAuthorId(), forumDTO.getImageBase64());
+        forumDTO.setImageUrl(imageUrl);
         forumDTO.setImageBase64(null);//to reduce payload size
         return forumDTO;
     }
