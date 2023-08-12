@@ -13,7 +13,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @Data
@@ -38,7 +37,7 @@ public class ArticleDTO extends BaseDTO {
 
     @NotNull
     @Min(1)
-    private Integer contNum;
+    private Integer contentSize;
 
     private List<ContentDTO> contentList;
 
@@ -53,13 +52,13 @@ public class ArticleDTO extends BaseDTO {
                       StatusType status,
                       LocalDateTime createDate,
                       LocalDateTime updateDate,
-                      Integer contNum) {
+                      Integer contentSize) {
         this.id = id;
         this.title = title;
         this.status = status;
         this.createDate = createDate;
         this.updateDate = updateDate;
-        this.contNum = contNum;
+        this.contentSize = contentSize;
     }
 
     public static ArticleDTO from(Object data) {
