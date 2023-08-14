@@ -7,6 +7,8 @@ spring:
     host: ag-redis
     port: 6379
     password: root
+  cors:
+    frontend: https://alan10607.github.io/
 
 logging:
   path: /log

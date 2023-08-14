@@ -7,6 +7,8 @@ spring:
     host: localhost
     port: 6380
     password: root
+  cors:
+    frontend: http://localhost:3000
 
 logging:
   path: ./log

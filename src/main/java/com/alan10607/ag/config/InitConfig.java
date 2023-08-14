@@ -42,13 +42,14 @@ public class InitConfig {
                 "spring.redis.host",
                 "spring.redis.port",
                 "spring.redis.password",
+                "spring.cors.frontend",
                 "logging.path",
                 "imgur.client.clientId",
                 "imgur.client.clientSecret",
                 "imgur.client.albumId"
         };
 
-        StringBuffer console = new StringBuffer("System Properties:");
+        StringBuffer console = new StringBuffer("Application Properties:");
         Arrays.stream(properties).forEach(arg ->
                 console.append("\n")
                         .append(arg)
