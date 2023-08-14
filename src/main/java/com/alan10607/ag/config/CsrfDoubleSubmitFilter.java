@@ -5,7 +5,7 @@ import com.alan10607.ag.service.auth.UserService;
 import com.alan10607.ag.util.HttpUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -37,7 +37,7 @@ public class CsrfDoubleSubmitFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String cookieCsrf = HttpUtil.getFromCookie(request, CSRF_NAME);
         String headerCsrf = request.getHeader(CSRF_NAME);
-        if(Strings.isBlank(cookieCsrf) || Strings.isBlank(headerCsrf) || !cookieCsrf.equals(headerCsrf)){
+        if(StringUtils.isBlank(cookieCsrf) || StringUtils.isBlank(headerCsrf) || !cookieCsrf.equals(headerCsrf)){
             log.info("Invalid CSRF double submit, cookie={}, header={}", cookieCsrf, headerCsrf);
 //            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token");
 //            return;

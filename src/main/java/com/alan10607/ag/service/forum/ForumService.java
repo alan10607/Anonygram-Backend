@@ -32,7 +32,7 @@ public class ForumService {
     }
 
     public List<ArticleDTO> getArticles(List<String> idList) {
-        return idList.stream().map(id -> getArticle(id)).collect(Collectors.toList());
+        return idList.stream().map(this::getArticle).collect(Collectors.toList());
     }
 
     public ArticleDTO getArticle(String id) {

@@ -1,21 +1,21 @@
 package com.alan10607.ag.service.forum;
 
-import com.alan10607.ag.dto.UserDTO;
-import com.alan10607.ag.exception.AnonygramIllegalStateException;
-import com.alan10607.ag.service.auth.UserService;
 import com.alan10607.ag.constant.StatusType;
 import com.alan10607.ag.dao.ArticleDAO;
 import com.alan10607.ag.dao.ContentDAO;
 import com.alan10607.ag.dto.ContentDTO;
+import com.alan10607.ag.dto.UserDTO;
+import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.Content;
-import com.alan10607.ag.util.TimeUtil;
-import com.alan10607.ag.util.AuthUtil;
+import com.alan10607.ag.service.auth.UserService;
 import com.alan10607.ag.service.redis.ArticleRedisService;
 import com.alan10607.ag.service.redis.ContentRedisService;
 import com.alan10607.ag.service.redis.LockRedisService;
+import com.alan10607.ag.util.AuthUtil;
+import com.alan10607.ag.util.TimeUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
@@ -35,8 +35,8 @@ public class ContentService {
 
     public ContentDTO get(String id, int no) {
         ContentDTO contentDTO = contentRedisService.get(id, no);
-        if(Strings.isBlank(contentDTO.getId()) || contentDTO.getNo() == null){
-            lockRedisService.lockByContent(id, no, () -> { pullToRedis(id, no); });
+        if(StringUtils.isBlank(contentDTO.getId()) || contentDTO.getNo() == null){
+            lockRedisService.lockByContent(id, no, () -> pullToRedis(id, no));
             contentDTO = contentRedisService.get(id, no);
         }
         contentRedisService.expire(id, no);

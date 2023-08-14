@@ -7,12 +7,12 @@ import com.alan10607.ag.dto.ArticleDTO;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.Article;
 import com.alan10607.ag.model.Content;
-import com.alan10607.ag.util.TimeUtil;
 import com.alan10607.ag.service.redis.ArticleRedisService;
 import com.alan10607.ag.service.redis.LockRedisService;
+import com.alan10607.ag.util.TimeUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,8 +27,8 @@ public class ArticleService {
 
     public ArticleDTO get(String id) {
         ArticleDTO articleDTO = articleRedisService.get(id);
-        if(Strings.isBlank(articleDTO.getId())){
-            lockRedisService.lockByArticle(id, () -> { pullToRedis(id); });
+        if(StringUtils.isBlank(articleDTO.getId())){
+            lockRedisService.lockByArticle(id, () -> pullToRedis(id));
             articleDTO = articleRedisService.get(id);
         }
         articleRedisService.expire(id);

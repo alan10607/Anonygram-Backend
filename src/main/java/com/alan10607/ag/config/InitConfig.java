@@ -1,16 +1,16 @@
 package com.alan10607.ag.config;
 
 import com.alan10607.ag.constant.RoleType;
+import com.alan10607.ag.constant.TxnParamKey;
 import com.alan10607.ag.dao.RoleDAO;
 import com.alan10607.ag.dao.UserDAO;
 import com.alan10607.ag.model.ForumUser;
 import com.alan10607.ag.model.Role;
-import com.alan10607.ag.util.TimeUtil;
-import com.alan10607.ag.constant.TxnParamKey;
 import com.alan10607.ag.service.TxnParamService;
+import com.alan10607.ag.util.TimeUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -96,7 +96,7 @@ public class InitConfig {
         return args -> {
             String accessToken = txnParamService.get(TxnParamKey.IMGUR_ACCESS_TOKEN);
             String refreshToken = txnParamService.get(TxnParamKey.IMGUR_REFRESH_TOKEN);
-            if (Strings.isBlank(accessToken) || Strings.isBlank(refreshToken)) {
+            if (StringUtils.isBlank(accessToken) || StringUtils.isBlank(refreshToken)) {
                 log.error("No imgur access token, need admin auth");
             }else {
                 imgurConfig.setAccessToken(accessToken);

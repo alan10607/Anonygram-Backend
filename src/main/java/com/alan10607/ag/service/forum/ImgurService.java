@@ -1,14 +1,14 @@
 package com.alan10607.ag.service.forum;
 
 import com.alan10607.ag.config.ImgurConfig;
+import com.alan10607.ag.constant.TxnParamKey;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
+import com.alan10607.ag.service.TxnParamService;
 import com.alan10607.ag.service.request.ImgurRequestService;
 import com.alan10607.ag.util.TimeUtil;
-import com.alan10607.ag.constant.TxnParamKey;
-import com.alan10607.ag.service.TxnParamService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -23,7 +23,7 @@ public class ImgurService {
     private final ImgurRequestService imgurRequestService;
 
     public String upload(String userId, String imageBase64) {
-        if(Strings.isBlank(imgurConfig.getAccessToken())){
+        if(StringUtils.isBlank(imgurConfig.getAccessToken())){
             throw new AnonygramIllegalStateException("Access token not found, need admin auth");
         }
 
@@ -50,14 +50,14 @@ public class ImgurService {
 
         Map<String, Object> response = imgurRequestService.postRefreshToken(body);
         String accessToken = (String) response.get("access_token");
-        String refreshToken = (String) response.get("refresh_token");;
+        String refreshToken = (String) response.get("refresh_token");
 
         log.info("Try to refresh new access and refresh token from imgur");
         return saveToken(accessToken, refreshToken);
     }
 
     public Map<String, String> saveToken(String accessToken, String refreshToken) {
-        if(Strings.isBlank(accessToken) || Strings.isBlank(refreshToken)){
+        if(StringUtils.isBlank(accessToken) || StringUtils.isBlank(refreshToken)){
             throw new AnonygramIllegalStateException("No accessToken or refreshToken for Imgur saving token");
         }
 

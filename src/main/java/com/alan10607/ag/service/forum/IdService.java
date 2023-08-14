@@ -6,7 +6,7 @@ import com.alan10607.ag.service.redis.IdRedisService;
 import com.alan10607.ag.service.redis.IdStrRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -21,7 +21,7 @@ public class IdService  {
     private final IdStrRedisService idStrRedisService;
 
     public List<String> get() {
-        if(Strings.isBlank(idStrRedisService.get())) {
+        if(StringUtils.isBlank(idStrRedisService.get())) {
             pullStringToRedis();
         }
         return Arrays.asList(idStrRedisService.get().split(","));

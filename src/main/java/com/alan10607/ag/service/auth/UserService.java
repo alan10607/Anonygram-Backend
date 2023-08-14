@@ -7,13 +7,12 @@ import com.alan10607.ag.dto.UserDTO;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.ForumUser;
 import com.alan10607.ag.model.Role;
-import com.alan10607.ag.service.forum.ImgurService;
 import com.alan10607.ag.service.redis.LockRedisService;
 import com.alan10607.ag.service.redis.UserRedisService;
 import com.alan10607.ag.util.TimeUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,7 +26,6 @@ import java.util.Optional;
 @Slf4j
 public class UserService implements UserDetailsService{
     private final RoleService roleService;
-    private final ImgurService imgurService;
     private final UserRedisService userRedisService;
     private final LockRedisService lockRedisService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -51,8 +49,8 @@ public class UserService implements UserDetailsService{
 
     public UserDTO get(String userId) {
         UserDTO userDTO = userRedisService.get(userId);
-        if(Strings.isBlank(userDTO.getId())){
-            lockRedisService.lockByUser(userId, () -> { pullToRedis(userId); });
+        if(StringUtils.isBlank(userDTO.getId())){
+            lockRedisService.lockByUser(userId, () -> pullToRedis(userId));
             userDTO = userRedisService.get(userId);
         }
         userRedisService.expire(userId);
@@ -107,9 +105,9 @@ public class UserService implements UserDetailsService{
         ForumUser user = userDAO.findById(userDTO.getId())
                 .orElseThrow(() -> new AnonygramIllegalStateException("User not found"));
 
-        Optional.ofNullable(userDTO.getHeadUrl()).ifPresent(headUrl -> user.setHeadUrl(headUrl));
-        Optional.ofNullable(userDTO.getLanguage()).ifPresent(language -> user.setLanguage(language));
-        Optional.ofNullable(userDTO.getTheme()).ifPresent(theme -> user.setTheme(theme));
+        Optional.ofNullable(userDTO.getHeadUrl()).ifPresent(user::setHeadUrl);
+        Optional.ofNullable(userDTO.getLanguage()).ifPresent(user::setLanguage);
+        Optional.ofNullable(userDTO.getTheme()).ifPresent(user::setTheme);
         userDAO.save(user);
         userRedisService.delete(userDTO.getId());
     }

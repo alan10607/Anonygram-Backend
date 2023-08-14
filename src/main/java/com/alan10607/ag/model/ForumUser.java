@@ -3,7 +3,7 @@ package com.alan10607.ag.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -90,6 +90,6 @@ public class ForumUser implements UserDetails {
     }
 
     public boolean isAnonymous() {
-        return Strings.isBlank(email);
+        return StringUtils.isBlank(email);
     }
 }

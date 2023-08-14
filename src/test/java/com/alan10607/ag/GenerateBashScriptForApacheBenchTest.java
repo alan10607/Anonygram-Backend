@@ -45,7 +45,7 @@ public class GenerateBashScriptForApacheBenchTest {
         mkdirFolder(BASH_FILE_PATH, OUTPUT_FILE_PATH, BODY_FILE_PATH);
         generateCommonFile();
 
-         Map<RequestMethod, List<String>> methodToPath = getControllerPaths(CONTROLLER_PATH);
+        Map<RequestMethod, List<String>> methodToPath = getControllerPaths(CONTROLLER_PATH);
         for(Map.Entry<RequestMethod, List<String>> entry : methodToPath.entrySet()){
             for(String path : entry.getValue()){
                 generateEachMethodBash(entry.getKey(), path);

@@ -6,7 +6,7 @@ import com.alan10607.ag.service.auth.UserService;
 import com.alan10607.ag.util.HttpUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -60,12 +60,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
     public String getTokenFromRequest(HttpServletRequest request) {
         String token = HttpUtil.getFromCookie(request, AUTHORIZATION_NAME);
-        if(Strings.isNotBlank(token)) {
+        if(StringUtils.isNotBlank(token)) {
             return token;
         }
 
         token = request.getHeader(AUTHORIZATION_NAME);
-        if(Strings.isNotBlank(token) && token.length() > BEARER.length() && token.startsWith(BEARER)){
+        if(StringUtils.isNotBlank(token) && token.length() > BEARER.length() && token.startsWith(BEARER)){
             return token.substring(BEARER.length());
         }
 
@@ -80,7 +80,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private boolean checkIsAnonymous(String token) {
         String email = jwtService.extractEmail(token);
-        return Strings.isBlank(email);
+        return StringUtils.isBlank(email);
     }
 
     private ForumUser getLoginUser(String token) {
