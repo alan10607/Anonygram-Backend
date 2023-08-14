@@ -22,6 +22,7 @@ import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 @Configuration
 @Slf4j
@@ -31,6 +32,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final CsrfDoubleSubmitFilter csrfDoubleSubmitFilter;
+    private final XssHtmlEscapeFilter xssHtmlEscapeFilter;
     private final AuthenticationProvider authenticationProvider;
     public static final String ERROR_PAGE_PATH = "/err";//Redirect error status to this page
     public static final String FORUM_PATH = "/forum/**";
@@ -57,7 +59,7 @@ public class SecurityConfig {
             .and()
                 .authorizeRequests()
                 .antMatchers(flatPaths(WEB_STATIC_PATH, SWAGGER_PATH, AUTH_PATH))
-                .permitAll()//公開頁面
+                .permitAll()//public page
                 .antMatchers(flatPaths(FORUM_PATH, USER_PATH))
                 .hasAnyAuthority(RoleType.NORMAL.name(), RoleType.ANONYMOUS.name(), RoleType.ADMIN.name())//Need login and jwt token
                 .anyRequest()
@@ -70,8 +72,13 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)//no session
             .and()
                 .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(csrfDoubleSubmitFilter, CsrfFilter.class)
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(xssHtmlEscapeFilter, CharacterEncodingFilter.class)
+                .headers()
+                    .xssProtection()
+                    .and()
+                    .contentSecurityPolicy("script-src 'self'");
         return http.build();
     }
 
