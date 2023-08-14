@@ -55,7 +55,7 @@ public class AuthService {
     }
 
     public void register(UserDTO userDTO) {
-        userService.createUser(userDTO, RoleType.NORMAL);
+        userService.create(userDTO, RoleType.NORMAL);
     }
 
 

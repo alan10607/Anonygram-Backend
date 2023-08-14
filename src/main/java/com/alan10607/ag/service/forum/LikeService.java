@@ -60,7 +60,7 @@ public class LikeService {
      * Save the content likes from Redis to DB.
      * In addition to updating ContLike, update the likes number of Content at the same time.
      * It will not save to DB if the status is same between Redis and DB.
-     * If the batch fails, save the data back to the update list from Redis, wait the next batch to restart process.
+     * If the batch fails, save the data back to the update list in Redis, wait the next batch to restart process.
      * If the update is successful, set the expired time to the Redis like data, and remove Redis content data.
      * The time complexity is almost update list size.
      */

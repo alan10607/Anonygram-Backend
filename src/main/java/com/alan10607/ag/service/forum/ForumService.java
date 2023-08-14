@@ -38,8 +38,8 @@ public class ForumService {
     public ArticleDTO getArticle(String id) {
         ArticleDTO articleDTO = articleService.get(id);
         if(articleDTO.getStatus() == StatusType.NORMAL) {
-            ContentDTO headContent = getContent(id, 0);
-            articleDTO.setContentList(Collections.singletonList(headContent));
+            ContentDTO firstContent = getContent(id, 0);
+            articleDTO.setContentList(Collections.singletonList(firstContent));
         }
         return articleDTO;
     }
@@ -85,7 +85,10 @@ public class ForumService {
     }
 
     public void likeOrDislikeContent(String id, int no, String userId, boolean like) {
-        contentService.get(id, no);//check content is exist
+        ContentDTO contentDTO = contentService.get(id, no);
+        if(contentDTO.getStatus() != StatusType.NORMAL){
+            throw new AnonygramIllegalStateException("Content status not normal, id={}", contentDTO.getId());
+        }
         likeService.set(new LikeDTO(id, no, userId, like));
         contentService.increaseLikes(id, no, like ? 1 : -1);
     }

@@ -13,8 +13,15 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
+    @GetMapping()
+    @Operation(summary = "Get a user preferences")
+    public UserDTO get(@RequestBody UserDTO userDTO){
+        userService.get(AuthUtil.getUserId());
+        return userDTO;
+    }
+
     @PatchMapping()
-    @Operation(summary = "Update for user preferences")
+    @Operation(summary = "Update a user preferences")
     public UserDTO update(@RequestBody UserDTO userDTO){
         userDTO.setId(AuthUtil.getUserId());
         userService.update(userDTO);

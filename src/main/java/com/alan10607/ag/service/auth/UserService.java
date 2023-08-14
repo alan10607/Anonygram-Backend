@@ -3,7 +3,6 @@ package com.alan10607.ag.service.auth;
 import com.alan10607.ag.constant.RoleType;
 import com.alan10607.ag.dao.RoleDAO;
 import com.alan10607.ag.dao.UserDAO;
-import com.alan10607.ag.dto.ImageDTO;
 import com.alan10607.ag.dto.UserDTO;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.ForumUser;
@@ -50,7 +49,7 @@ public class UserService implements UserDetailsService{
         return forumUser;//Entity need extend org.springframework.security.core.UserDetails.User
     }
 
-    public UserDTO getUser(String userId) {
+    public UserDTO get(String userId) {
         UserDTO userDTO = userRedisService.get(userId);
         if(Strings.isBlank(userDTO.getId())){
             lockRedisService.lockByUser(userId, () -> { pullToRedis(userId); });
@@ -86,7 +85,7 @@ public class UserService implements UserDetailsService{
         return user;
     }
 
-    public void createUser(UserDTO userDTO, RoleType roleType) {
+    public void create(UserDTO userDTO, RoleType roleType) {
         userDAO.findByEmail(userDTO.getEmail()).ifPresent(gramUser -> {
             throw new AnonygramIllegalStateException("Email already exist");
         });
@@ -117,8 +116,12 @@ public class UserService implements UserDetailsService{
 
     public void deleteUser(String email) {
         userDAO.findByEmail(email).ifPresentOrElse(
-                forumUser -> userDAO.delete(forumUser),
+                forumUser -> {
+                    userDAO.delete(forumUser);
+                    userRedisService.delete(forumUser.getId());
+                },
                 () -> { throw new AnonygramIllegalStateException("Email not found"); });
+
     }
 
 }

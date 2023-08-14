@@ -47,7 +47,7 @@ public class ContentService {
     private void pullToRedis(String id, int no) {
         ContentDTO contentDTO = contentDAO.findByIdAndNo(id, no)
             .map(content -> {
-                UserDTO userDTO = userService.getUser(content.getAuthorId());
+                UserDTO userDTO = userService.get(content.getAuthorId());
                 return new ContentDTO(content.getId(),
                         content.getNo(),
                         content.getAuthorId(),
