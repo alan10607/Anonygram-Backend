@@ -36,7 +36,7 @@ public class ContentRedisService {
         hashBaseRedisService.expire(getKey(id, no), CONTENT_EXPIRE_SEC);
     }
 
-    public void increaseLikes(String id, int no, long addNum) {
+    public void updateLikes(String id, int no, long addNum) {
         hashBaseRedisService.increment(getKey(id, no), "likes", addNum);
     }
 

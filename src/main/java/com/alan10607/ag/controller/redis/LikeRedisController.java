@@ -30,7 +30,7 @@ public class LikeRedisController {
         likeRedisService.set(likeDTO);
     }
 
-    @PatchMapping("/expire/{id}/{no}/{userId}")
+    @PatchMapping("/{id}/{no}/{userId}/expire")
     @Operation(summary = "Reset a content like Redis expiration")
     public void expire(@PathVariable("id") String id,
                        @PathVariable("no") int no,

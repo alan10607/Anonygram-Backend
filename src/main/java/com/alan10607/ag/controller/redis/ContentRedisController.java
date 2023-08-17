@@ -31,19 +31,19 @@ public class ContentRedisController {
         contentRedisService.set(contentDTO);
     }
 
-    @PatchMapping("/expire/{id}/{no}")
+    @PatchMapping("/{id}/{no}/expire")
     @Operation(summary = "Reset a content Redis expiration")
     public void expire(@PathVariable("id") String id,
                        @PathVariable("no") int no){
         contentRedisService.expire(id, no);
     }
 
-    @PatchMapping("/increaseLikes/{id}/{no}")
+    @PatchMapping("/{id}/{no}/likes")
     @Operation(summary = "Increase likes of content from Redis")
-    public void increaseLikes(@PathVariable("id") String id,
+    public void updateLikes(@PathVariable("id") String id,
                        @PathVariable("no") int no,
                        @RequestBody @Validated(SimpleDTO.IntegerGroup.class) SimpleDTO simpleDTO){
-        contentRedisService.increaseLikes(id, no, simpleDTO.getInteger());
+        contentRedisService.updateLikes(id, no, simpleDTO.getInteger());
     }
 
     @DeleteMapping("/{id}/{no}")

@@ -28,7 +28,7 @@ public class ArticleRedisController {
         articleRedisService.set(articleDTO);
     }
 
-    @PatchMapping("/expire/{id}")
+    @PatchMapping("/{id}/expire")
     @Operation(summary = "Reset a article Redis expiration")
     public void expire(@PathVariable("id") String id){
         articleRedisService.expire(id);

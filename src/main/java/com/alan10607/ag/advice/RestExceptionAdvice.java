@@ -42,20 +42,25 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
                                   MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request, ServerHttpResponse response) {
-        if(!needWarpResponse(request)){
-            return body;
+        if(body == null){
+            HttpServletResponse httpServletResponse = ((ServletServerHttpResponse) response).getServletResponse();
+            httpServletResponse.setStatus(HttpServletResponse.SC_NO_CONTENT);
         }
 
-        /*
-        If body type is String.class, selectedConverterType will be StringHttpMessageConverter,
-        need to transform to string.
-        Normally selectedConverterType will be MappingJackson2HttpMessageConverter if returnType is not String.class
-         */
-        RestResponseEntity restResponseEntity = new RestResponseEntity(getHttpStatus(response), body);
-        if (returnType.getParameterType().equals(String.class)) {
-            return toJSONString(restResponseEntity);
+        if(needWarpResponse(request)){
+            /*
+            If body type is String.class, selectedConverterType will be StringHttpMessageConverter,
+            need to transform to string.
+            Normally selectedConverterType will be MappingJackson2HttpMessageConverter if returnType is not String.class
+             */
+            RestResponseEntity restResponseEntity = new RestResponseEntity(getHttpStatus(response), body);
+            if (returnType.getParameterType().equals(String.class)) {
+                return toJSONString(restResponseEntity);
+            }
+            return restResponseEntity;
         }
-        return restResponseEntity;
+
+        return body;
     }
 
     private boolean needWarpResponse(ServerHttpRequest request){

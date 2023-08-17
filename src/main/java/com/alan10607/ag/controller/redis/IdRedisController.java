@@ -11,28 +11,28 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/redis/id")
+@RequestMapping(path = "/redis")
 @AllArgsConstructor
 @Tag(name = "Redis Control")
 public class IdRedisController {
     private final IdRedisService idRedisService;
 
-    @GetMapping
+    @GetMapping("/id")
     @Operation(summary = "Get all ids from Redis")
     public List<String> get(){
         return idRedisService.get();
     }
 
-    @PostMapping
-    @Operation(summary = "Save some ids to Redis")
-    public void set(@RequestBody @Validated({ SimpleDTO.ListGroup.class }) SimpleDTO simpleDTO){
-        idRedisService.set((List<String>) simpleDTO.getList());
+    @PostMapping("/id")
+    @Operation(summary = "Save a id to Redis. If it is exist then move to top of the list")
+    public void set(@RequestBody @Validated({ SimpleDTO.StringGroup.class }) SimpleDTO simpleDTO){
+        idRedisService.set(simpleDTO.getString());
     }
 
-    @PatchMapping("/top/{id}")
-    @Operation(summary = "Move id to the top of list")
-    public void updateScoreToTop(@PathVariable String id){
-        idRedisService.updateScoreToTop(id);
+    @PostMapping("/ids")
+    @Operation(summary = "Save some ids to Redis")
+    public void setAll(@RequestBody @Validated({ SimpleDTO.ListGroup.class }) SimpleDTO simpleDTO){
+        idRedisService.set((List<String>) simpleDTO.getList());
     }
 
 
