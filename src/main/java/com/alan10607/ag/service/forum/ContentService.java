@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -33,6 +34,13 @@ public class ContentService {
     private final ArticleDAO articleDAO;
     private final ContentDAO contentDAO;
 
+    public List<ContentDTO> get(String id, List<Integer> noList) {
+        ContentDTO firstContent = get(id, 0);
+        if(firstContent.getStatus() != StatusType.NORMAL){
+            throw new AnonygramIllegalStateException("Status of first content not normal, id={}", id);
+        }
+        return noList.stream().map(no -> get(id, no)).collect(Collectors.toList());
+    }
     public ContentDTO get(String id, int no) {
         ContentDTO contentDTO = contentRedisService.get(id, no);
         if(StringUtils.isBlank(contentDTO.getId()) || contentDTO.getNo() == null){
@@ -89,7 +97,7 @@ public class ContentService {
      * @return
      */
     public int create(ContentDTO contentDTO) {
-        articleDAO.findById(contentDTO.getId()).orElseThrow(() ->
+        articleDAO.findById(contentDTO.getId()).orElseThrow(() ->//????need testtttttttttttttt
                 new AnonygramIllegalStateException("Article not found, id={}", contentDTO.getId()));
 
         List<Object[]> query = contentDAO.countByIdWithLock(contentDTO.getId());
@@ -111,7 +119,7 @@ public class ContentService {
         return content.getNo();
     }
 
-    public void updateContentStatus(String id, int no, String userId, StatusType status) {
+    public void updateStatus(String id, int no, String userId, StatusType status) {
         Content content = contentDAO.findByIdAndNo(id, no).orElseThrow(() ->
                 new AnonygramIllegalStateException("Content not found, id={}, no={}", id, no));
 
@@ -129,6 +137,6 @@ public class ContentService {
     }
 
     public void increaseLikes(String id, int no, long addNum) {
-        contentRedisService.increaseLikes(id, no, addNum);
+        contentRedisService.updateLikes(id, no, addNum);
     }
 }

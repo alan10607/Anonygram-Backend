@@ -76,12 +76,15 @@ public class ForumService {
         return forumDTO;
     }
 
+    @Transactional
     public void deleteArticle(String id, String userId) {
-        articleService.updateArticleStatus(id, userId, StatusType.DELETED);
+        contentService.updateStatus(id, 0, userId, StatusType.DELETED);
+        articleService.updateStatus(id, StatusType.DELETED);
     }
 
+    @Transactional
     public void deleteContent(String id, int no, String userId) {
-        contentService.updateContentStatus(id, no, userId, StatusType.DELETED);
+        contentService.updateStatus(id, no, userId, StatusType.DELETED);
     }
 
     public void likeOrDislikeContent(String id, int no, String userId, boolean like) {

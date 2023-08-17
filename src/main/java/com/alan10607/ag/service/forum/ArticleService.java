@@ -4,9 +4,9 @@ import com.alan10607.ag.constant.StatusType;
 import com.alan10607.ag.dao.ArticleDAO;
 import com.alan10607.ag.dao.ContentDAO;
 import com.alan10607.ag.dto.ArticleDTO;
+import com.alan10607.ag.dto.ContentDTO;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.Article;
-import com.alan10607.ag.model.Content;
 import com.alan10607.ag.service.redis.ArticleRedisService;
 import com.alan10607.ag.service.redis.LockRedisService;
 import com.alan10607.ag.util.TimeUtil;
@@ -15,15 +15,27 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 @Service
 @AllArgsConstructor
 @Slf4j
 public class ArticleService {
     private final ContentService contentService;
+    private final IdService idService;
     private final ArticleRedisService articleRedisService;
     private final LockRedisService lockRedisService;
     private final ArticleDAO articleDAO;
     private final ContentDAO contentDAO;
+
+    public List<ArticleDTO> get(List<String> idList) {
+        return idList.stream().map(this::get).collect(Collectors.toList());
+    }
 
     public ArticleDTO get(String id) {
         ArticleDTO articleDTO = articleRedisService.get(id);
@@ -56,20 +68,26 @@ public class ArticleService {
 
     private ArticleDTO articleFilter(ArticleDTO articleDTO) {
         switch(articleDTO.getStatus()){
-            case UNKNOWN :
-                log.info("Article not found, id={}", articleDTO.getId());
-                return new ArticleDTO(articleDTO.getId(), StatusType.UNKNOWN);
+            case NORMAL:
+                ContentDTO firstContent = contentService.get(articleDTO.getId(), 0);
+                articleDTO.setContentList(Collections.singletonList(firstContent));
+                return articleDTO;
             case DELETED :
                 return new ArticleDTO(articleDTO.getId(), StatusType.DELETED);
-            default :
-                return articleDTO;
+            case UNKNOWN :
+            default:
+                log.info("Article not found, id={}", articleDTO.getId());
+                return new ArticleDTO(articleDTO.getId(), StatusType.UNKNOWN);
         }
     }
 
+    @Transactional
     public void create(ArticleDTO articleDTO) {
         articleDAO.findById(articleDTO.getId()).ifPresent((a) -> {
             throw new AnonygramIllegalStateException("Article already exist, id={}", articleDTO.getId());
         });
+
+        prepareCreateValue(articleDTO);
 
         Article article = new Article(articleDTO.getId(),
                 articleDTO.getTitle(),
@@ -78,19 +96,25 @@ public class ArticleService {
                 articleDTO.getCreateDate());
 
         articleDAO.save(article);
+        contentService.create(articleDTO.getContentList().get(0));
+        idService.set(articleDTO.getId());
         articleRedisService.delete(articleDTO.getId());
     }
 
-    public void updateArticleStatus(String id, String userId, StatusType status) {
+    private void prepareCreateValue(ArticleDTO articleDTO){
+        String id = UUID.randomUUID().toString();
+        LocalDateTime createDate = TimeUtil.now();
+
+        articleDTO.setId(id);
+        articleDTO.setCreateDate(createDate);
+        ContentDTO contentDTO = articleDTO.getContentList().get(0);
+        contentDTO.setId(id);
+        contentDTO.setCreateDate(createDate);
+    }
+
+    public void updateStatus(String id, StatusType status) {
         Article article = articleDAO.findById(id)
                 .orElseThrow(() -> new AnonygramIllegalStateException("Article not found"));
-
-        Content content = contentDAO.findByIdAndNo(id, 0)
-                .orElseThrow(() -> new AnonygramIllegalStateException("Content no 0 not found"));
-
-        if(!userId.equals(content.getAuthorId())) {
-            throw new AnonygramIllegalStateException("No authority to modify");
-        }
 
         article.setStatus(status);
         article.setUpdateDate(TimeUtil.now());
