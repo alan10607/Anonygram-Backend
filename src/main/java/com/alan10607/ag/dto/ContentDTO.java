@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ContentDTO extends BaseDTO {
     @NotNull
-    public String id;
+    private String id;
 
     @NotNull
     @Min(0)

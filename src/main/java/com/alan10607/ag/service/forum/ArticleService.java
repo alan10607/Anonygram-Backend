@@ -2,7 +2,6 @@ package com.alan10607.ag.service.forum;
 
 import com.alan10607.ag.constant.StatusType;
 import com.alan10607.ag.dao.ArticleDAO;
-import com.alan10607.ag.dao.ContentDAO;
 import com.alan10607.ag.dto.ArticleDTO;
 import com.alan10607.ag.dto.ContentDTO;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
@@ -27,11 +26,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ArticleService {
     private final ContentService contentService;
-    private final IdService idService;
     private final ArticleRedisService articleRedisService;
     private final LockRedisService lockRedisService;
     private final ArticleDAO articleDAO;
-    private final ContentDAO contentDAO;
 
     public List<ArticleDTO> get(List<String> idList) {
         return idList.stream().map(this::get).collect(Collectors.toList());
@@ -55,7 +52,7 @@ public class ArticleService {
                 article.getStatus(),
                 article.getCreateDate(),
                 article.getUpdateDate(),
-                contentService.getContentSizeById(id)))
+                contentService.getContentSize(id)))
             .orElseGet(() -> {
                 log.error("Pull Article failed, id={}, will put empty data to redis", id);
                 return new ArticleDTO(id, StatusType.UNKNOWN);
@@ -82,11 +79,7 @@ public class ArticleService {
     }
 
     @Transactional
-    public void create(ArticleDTO articleDTO) {
-        articleDAO.findById(articleDTO.getId()).ifPresent((a) -> {
-            throw new AnonygramIllegalStateException("Article already exist, id={}", articleDTO.getId());
-        });
-
+    public String create(ArticleDTO articleDTO) {
         prepareCreateValue(articleDTO);
 
         Article article = new Article(articleDTO.getId(),
@@ -97,14 +90,12 @@ public class ArticleService {
 
         articleDAO.save(article);
         contentService.create(articleDTO.getContentList().get(0));
-        idService.set(articleDTO.getId());
-        articleRedisService.delete(articleDTO.getId());
+        return articleDTO.getId();
     }
 
     private void prepareCreateValue(ArticleDTO articleDTO){
         String id = UUID.randomUUID().toString();
         LocalDateTime createDate = TimeUtil.now();
-
         articleDTO.setId(id);
         articleDTO.setCreateDate(createDate);
         ContentDTO contentDTO = articleDTO.getContentList().get(0);
@@ -112,13 +103,15 @@ public class ArticleService {
         contentDTO.setCreateDate(createDate);
     }
 
+    @Transactional
     public void updateStatus(String id, StatusType status) {
-        Article article = articleDAO.findById(id)
-                .orElseThrow(() -> new AnonygramIllegalStateException("Article not found"));
+        Article article = articleDAO.findById(id).orElseThrow(() ->
+                new AnonygramIllegalStateException("Article not found, id={}", id));
 
         article.setStatus(status);
         article.setUpdateDate(TimeUtil.now());
         articleDAO.save(article);
+        contentService.updateStatus(id, 0, status);
         articleRedisService.delete(id);
     }
 

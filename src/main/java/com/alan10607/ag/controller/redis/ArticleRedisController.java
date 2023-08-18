@@ -17,7 +17,7 @@ public class ArticleRedisController {
     private final ArticleRedisService articleRedisService;
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get a article from Redis", description = "取得所有會員資料，每次上限 1000 筆")
+    @Operation(summary = "Get a article from Redis")
     public ArticleDTO get(@PathVariable("id") String id){
         return articleRedisService.get(id);
     }

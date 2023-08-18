@@ -5,6 +5,7 @@ import com.alan10607.ag.constant.TxnParamKey;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.service.TxnParamService;
 import com.alan10607.ag.service.request.ImgurRequestService;
+import com.alan10607.ag.util.AuthUtil;
 import com.alan10607.ag.util.TimeUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +23,13 @@ public class ImgurService {
     private final ImgurConfig imgurConfig;
     private final ImgurRequestService imgurRequestService;
 
-    public String upload(String userId, String imageBase64) {
+    public String upload(String imageBase64) {
         if(StringUtils.isBlank(imgurConfig.getAccessToken())){
             throw new AnonygramIllegalStateException("Access token not found, need admin auth");
         }
 
         Map<String, Object> body = Map.of(
-                "title", String.format("%s:%s", userId, TimeUtil.nowShortString()),
+                "title", String.format("%s:%s", AuthUtil.getUserId(), TimeUtil.nowShortString()),
                 "image", imageBase64,
                 "description", "User upload",
                 "type", "base64",

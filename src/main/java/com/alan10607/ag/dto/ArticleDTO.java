@@ -21,7 +21,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ArticleDTO extends BaseDTO {
     @NotNull
-    public String id;
+    private String id;
 
     @NotBlank
     private String title;

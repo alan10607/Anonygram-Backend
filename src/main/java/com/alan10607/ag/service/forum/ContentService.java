@@ -4,6 +4,7 @@ import com.alan10607.ag.constant.StatusType;
 import com.alan10607.ag.dao.ArticleDAO;
 import com.alan10607.ag.dao.ContentDAO;
 import com.alan10607.ag.dto.ContentDTO;
+import com.alan10607.ag.dto.LikeDTO;
 import com.alan10607.ag.dto.UserDTO;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.Content;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,8 +28,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Slf4j
 public class ContentService {
-    private final LikeService likeService;
     private final UserService userService;
+    private final IdService idService;
+    private final LikeService likeService;
     private final ArticleRedisService articleRedisService;
     private final ContentRedisService contentRedisService;
     private final LockRedisService lockRedisService;
@@ -35,12 +38,9 @@ public class ContentService {
     private final ContentDAO contentDAO;
 
     public List<ContentDTO> get(String id, List<Integer> noList) {
-        ContentDTO firstContent = get(id, 0);
-        if(firstContent.getStatus() != StatusType.NORMAL){
-            throw new AnonygramIllegalStateException("Status of first content not normal, id={}", id);
-        }
         return noList.stream().map(no -> get(id, no)).collect(Collectors.toList());
     }
+
     public ContentDTO get(String id, int no) {
         ContentDTO contentDTO = contentRedisService.get(id, no);
         if(StringUtils.isBlank(contentDTO.getId()) || contentDTO.getNo() == null){
@@ -78,15 +78,20 @@ public class ContentService {
 
     private ContentDTO contentFilter(ContentDTO contentDTO) {
         switch(contentDTO.getStatus()){
-            case UNKNOWN :
-                log.info("Content not found, id={}, no={}", contentDTO.getId(), contentDTO.getNo());
-                return new ContentDTO(contentDTO.getId(), contentDTO.getNo(), StatusType.UNKNOWN);
-            case DELETED :
-                return new ContentDTO(contentDTO.getId(), contentDTO.getNo(), StatusType.DELETED);
-            default :
+            case NORMAL:
                 contentDTO.setLike(likeService.get(contentDTO.getId(), contentDTO.getNo(), AuthUtil.getUserId()));
                 return contentDTO;
+            case DELETED :
+                return new ContentDTO(contentDTO.getId(), contentDTO.getNo(), StatusType.DELETED);
+            case UNKNOWN :
+            default:
+                log.info("Content not found, id={}, no={}", contentDTO.getId(), contentDTO.getNo());
+                return new ContentDTO(contentDTO.getId(), contentDTO.getNo(), StatusType.UNKNOWN);
         }
+    }
+
+    public Integer getContentSize(String id){
+        return contentDAO.countById(id);
     }
 
     /**
@@ -96,14 +101,12 @@ public class ContentService {
      * @param contentDTO
      * @return
      */
+    @Transactional
     public int create(ContentDTO contentDTO) {
-        articleDAO.findById(contentDTO.getId()).orElseThrow(() ->//????need testtttttttttttttt
-                new AnonygramIllegalStateException("Article not found, id={}", contentDTO.getId()));
+        prepareCreateValue(contentDTO);
 
-        List<Object[]> query = contentDAO.countByIdWithLock(contentDTO.getId());
-        int no = ((BigInteger) query.get(0)[0]).intValue();
         Content content = new Content(contentDTO.getId(),
-                no,
+                contentDTO.getNo(),
                 contentDTO.getAuthorId(),
                 contentDTO.getWord(),
                 0L,
@@ -112,18 +115,39 @@ public class ContentService {
                 contentDTO.getCreateDate());
 
         contentDAO.save(content);
-
         contentDTO.setNo(content.getNo());
         contentRedisService.delete(contentDTO.getId(), contentDTO.getNo());
         articleRedisService.delete(contentDTO.getId());
+        idService.set(contentDTO.getId());
         return content.getNo();
     }
 
-    public void updateStatus(String id, int no, String userId, StatusType status) {
+    private void prepareCreateValue(ContentDTO contentDTO){
+        articleDAO.findById(contentDTO.getId()).ifPresentOrElse(
+            article -> {
+                if(article.getStatus() != StatusType.NORMAL) {
+                    throw new AnonygramIllegalStateException("Article status of this content not normal, id={}", contentDTO.getId());
+                }
+            },
+            () -> {
+                throw new AnonygramIllegalStateException("Article not found, id={}", contentDTO.getId());
+            });
+
+        List<Object[]> query = contentDAO.countByIdWithLock(contentDTO.getId());
+        contentDTO.setNo(((BigInteger) query.get(0)[0]).intValue());
+
+        contentDTO.setAuthorId(AuthUtil.getUserId());
+        if(contentDTO.getCreateDate() == null) {
+            contentDTO.setCreateDate(TimeUtil.now());
+        }
+    }
+
+    @Transactional
+    public void updateStatus(String id, int no, StatusType status) {
         Content content = contentDAO.findByIdAndNo(id, no).orElseThrow(() ->
                 new AnonygramIllegalStateException("Content not found, id={}, no={}", id, no));
 
-        if(!userId.equals(content.getAuthorId()))
+        if(!AuthUtil.getUserId().equals(content.getAuthorId()))
             throw new AnonygramIllegalStateException("No authority to modify");
 
         content.setStatus(status);
@@ -132,11 +156,14 @@ public class ContentService {
         contentRedisService.delete(id, no);
     }
 
-    public Integer getContentSizeById(String id){
-        return contentDAO.countById(id);
-    }
-
-    public void increaseLikes(String id, int no, long addNum) {
-        contentRedisService.updateLikes(id, no, addNum);
+    public void updateLike(String id, int no, boolean like) {
+        ContentDTO contentDTO = get(id, no);
+        if(contentDTO.getStatus() != StatusType.NORMAL){
+            throw new AnonygramIllegalStateException("Content status is {}, id={}, no={}",
+                    contentDTO.getStatus(), contentDTO.getId(), contentDTO.getNo());
+        }
+        LikeDTO likeDTO = new LikeDTO(id, no, AuthUtil.getUserId(), like);
+        likeService.set(likeDTO);
+        contentRedisService.updateLikes(id, no, likeDTO.getLike() ? 1 : -1);
     }
 }
