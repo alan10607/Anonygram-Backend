@@ -74,7 +74,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(csrfDoubleSubmitFilter, CsrfFilter.class)
-                .addFilterBefore(xssHtmlEscapeFilter, CharacterEncodingFilter.class)
+                .addFilterBefore(xssHtmlEscapeFilter, CsrfFilter.class)
                 .headers()
                     .xssProtection()
                     .and()

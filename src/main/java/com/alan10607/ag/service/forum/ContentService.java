@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.transaction.Transactional;
 import java.math.BigInteger;
@@ -108,7 +109,7 @@ public class ContentService {
         Content content = new Content(contentDTO.getId(),
                 contentDTO.getNo(),
                 contentDTO.getAuthorId(),
-                contentDTO.getWord(),
+                HtmlUtils.htmlEscape(contentDTO.getWord()),
                 0L,
                 StatusType.NORMAL,
                 contentDTO.getCreateDate(),

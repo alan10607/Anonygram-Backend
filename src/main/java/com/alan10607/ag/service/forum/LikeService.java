@@ -5,15 +5,18 @@ import com.alan10607.ag.dao.ContLikeDAO;
 import com.alan10607.ag.dao.ContentDAO;
 import com.alan10607.ag.dto.LikeDTO;
 import com.alan10607.ag.model.ContLike;
+import com.alan10607.ag.service.redis.ContentRedisService;
 import com.alan10607.ag.service.redis.LikeRedisService;
 import com.alan10607.ag.service.redis.UpdateLikeRedisService;
-import com.alan10607.ag.service.redis.ContentRedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
