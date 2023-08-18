@@ -35,15 +35,11 @@ public class GenerateBashScriptForApacheBenchTest {
     private static final String POST_NUMBER = "10";
     private static final String TIME = "60";
 
-    private static final Map<String, String> VARIABLE_MAPPING = Map.of(
-            "HOST", "https://localhost",
-            "NOW", "$(date +\"%Y-%m-%d.%H:%M:%S\")"
-    );
+    private Map<String, String> variableMap = new HashMap<>();
 
     @Test
     public void generateBashScriptForApacheBench() {
         mkdirFolder(BASH_FILE_PATH, OUTPUT_FILE_PATH, BODY_FILE_PATH);
-        generateCommonFile();
 
         Map<RequestMethod, List<String>> methodToPath = getControllerPaths(CONTROLLER_PATH);
         for(Map.Entry<RequestMethod, List<String>> entry : methodToPath.entrySet()){
@@ -51,6 +47,8 @@ public class GenerateBashScriptForApacheBenchTest {
                 generateEachMethodBash(entry.getKey(), path);
             }
         }
+
+        generateCommonFile();
     }
 
     private Map<RequestMethod, List<String>> getControllerPaths(String prefix){
@@ -89,7 +87,9 @@ public class GenerateBashScriptForApacheBenchTest {
                 .append("clear\n")
                 .append("read -r BEARER < \"" + TOKEN_FILE_NAME + "\"\n");
 
-        VARIABLE_MAPPING.forEach((k, v) -> script.append(k).append("=").append(v).append("\n"));
+        variableMap.put("HOST", "https://localhost");
+        variableMap.put("NOW", "$(date +\"%Y-%m-%d.%H:%M:%S\")");
+        variableMap.forEach((k, v) -> script.append(k).append("=").append(v).append("\n"));
 
         writeFile(commonFilePath, script.toString());
     }
@@ -166,7 +166,7 @@ public class GenerateBashScriptForApacheBenchTest {
         while (matcher.find()) {
             String variable = matcher.group(1);
             matcher.appendReplacement(formattedPath, "\\$" + variable);
-            VARIABLE_MAPPING.put(variable, "");
+            variableMap.put(variable, "");
         }
         matcher.appendTail(formattedPath);
 
