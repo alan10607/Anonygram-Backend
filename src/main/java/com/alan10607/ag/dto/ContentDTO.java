@@ -79,6 +79,16 @@ public class ContentDTO extends BaseDTO {
         this.status = status;
     }
 
+    public ContentDTO(String word) {
+        this.word = word;
+    }
+
+    public ContentDTO(String id,
+                      String word) {
+        this.id = id;
+        this.word = word;
+    }
+
     public static ContentDTO from(Object data) {
         return ToolUtil.convertValue(data, ContentDTO.class);
     }

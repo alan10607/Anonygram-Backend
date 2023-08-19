@@ -73,12 +73,12 @@ public class SecurityConfig {
             .and()
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(csrfDoubleSubmitFilter, CsrfFilter.class)
-                .addFilterBefore(xssHtmlEscapeFilter, CsrfFilter.class)
-                .headers()
-                    .xssProtection()
-                    .and()
-                    .contentSecurityPolicy("script-src 'self'");
+                .addFilterBefore(csrfDoubleSubmitFilter, CsrfFilter.class);
+//                .addFilterBefore(xssHtmlEscapeFilter, CsrfFilter.class)
+//                .headers()
+//                    .xssProtection()
+//                    .and()
+//                    .contentSecurityPolicy("script-src 'self'");
         return http.build();
     }
 

@@ -1,11 +1,14 @@
 package com.alan10607.ag.controller.forum;
 
-import com.alan10607.ag.constant.StatusType;
 import com.alan10607.ag.dto.ArticleDTO;
 import com.alan10607.ag.dto.ContentDTO;
 import com.alan10607.ag.dto.ForumDTO;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
-import com.alan10607.ag.service.forum.*;
+import com.alan10607.ag.service.forum.ForumReadService;
+import com.alan10607.ag.service.forum.ForumWriteService;
+import com.alan10607.ag.service.forum.ImgurService;
+import com.alan10607.ag.service.redis.queue.RedisMessagePublisher;
+import com.alan10607.ag.service.redis.queue.RedisMessageSubscriber;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -14,104 +17,66 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/forum")
 @AllArgsConstructor
 @Tag(name = "Anonygram Forum")
 public class ForumController {
-    private final IdService idService;
-    private final ArticleService articleService;
-    private final ContentService contentService;
-    private final LikeService likeService;
+    private final ForumReadService forumReadService;
+    private final ForumWriteService forumWriteService;
     private final ImgurService imgurService;
+    private final RedisMessagePublisher redisMessagePublisher;
+    private final RedisMessageSubscriber redisMessageSubscriber;
 
     @GetMapping("/id")
     @Operation(summary = "Get all ids of article")
     public List<String> getId(){
-        return idService.get();
+        String message = "Message " +"ssdds";
+        redisMessagePublisher.publish(message);
+        return forumReadService.getId();
     }
 
-    @GetMapping("/article/{id}")
-    @Operation(summary = "Get a article with the first content")
-    public ArticleDTO getArticle(@PathVariable("id") String id){
-        return articleService.get(id);
-    }
-
-    @GetMapping("/articles/{idList}")
-    @Operation(summary = "Get article list with the first content")
-    public List<ArticleDTO> getArticles(@PathVariable("idList") List<String> idList){
-        validListSize(idList, 0, 10);
-        return articleService.get(idList);
-
+    @GetMapping("/article/{idList}/{noList}")
+    @Operation(summary = "Get articles and contents in matrix")
+    public List<ArticleDTO> getArticleWithContent(@PathVariable("idList") List<String> idList,
+                                                  @PathVariable("noList") List<Integer> noList){
+        validListSize("idList", idList, 0, 10);
+        validListSize("noList", noList, 0, 10);
+        return forumReadService.getArticleWithContent(idList, noList);
     }
 
     @PostMapping("/article")
-    @Operation(summary = "Create a article with the original poster content")
-    public ArticleDTO createArticle(@RequestBody @Validated(ForumDTO.CreateArticleGroup.class) ForumDTO forumDTO){
-        ArticleDTO articleDTO = new ArticleDTO();
-        articleDTO.setTitle(forumDTO.getTitle());
-        ContentDTO contentDTO = new ContentDTO();
-        contentDTO.setWord(forumDTO.getWord());
-        articleDTO.setContentList(Collections.singletonList(contentDTO));
-        String id = articleService.create(articleDTO);
-        return articleService.get(id);
+    @Operation(summary = "Create a article with first content")
+    public ArticleDTO createArticleWithContent(@RequestBody @Validated(ForumDTO.CreateArticleGroup.class) ForumDTO forumDTO){
+        ContentDTO contentDTO = new ContentDTO(forumDTO.getWord());
+        ArticleDTO articleDTO = new ArticleDTO(forumDTO.getTitle(), Collections.singletonList(contentDTO));
+        String id = forumWriteService.createArticleWithContent(articleDTO);
+        return forumReadService.getArticleWithContent(id, 0);
     }
 
-    @GetMapping("/content/{id}/{no}")
-    @Operation(summary = "Get a content")
-    public ContentDTO getContent(@PathVariable("id") String id,
-                                 @PathVariable("no") int no){
-        ArticleDTO articleDTO = articleService.get(id);
-        if(articleDTO.getStatus() != StatusType.NORMAL){
-            return new ContentDTO(id, no, articleDTO.getStatus());
-        }
-        return contentService.get(id, no);
-    }
-
-    @GetMapping("/contents/{id}/{noList}")
-    @Operation(summary = "Get contents list")
-    public List<ContentDTO> getContents(@PathVariable("id") String id,
-                                        @PathVariable("noList") List<Integer> noList){
-        validListSize(noList, 0, 10);
-        ArticleDTO articleDTO = articleService.get(id);
-        if(articleDTO.getStatus() != StatusType.NORMAL){
-            return noList.stream()
-                    .map(no -> new ContentDTO(id, no, articleDTO.getStatus()))
-                    .collect(Collectors.toList());
-        }
-        return contentService.get(id, noList);
-    }
-
-    @PostMapping("/content/{id}")
-    @Operation(summary = "Create a content to reply the article")
-    public ContentDTO createContent(@PathVariable("id") String id,
+    @PostMapping("/article/{id}")
+    @Operation(summary = "Create a content under article")
+    public ArticleDTO createContent(@PathVariable("id") String id,
                                     @RequestBody @Validated(ForumDTO.ReplyForumGroup.class) ForumDTO forumDTO){
-        ContentDTO contentDTO = new ContentDTO();
-        contentDTO.setId(id);
-        contentDTO.setWord(forumDTO.getWord());
-        int no = contentService.create(contentDTO);
-        return contentService.get(id, no);
+        ContentDTO contentDTO = new ContentDTO(id, forumDTO.getWord());
+        int no = forumWriteService.createContent(contentDTO);
+        return forumReadService.getArticleWithContent(id, no);
     }
 
-    @DeleteMapping("/content/{id}/{no}")
-    @Operation(summary = "Delete a content. If delete first content, will also delete article")
+    @DeleteMapping("/article/{id}/{no}")
+    @Operation(summary = "Delete a content. If delete first content, will also delete its article")
     public void deleteContent(@PathVariable("id") String id,
                               @PathVariable("no") int no){
-        if(no == 0){
-            articleService.updateStatus(id, StatusType.DELETED);
-        }else{
-            contentService.updateStatus(id, no, StatusType.DELETED);
-        }
+        forumWriteService.deleteContent(id, no);
     }
 
-    @PatchMapping("/like/{id}/{no}")
+    @PatchMapping("/article/{id}/{no}/like")
     @Operation(summary = "To like a content")
-    public void updateLike(@PathVariable("id") String id,
-                               @PathVariable("no") int no,
-                               @RequestBody @Validated(ForumDTO.LikeContentGroup.class) ForumDTO forumDTO){
-        contentService.updateLike(id, no, forumDTO.getLike());
+    public void updateContentLike(@PathVariable("id") String id,
+                                  @PathVariable("no") int no,
+                                  @RequestBody @Validated(ForumDTO.LikeContentGroup.class) ForumDTO forumDTO){
+        forumWriteService.updateContentLike(id, no, forumDTO.getLike());
     }
 
     @PostMapping("/image")
@@ -123,9 +88,10 @@ public class ForumController {
         return forumDTO;
     }
 
-    private <T> void validListSize(List<T> list, int min, int max){
+    private <T> void validListSize(String fieldName, List<T> list, int min, int max){
         if(list.size() < min || list.size() > max){
-            throw new AnonygramIllegalStateException(String.format("Path variable list size must be in %s ~ %s", min, max));
+            throw new AnonygramIllegalStateException(
+                    String.format("%s size must be in %s ~ %s", fieldName, min, max));
         }
     }
 

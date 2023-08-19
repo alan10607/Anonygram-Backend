@@ -61,6 +61,11 @@ public class ArticleDTO extends BaseDTO {
         this.contentSize = contentSize;
     }
 
+    public ArticleDTO(String title, List<ContentDTO> contentList) {
+        this.title = title;
+        this.contentList = contentList;
+    }
+
     public static ArticleDTO from(Object data) {
         return ToolUtil.convertValue(data, ArticleDTO.class);
     }

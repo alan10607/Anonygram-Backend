@@ -3,7 +3,6 @@ package com.alan10607.ag.service.forum;
 import com.alan10607.ag.constant.StatusType;
 import com.alan10607.ag.dao.ArticleDAO;
 import com.alan10607.ag.dto.ArticleDTO;
-import com.alan10607.ag.dto.ContentDTO;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.Article;
 import com.alan10607.ag.service.redis.ArticleRedisService;
@@ -14,12 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -29,10 +25,6 @@ public class ArticleService {
     private final ArticleRedisService articleRedisService;
     private final LockRedisService lockRedisService;
     private final ArticleDAO articleDAO;
-
-    public List<ArticleDTO> get(List<String> idList) {
-        return idList.stream().map(this::get).collect(Collectors.toList());
-    }
 
     public ArticleDTO get(String id) {
         ArticleDTO articleDTO = articleRedisService.get(id);
@@ -66,8 +58,6 @@ public class ArticleService {
     private ArticleDTO articleFilter(ArticleDTO articleDTO) {
         switch(articleDTO.getStatus()){
             case NORMAL:
-                ContentDTO firstContent = contentService.get(articleDTO.getId(), 0);
-                articleDTO.setContentList(Collections.singletonList(firstContent));
                 return articleDTO;
             case DELETED :
                 return new ArticleDTO(articleDTO.getId(), StatusType.DELETED);
@@ -78,41 +68,35 @@ public class ArticleService {
         }
     }
 
-    @Transactional
-    public String create(ArticleDTO articleDTO) {
-        prepareCreateValue(articleDTO);
+    public Article create(ArticleDTO articleDTO) {
+        Article article = prepareCreateEntity(articleDTO);
+        articleDAO.save(article);
+        articleRedisService.delete(article.getId());
+        return article;
+    }
 
-        Article article = new Article(articleDTO.getId(),
+    private Article prepareCreateEntity(ArticleDTO articleDTO){
+        LocalDateTime createDate = TimeUtil.now();
+        return new Article(UUID.randomUUID().toString(),
                 articleDTO.getTitle(),
                 StatusType.NORMAL,
-                articleDTO.getCreateDate(),
-                articleDTO.getCreateDate());
-
-        articleDAO.save(article);
-        contentService.create(articleDTO.getContentList().get(0));
-        return articleDTO.getId();
+                createDate,
+                createDate);
     }
 
-    private void prepareCreateValue(ArticleDTO articleDTO){
-        String id = UUID.randomUUID().toString();
-        LocalDateTime createDate = TimeUtil.now();
-        articleDTO.setId(id);
-        articleDTO.setCreateDate(createDate);
-        ContentDTO contentDTO = articleDTO.getContentList().get(0);
-        contentDTO.setId(id);
-        contentDTO.setCreateDate(createDate);
-    }
+    public void update(ArticleDTO articleDTO) {
+        Article article = articleDAO.findById(articleDTO.getId()).orElseThrow(() ->
+                new AnonygramIllegalStateException("Article not found, id={}", articleDTO.getId()));
 
-    @Transactional
-    public void updateStatus(String id, StatusType status) {
-        Article article = articleDAO.findById(id).orElseThrow(() ->
-                new AnonygramIllegalStateException("Article not found, id={}", id));
-
-        article.setStatus(status);
+        Optional.ofNullable(articleDTO.getStatus()).ifPresent(article::setStatus);
         article.setUpdateDate(TimeUtil.now());
+
         articleDAO.save(article);
-        contentService.updateStatus(id, 0, status);
-        articleRedisService.delete(id);
+        articleRedisService.delete(articleDTO.getId());
+    }
+
+    public void updateStatus(String id, StatusType status) {
+        update(new ArticleDTO(id, status));
     }
 
 }

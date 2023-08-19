@@ -1,5 +1,6 @@
 package com.alan10607.ag.config;
 
+import com.alan10607.ag.service.redis.queue.RedisMessageSubscriber;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
@@ -12,6 +13,9 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scripting.support.ResourceScriptSource;
@@ -104,6 +108,35 @@ public class RedisConfig {
         redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource(scriptLocation)));
         redisScript.setResultType(resultType);
         return redisScript;
+    }
+
+//    @Bean
+//    public MessagePublisher redisPublisher(RedisTemplate redisTemplate) {
+//        return new RedisMessagePublisher(redisTemplate, saveTopic());
+//    }
+
+    //can be more...
+    @Bean
+    public MessageListenerAdapter messageListener() {
+        return new MessageListenerAdapter(new RedisMessageSubscriber());//need MessageListener
+    }
+
+    /**
+     * Mapping topic and MessageListener
+     * @param factory
+     * @return
+     */
+    @Bean
+    public RedisMessageListenerContainer redisContainer(LettuceConnectionFactory factory) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(factory);
+        container.addMessageListener(messageListener(), saveTopic());//add more topic here
+        return container;
+    }
+
+    @Bean
+    public PatternTopic saveTopic() {
+        return new PatternTopic("saveMessageQueue");
     }
 
 }
