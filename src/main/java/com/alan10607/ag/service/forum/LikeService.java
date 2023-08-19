@@ -8,6 +8,7 @@ import com.alan10607.ag.model.ContLike;
 import com.alan10607.ag.service.redis.ContentRedisService;
 import com.alan10607.ag.service.redis.LikeRedisService;
 import com.alan10607.ag.service.redis.UpdateLikeRedisService;
+import com.alan10607.ag.service.redis.queue.SaveLikeMessagePublisher;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class LikeService {
     private final ContentRedisService contentRedisService;
     private final LikeRedisService likeRedisService;
+    private final SaveLikeMessagePublisher saveLikeMessagePublisher;
     private final UpdateLikeRedisService updateLikeRedisService;
     private final ContentDAO contentDAO;
     private final ContLikeDAO contLikeDAO;
@@ -56,6 +58,7 @@ public class LikeService {
     public void set(LikeDTO likeDTO) {
         likeRedisService.set(likeDTO);
         updateLikeRedisService.set(likeDTO);
+        saveLikeMessagePublisher.publish(likeDTO.toMessageString());
     }
 
 

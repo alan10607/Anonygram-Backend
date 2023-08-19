@@ -7,8 +7,6 @@ import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.service.forum.ForumReadService;
 import com.alan10607.ag.service.forum.ForumWriteService;
 import com.alan10607.ag.service.forum.ImgurService;
-import com.alan10607.ag.service.redis.queue.RedisMessagePublisher;
-import com.alan10607.ag.service.redis.queue.RedisMessageSubscriber;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -26,14 +24,10 @@ public class ForumController {
     private final ForumReadService forumReadService;
     private final ForumWriteService forumWriteService;
     private final ImgurService imgurService;
-    private final RedisMessagePublisher redisMessagePublisher;
-    private final RedisMessageSubscriber redisMessageSubscriber;
 
     @GetMapping("/id")
     @Operation(summary = "Get all ids of article")
     public List<String> getId(){
-        String message = "Message " +"ssdds";
-        redisMessagePublisher.publish(message);
         return forumReadService.getId();
     }
 

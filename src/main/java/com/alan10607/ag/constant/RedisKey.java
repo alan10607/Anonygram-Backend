@@ -12,4 +12,5 @@ public class RedisKey {
     public static final String LOCK_ARTICLE = "lock:art:%s";
     public static final String LOCK_CONTENT = "lock:cont:%s:%s";
     public static final String LOCK_USER = "lock:user:%s";
+    public static final String LOCK_SAVE_LIKE_QUEUE = "lock:saveLikeQueue";
 }

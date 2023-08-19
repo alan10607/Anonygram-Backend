@@ -53,6 +53,15 @@ public class LikeDTO extends BaseDTO {
         return this.like ? "like" : "dislike";
     }
 
+    public String toMessageString(){
+        return String.format("%s:%s:%s:%s", this.id, this.no, this.userId, toLikeNumberString());
+    }
+
+    public static LikeDTO fromMessageString(String messageString){
+        String[] args = messageString.split(":");
+        return new LikeDTO(args[0], Integer.parseInt(args[1]), args[2], "1".equals(args[3]));
+    }
+
     public static LikeDTO from(Object data) {
         return ToolUtil.convertValue(data, LikeDTO.class);
     }

@@ -70,4 +70,8 @@ public class LockRedisService {
         lock(getUserLockName(userId), runnable);
     }
 
+    public void lockBySaveLikeQueue(Runnable runnable) {
+        lock(RedisKey.LOCK_SAVE_LIKE_QUEUE, runnable);
+    }
+
 }

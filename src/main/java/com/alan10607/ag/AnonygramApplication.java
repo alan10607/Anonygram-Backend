@@ -8,7 +8,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class AnonygramApplication {
 
 	public static void main(String[] args) {
-		ConfigurableApplicationContext rn = SpringApplication.run(AnonygramApplication.class, args);
+		SpringApplication.run(AnonygramApplication.class, args);
 	}
 
 }
