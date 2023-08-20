@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ExtendWith(SpringExtension.class)
-@FixMethodOrder(MethodSorters.JVM)
 @Slf4j
 class ForumControllerTest {
 

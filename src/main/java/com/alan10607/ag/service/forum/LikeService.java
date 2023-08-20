@@ -7,7 +7,6 @@ import com.alan10607.ag.dto.LikeDTO;
 import com.alan10607.ag.model.ContLike;
 import com.alan10607.ag.service.redis.ContentRedisService;
 import com.alan10607.ag.service.redis.LikeRedisService;
-import com.alan10607.ag.service.redis.UpdateLikeRedisService;
 import com.alan10607.ag.service.redis.queue.SaveLikeMessagePublisher;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +25,6 @@ public class LikeService {
     private final ContentRedisService contentRedisService;
     private final LikeRedisService likeRedisService;
     private final SaveLikeMessagePublisher saveLikeMessagePublisher;
-    private final UpdateLikeRedisService updateLikeRedisService;
     private final ContentDAO contentDAO;
     private final ContLikeDAO contLikeDAO;
 
@@ -36,10 +34,7 @@ public class LikeService {
             pullToRedis(id, no, userId);
             like = likeRedisService.get(id, no, userId);
         }
-
-        if(!updateLikeRedisService.existOrBatchExist(id, no, userId)){
-            likeRedisService.expire(id, no, userId);
-        }
+        likeRedisService.expire(id, no, userId);
 
         return like;
     }
@@ -57,7 +52,6 @@ public class LikeService {
      */
     public void set(LikeDTO likeDTO) {
         likeRedisService.set(likeDTO);
-        updateLikeRedisService.set(likeDTO);
         saveLikeMessagePublisher.publish(likeDTO.toMessageString());
     }
 
@@ -72,80 +66,70 @@ public class LikeService {
      */
     @Transactional
     @DebugDuration
-    public int saveLikeToDB() {
-        List<ContLike> createList = new ArrayList<>();
-        List<ContLike> deleteList = new ArrayList<>();
+    public void saveLikeToDB(List<LikeDTO> updateList) {
+        Map<LikeDTO, Boolean> likeMap = new HashMap<>();
         Map<LikeDTO, Long> likeCount = new HashMap<>();
-        List<LikeDTO> updateDTOs = getUpdateList();
-
-        if(updateDTOs.isEmpty()) {
-            log.info("No contLike data to save");
-            return updateDTOs.size();
-        }
+        List<ContLike> createEntities = new ArrayList<>();
+        List<ContLike> deleteEntities = new ArrayList<>();
 
         try{
-            collectUpdateListAndCount(updateDTOs, createList, deleteList, likeCount);
-            saveToDB(createList, deleteList, likeCount);
-            removeCache(updateDTOs);
-            log.info("Save contLike succeeded, update cache size={}, createList size={}, deleteList size={}, likeCount size={}",
-                    updateDTOs.size(), createList.size(),  deleteList.size(), likeCount.size());
+            collectLikeMap(updateList, likeMap);
+            collectEntityAndCount(likeMap, createEntities, deleteEntities, likeCount);
+            saveToDB(createEntities, deleteEntities, likeCount);
+            removeCache(likeCount);
+            log.info("Save content like succeeded, update cache likeMap size={}, createEntities size={}, deleteEntities size={}, likeCount size={}",
+                    likeMap.size(), createEntities.size(),  deleteEntities.size(), likeCount.size());
         } catch (Exception e) {
-            log.error("Save ContLike to DB failed:", e);
-            updateLikeRedisService.set(updateDTOs);
+            log.error("Save content like to DB failed:", e);
             throw new RuntimeException(e);
         }
-
-        return updateDTOs.size();
     }
 
-    private List<LikeDTO> getUpdateList(){
-        if(updateLikeRedisService.get().isEmpty()) return new ArrayList<>();
-
-        updateLikeRedisService.renameToBatch();
-        return updateLikeRedisService.getBatch();
+    protected void collectLikeMap(List<LikeDTO> updateList, Map<LikeDTO, Boolean> likeMap) {
+        for(LikeDTO likeDTO : updateList){
+            likeMap.put(new LikeDTO(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()), likeDTO.getLike());
+        }
     }
 
-    private void collectUpdateListAndCount(List<LikeDTO> updateDTOs,
-                                           List<ContLike> createList,
-                                           List<ContLike> deleteList,
-                                           Map<LikeDTO, Long> likeCount) {
-        updateDTOs.forEach(likeDTO ->
-                addToUpdateOrCreateListAndCalculateCount(likeDTO, createList, deleteList, likeCount));
+    protected void collectEntityAndCount(Map<LikeDTO, Boolean> likeMap,
+                                       List<ContLike> createEntities,
+                                       List<ContLike> deleteEntities,
+                                       Map<LikeDTO, Long> likeCount) {
+        for(Map.Entry<LikeDTO, Boolean> entry : likeMap.entrySet()){
+            addToUpdateOrCreateEntityAndCalculateCount(entry.getKey(), entry.getValue(), createEntities, deleteEntities, likeCount);
+        }
     }
 
-    private void addToUpdateOrCreateListAndCalculateCount(LikeDTO likeDTO,
-                                                          List<ContLike> createList,
-                                                          List<ContLike> deleteList,
-                                                          Map<LikeDTO, Long> likeCount){
+    private void addToUpdateOrCreateEntityAndCalculateCount(LikeDTO likeDTO,
+                                                            boolean like,
+                                                            List<ContLike> createEntities,
+                                                            List<ContLike> deleteEntities,
+                                                            Map<LikeDTO, Long> likeCount) {
         String id = likeDTO.getId();
         int no = likeDTO.getNo();
         String userId = likeDTO.getUserId();
         LikeDTO keyPair = new LikeDTO(id, no);
-        boolean like = get(id, no, userId);
         ContLike contLike = contLikeDAO.findByIdAndNoAndUserId(id, no, userId);
         if(like && contLike == null){
-            createList.add(new ContLike(id, no, userId));
+            createEntities.add(new ContLike(id, no, userId));
             likeCount.put(keyPair, likeCount.getOrDefault(keyPair, 0L) + 1);
         }else if(!like && contLike != null){
-            deleteList.add(contLike);
+            deleteEntities.add(contLike);
             likeCount.put(keyPair, likeCount.getOrDefault(keyPair, 0L) - 1);
         }
     }
 
-    private void saveToDB(List<ContLike> createList, List<ContLike> deleteList, Map<LikeDTO, Long> likeCount) {
-        contLikeDAO.saveAll(createList);
-        contLikeDAO.deleteAllInBatch(deleteList);
+    private void saveToDB(List<ContLike> createEntities, List<ContLike> deleteEntities, Map<LikeDTO, Long> likeCount) {
+        contLikeDAO.saveAll(createEntities);
+        contLikeDAO.deleteAllInBatch(deleteEntities);
         likeCount.forEach((key, value) -> contentDAO.increaseLikes(key.getId(), key.getNo(), value));
     }
 
-    private void removeCache(List<LikeDTO> updateDTOs) {
-        updateDTOs.forEach(likeDTO ->
-                likeRedisService.expire(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()));
-
-        updateDTOs.forEach(likeDTO ->
-                contentRedisService.delete(likeDTO.getId(), likeDTO.getNo()));
-
-        updateLikeRedisService.deleteBatch();
+    private void removeCache(Map<LikeDTO, Long> likeCount) {
+        for(Map.Entry<LikeDTO, Long> entry : likeCount.entrySet()){
+            LikeDTO keyPair = entry.getKey();
+            contentRedisService.delete(keyPair.getId(), keyPair.getNo());
+        }
     }
 
 }
