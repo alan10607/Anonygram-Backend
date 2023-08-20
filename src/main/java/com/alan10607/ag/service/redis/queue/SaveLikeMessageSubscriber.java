@@ -7,22 +7,22 @@ import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Service;
 
-import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Queue;
 
 @Service
 @NoArgsConstructor
 @Slf4j
 public class SaveLikeMessageSubscriber implements MessageListener {
-    private static Deque<LikeDTO> messageQueue = new LinkedList<>();
+    private static Queue<LikeDTO> messageQueue = new LinkedList<>();
 
     public void onMessage(Message message, byte[] pattern) {
         LikeDTO likeDTO = LikeDTO.fromMessageString(message.toString());
         messageQueue.offer(likeDTO);
-        log.info("Listened save like message {}", message);
+        log.info("Listened message {}, save like messageQueue size={}", message, messageQueue.size());
     }
 
-    public Deque<LikeDTO> getMessageQueue(){
+    public Queue<LikeDTO> getMessageQueue(){
         return this.messageQueue;
     }
 

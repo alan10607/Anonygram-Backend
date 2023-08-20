@@ -10,10 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -35,15 +32,15 @@ class LikeServiceTest {
     @Test
     void valid_collectLikeMap_can_override() {
         Map<LikeDTO, Boolean> likeMap = new HashMap<>();
-        List<LikeDTO> updateList = new ArrayList<>();
-        updateList.add(new LikeDTO(id, 0, userId, true));
-        updateList.add(new LikeDTO(id, 0, userId, false));
-        updateList.add(new LikeDTO(id, 1, userId, true));
-        updateList.add(new LikeDTO(id, 1, userId, false));
-        updateList.add(new LikeDTO(id2, 2, userId2, true));
-        updateList.add(new LikeDTO(id, 1, userId, true));
-        updateList.add(new LikeDTO(id2, 2, userId2, false));
-        likeService.collectLikeMap(updateList, likeMap);
+        Queue<LikeDTO> updateQueue = new LinkedList<>();
+        updateQueue.offer(new LikeDTO(id, 0, userId, true));
+        updateQueue.offer(new LikeDTO(id, 0, userId, false));
+        updateQueue.offer(new LikeDTO(id, 1, userId, true));
+        updateQueue.offer(new LikeDTO(id, 1, userId, false));
+        updateQueue.offer(new LikeDTO(id2, 2, userId2, true));
+        updateQueue.offer(new LikeDTO(id, 1, userId, true));
+        updateQueue.offer(new LikeDTO(id2, 2, userId2, false));
+        likeService.collectLikeMap(updateQueue, likeMap);
 
         assertEquals(false, likeMap.get(new LikeDTO(id, 0, userId)));
         assertEquals(true, likeMap.get(new LikeDTO(id, 1, userId)));
@@ -57,11 +54,13 @@ class LikeServiceTest {
         likeMap.put(new LikeDTO(id, 1, userId), false);
         likeMap.put(new LikeDTO(id, 2, userId), true);
         likeMap.put(new LikeDTO(id, 3, userId), false);
+        likeMap.put(new LikeDTO(id, 2, userId2), true);
 
         when(contLikeDAO.findByIdAndNoAndUserId(id, 0, userId)).thenReturn(new ContLike(id, 0, userId));
         when(contLikeDAO.findByIdAndNoAndUserId(id, 1, userId)).thenReturn(new ContLike(id, 1, userId));
         when(contLikeDAO.findByIdAndNoAndUserId(id, 2, userId)).thenReturn(null);
         when(contLikeDAO.findByIdAndNoAndUserId(id, 3, userId)).thenReturn(null);
+        when(contLikeDAO.findByIdAndNoAndUserId(id, 2, userId2)).thenReturn(null);
 
         List<ContLike> createEntities = new ArrayList<>();
         List<ContLike> deleteEntities = new ArrayList<>();
@@ -69,8 +68,9 @@ class LikeServiceTest {
         likeService.collectEntityAndCount(likeMap, createEntities, deleteEntities, likeCount);
 
         assertEquals(new ContLike(id, 2, userId), createEntities.get(0));
+        assertEquals(new ContLike(id, 2, userId2), createEntities.get(1));
         assertEquals(new ContLike(id, 1, userId), deleteEntities.get(0));
-        assertEquals(1, likeCount.get(new LikeDTO(id, 2)));
+        assertEquals(2, likeCount.get(new LikeDTO(id, 2)));
         assertEquals(-1, likeCount.get(new LikeDTO(id, 1)));
     }
 

@@ -11,12 +11,9 @@ import com.alan10607.ag.service.redis.queue.SaveLikeMessagePublisher;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -57,36 +54,36 @@ public class LikeService {
 
 
     /**
-     * Save the content likes from Redis to DB.
-     * In addition to updating ContLike, update the likes number of Content at the same time.
-     * It will not save to DB if the status is same between Redis and DB.
+     * Save each like to DB and update likes number of content.
+     * Find different between current redis like status and DB like status, update if different.
      * If the batch fails, save the data back to the update list in Redis, wait the next batch to restart process.
-     * If the update is successful, set the expired time to the Redis like data, and remove Redis content data.
      * The time complexity is almost update list size.
      */
     @Transactional
     @DebugDuration
-    public void saveLikeToDB(List<LikeDTO> updateList) {
+    public void saveLikeToDB(Queue<LikeDTO> updateQueue) {
         Map<LikeDTO, Boolean> likeMap = new HashMap<>();
         Map<LikeDTO, Long> likeCount = new HashMap<>();
         List<ContLike> createEntities = new ArrayList<>();
         List<ContLike> deleteEntities = new ArrayList<>();
 
         try{
-            collectLikeMap(updateList, likeMap);
+            collectLikeMap(updateQueue, likeMap);
             collectEntityAndCount(likeMap, createEntities, deleteEntities, likeCount);
             saveToDB(createEntities, deleteEntities, likeCount);
             removeCache(likeCount);
-            log.info("Save content like succeeded, update cache likeMap size={}, createEntities size={}, deleteEntities size={}, likeCount size={}",
-                    likeMap.size(), createEntities.size(),  deleteEntities.size(), likeCount.size());
+            log.info("Save content like succeeded, update cache updateQueue size={}, likeMap size={}, createEntities size={}, deleteEntities size={}, likeCount size={}",
+                    updateQueue.size(), likeMap.size(), createEntities.size(),  deleteEntities.size(), likeCount.size());
         } catch (Exception e) {
             log.error("Save content like to DB failed:", e);
-            throw new RuntimeException(e);
+            throw e;
         }
     }
 
-    protected void collectLikeMap(List<LikeDTO> updateList, Map<LikeDTO, Boolean> likeMap) {
-        for(LikeDTO likeDTO : updateList){
+    protected void collectLikeMap(Queue<LikeDTO> updateQueue, Map<LikeDTO, Boolean> likeMap) {
+        Iterator<LikeDTO> iterator = updateQueue.iterator();
+        while(iterator.hasNext()){
+            LikeDTO likeDTO = iterator.next();
             likeMap.put(new LikeDTO(likeDTO.getId(), likeDTO.getNo(), likeDTO.getUserId()), likeDTO.getLike());
         }
     }

@@ -7,9 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.LinkedList;
+import java.util.Queue;
 
 @Service
 @AllArgsConstructor
@@ -19,40 +18,34 @@ public class LikeBatchService {
     private final LockRedisService lockRedisService;
     private final SaveLikeMessageSubscriber saveLikeMessageSubscriber;
 
-    private static List<LikeDTO> updateList = new ArrayList<>();
-    private static final int MAX_UPDATE_SIZE = 10;
+    private static Queue<LikeDTO> updateQueue = new LinkedList<>();
+    private static final int MAX_UPDATE_SIZE = 1000;
 
     public void startBatch(){
-        lockRedisService.lockBySaveLikeQueue(() -> prepareUpdateList());
+        lockRedisService.lockBySaveLikeQueue(() -> prepareUpdateQueue());
     }
 
-    private void prepareUpdateList(){
-        Deque<LikeDTO> messageQueue = saveLikeMessageSubscriber.getMessageQueue();
-        List<LikeDTO> updateList = fetchUpdateList(messageQueue);
-        if(updateList.isEmpty()){
-            log.info("Like updateList is empty, skip batch");
+    private void prepareUpdateQueue(){
+        fetchUpdateQueue();
+        if(updateQueue.isEmpty()){
+            log.info("Like updateQueue is empty, skip batch");
             return;
         }
 
-        likeService.saveLikeToDB(updateList);
-        clearUpdateList();
+        likeService.saveLikeToDB(updateQueue);
+        clearUpdateQueue();
     }
 
-    private List<LikeDTO> fetchUpdateList(Deque<LikeDTO> messageQueue){
-        int count = 0;
-        while (!messageQueue.isEmpty() && count < MAX_UPDATE_SIZE) {
-            updateList.add(messageQueue.poll());
-            ++count;
+    private void fetchUpdateQueue(){
+        Queue<LikeDTO> messageQueue = saveLikeMessageSubscriber.getMessageQueue();
+        while (!messageQueue.isEmpty() && updateQueue.size() < MAX_UPDATE_SIZE) {
+            updateQueue.offer(messageQueue.poll());
         }
-        log.info("Move save like messageQueue to updateList, size={}", updateList.size());
-        return updateList;
     }
 
 
-    private void clearUpdateList(){
-        int size = updateList.size();
-        updateList.clear();
-        log.info("Clear save like updateList, size={}", size);
+    private void clearUpdateQueue(){
+        updateQueue.clear();
     }
 
 }

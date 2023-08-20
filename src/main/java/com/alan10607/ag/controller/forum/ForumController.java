@@ -7,7 +7,6 @@ import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.service.forum.ForumReadService;
 import com.alan10607.ag.service.forum.ForumWriteService;
 import com.alan10607.ag.service.forum.ImgurService;
-import com.alan10607.ag.service.forum.LikeBatchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -26,12 +25,9 @@ public class ForumController {
     private final ForumWriteService forumWriteService;
     private final ImgurService imgurService;
 
-    private final LikeBatchService likeBatchService;
-
     @GetMapping("/id")
     @Operation(summary = "Get all ids of article")
     public List<String> getId(){
-        likeBatchService.startBatch();
         return forumReadService.getId();
     }
 

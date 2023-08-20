@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class LockRedisService {
     private final RedissonClient redissonClient;
     private static final long MAX_WAIT_MS = 100;
-    private static final long KEY_EXPIRE_MS = 3000;
+    private static final long DEFAULT_KEY_EXPIRE_MS = 3000;
 
     private String getArticleLockName(String id){
         return String.format(RedisKey.LOCK_ARTICLE, id);
@@ -35,10 +35,10 @@ public class LockRedisService {
      * @param key
      * @param runnable
      */
-    private void lock(String key, Runnable runnable) {
+    private void lock(String key, Runnable runnable, long keyExpireMs) {
         RLock lock = redissonClient.getLock(key);
         try{
-            boolean tryLock = lock.tryLock(MAX_WAIT_MS, KEY_EXPIRE_MS, TimeUnit.MILLISECONDS);
+            boolean tryLock = lock.tryLock(MAX_WAIT_MS, keyExpireMs, TimeUnit.MILLISECONDS);
             if(tryLock){
                 log.info("Lock function, key={}", key);
                 runnable.run();
@@ -54,8 +54,13 @@ public class LockRedisService {
         } finally {
             if(lock.isLocked() && lock.isHeldByCurrentThread()){
                 lock.unlock();//Unlock only if key is locked and belongs to the current thread
+                log.info("Unlock function, key={}", key);
             }
         }
+    }
+
+    private void lock(String key, Runnable runnable) {
+        lock(key, runnable, DEFAULT_KEY_EXPIRE_MS);
     }
 
     public void lockByArticle(String id, Runnable runnable) {
@@ -71,7 +76,7 @@ public class LockRedisService {
     }
 
     public void lockBySaveLikeQueue(Runnable runnable) {
-        lock(RedisKey.LOCK_SAVE_LIKE_QUEUE, runnable);
+        lock(RedisKey.LOCK_SAVE_LIKE_QUEUE, runnable, 30000);
     }
 
 }
