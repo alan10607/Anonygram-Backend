@@ -66,16 +66,20 @@ public class LikeService {
         Map<LikeDTO, Long> likeCount = new HashMap<>();
         List<ContLike> createEntities = new ArrayList<>();
         List<ContLike> deleteEntities = new ArrayList<>();
+        try {
+            Thread.sleep(70000);
+        } catch (InterruptedException e) {
 
+        }
         try{
             collectLikeMap(updateQueue, likeMap);
             collectEntityAndCount(likeMap, createEntities, deleteEntities, likeCount);
             saveToDB(createEntities, deleteEntities, likeCount);
             removeCache(likeCount);
-            log.info("Save content like succeeded, update cache updateQueue size={}, likeMap size={}, createEntities size={}, deleteEntities size={}, likeCount size={}",
+            log.info("Save like to DB succeeded, updateQueue size={}, likeMap size={}, createEntities size={}, deleteEntities size={}, likeCount size={}",
                     updateQueue.size(), likeMap.size(), createEntities.size(),  deleteEntities.size(), likeCount.size());
         } catch (Exception e) {
-            log.error("Save content like to DB failed:", e);
+            log.error("Save like to DB failed:", e);
             throw e;
         }
     }

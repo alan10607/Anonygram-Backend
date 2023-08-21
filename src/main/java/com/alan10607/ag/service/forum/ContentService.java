@@ -11,7 +11,7 @@ import com.alan10607.ag.model.Content;
 import com.alan10607.ag.service.auth.UserService;
 import com.alan10607.ag.service.redis.ArticleRedisService;
 import com.alan10607.ag.service.redis.ContentRedisService;
-import com.alan10607.ag.service.redis.LockRedisService;
+import com.alan10607.ag.service.redis.lock.ForumLockService;
 import com.alan10607.ag.util.AuthUtil;
 import com.alan10607.ag.util.TimeUtil;
 import lombok.AllArgsConstructor;
@@ -34,14 +34,14 @@ public class ContentService {
     private final LikeService likeService;
     private final ArticleRedisService articleRedisService;
     private final ContentRedisService contentRedisService;
-    private final LockRedisService lockRedisService;
+    private final ForumLockService forumLockService;
     private final ArticleDAO articleDAO;
     private final ContentDAO contentDAO;
 
     public ContentDTO get(String id, int no) {
         ContentDTO contentDTO = contentRedisService.get(id, no);
         if(StringUtils.isBlank(contentDTO.getId()) || contentDTO.getNo() == null){
-            lockRedisService.lockByContent(id, no, () -> pullToRedis(id, no));
+            forumLockService.lockByContent(id, no, () -> pullToRedis(id, no));
             contentDTO = contentRedisService.get(id, no);
         }
         contentRedisService.expire(id, no);

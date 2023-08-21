@@ -75,7 +75,7 @@ public class ForumController {
 
     @PostMapping("/image")
     @Operation(summary = "Upload a image in base64 format")
-    public ForumDTO uploadImage(@RequestBody @Validated(ForumDTO.UploadImageGroup.class) ForumDTO forumDTO){
+    public ForumDTO createImage(@RequestBody @Validated(ForumDTO.UploadImageGroup.class) ForumDTO forumDTO){
         String imageUrl = imgurService.upload(forumDTO.getImageBase64());
         forumDTO.setImageUrl(imageUrl);
         forumDTO.setImageBase64(null);//to reduce payload size

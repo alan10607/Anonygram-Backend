@@ -7,7 +7,7 @@ import com.alan10607.ag.dto.UserDTO;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.ForumUser;
 import com.alan10607.ag.model.Role;
-import com.alan10607.ag.service.redis.LockRedisService;
+import com.alan10607.ag.service.redis.lock.ForumLockService;
 import com.alan10607.ag.service.redis.UserRedisService;
 import com.alan10607.ag.util.TimeUtil;
 import lombok.AllArgsConstructor;
@@ -27,7 +27,7 @@ import java.util.Optional;
 public class UserService implements UserDetailsService{
     private final RoleService roleService;
     private final UserRedisService userRedisService;
-    private final LockRedisService lockRedisService;
+    private final ForumLockService forumLockService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserDAO userDAO;
     private final RoleDAO roleDAO;
@@ -50,7 +50,7 @@ public class UserService implements UserDetailsService{
     public UserDTO get(String userId) {
         UserDTO userDTO = userRedisService.get(userId);
         if(StringUtils.isBlank(userDTO.getId())){
-            lockRedisService.lockByUser(userId, () -> pullToRedis(userId));
+            forumLockService.lockByUser(userId, () -> pullToRedis(userId));
             userDTO = userRedisService.get(userId);
         }
         userRedisService.expire(userId);

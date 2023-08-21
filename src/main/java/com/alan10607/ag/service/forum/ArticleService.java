@@ -6,7 +6,7 @@ import com.alan10607.ag.dto.ArticleDTO;
 import com.alan10607.ag.exception.AnonygramIllegalStateException;
 import com.alan10607.ag.model.Article;
 import com.alan10607.ag.service.redis.ArticleRedisService;
-import com.alan10607.ag.service.redis.LockRedisService;
+import com.alan10607.ag.service.redis.lock.ForumLockService;
 import com.alan10607.ag.util.TimeUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,13 +23,13 @@ import java.util.UUID;
 public class ArticleService {
     private final ContentService contentService;
     private final ArticleRedisService articleRedisService;
-    private final LockRedisService lockRedisService;
+    private final ForumLockService forumLockService;
     private final ArticleDAO articleDAO;
 
     public ArticleDTO get(String id) {
         ArticleDTO articleDTO = articleRedisService.get(id);
         if(StringUtils.isBlank(articleDTO.getId())){
-            lockRedisService.lockByArticle(id, () -> pullToRedis(id));
+            forumLockService.lockByArticle(id, () -> pullToRedis(id));
             articleDTO = articleRedisService.get(id);
         }
         articleRedisService.expire(id);
