@@ -49,7 +49,8 @@ public class ForumReadService {
     public void checkArticleStatusIsNormal(String id){
         ArticleDTO articleDTO = articleService.get(id);
         if(articleDTO.getStatus() != StatusType.NORMAL){
-            throw new AnonygramIllegalStateException("Article status of this content not normal, id={}", id);
+            throw new AnonygramIllegalStateException("Article status of this content is {} normal, id={}",
+                    articleDTO.getStatus(), id);
         }
     }
 
@@ -57,7 +58,8 @@ public class ForumReadService {
         checkArticleStatusIsNormal(id);
         ContentDTO contentDTO = contentService.get(id, no);
         if(contentDTO.getStatus() != StatusType.NORMAL){
-            throw new AnonygramIllegalStateException("Content status not normal, id={}, no={}", id, no);
+            throw new AnonygramIllegalStateException("Content status is {}, id={}, no={}",
+                    contentDTO.getStatus(), id, no);
         }
     }
 }
