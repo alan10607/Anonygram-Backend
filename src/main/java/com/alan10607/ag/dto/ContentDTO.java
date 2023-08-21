@@ -52,8 +52,6 @@ public class ContentDTO extends BaseDTO {
     public ContentDTO(String id,
                    Integer no,
                    String authorId,
-                   String authorName,
-                   String authorHeadUrl,
                    String word,
                    Long likes,
                    StatusType status,
@@ -62,8 +60,6 @@ public class ContentDTO extends BaseDTO {
         this.id = id;
         this.no = no;
         this.authorId = authorId;
-        this.authorName = authorName;
-        this.authorHeadUrl = authorHeadUrl;
         this.word = word;
         this.status = status;
         this.likes = likes;

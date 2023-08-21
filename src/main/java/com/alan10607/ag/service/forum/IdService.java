@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,7 +25,9 @@ public class IdService  {
         if(StringUtils.isBlank(idStrRedisService.get())) {
             pullStringToRedis();
         }
-        return Arrays.asList(idStrRedisService.get().split(","));
+
+        String idStr = idStrRedisService.get();
+        return StringUtils.isBlank(idStr) ? new ArrayList<>() : Arrays.asList(idStr.split(","));
     }
 
     private void pullStringToRedis() {

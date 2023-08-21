@@ -51,19 +51,15 @@ public class ContentService {
 
     private void pullToRedis(String id, int no) {
         ContentDTO contentDTO = contentDAO.findByIdAndNo(id, no)
-            .map(content -> {
-                UserDTO userDTO = userService.get(content.getAuthorId());
-                return new ContentDTO(content.getId(),
+            .map(content ->  new ContentDTO(content.getId(),
                         content.getNo(),
                         content.getAuthorId(),
-                        userDTO.getUsername(),
-                        userDTO.getHeadUrl(),
                         content.getWord(),
                         content.getLikes(),
                         content.getStatus(),
                         content.getCreateDate(),
-                        content.getUpdateDate());
-            }).orElseGet(() -> {
+                        content.getUpdateDate()))
+            .orElseGet(() -> {
                 log.error("Pull Content failed, id={}, no={}, put empty data to redis", id, no);
                 return new ContentDTO(id, no, StatusType.UNKNOWN);
             });
@@ -76,6 +72,9 @@ public class ContentService {
     private ContentDTO contentFilter(ContentDTO contentDTO) {
         switch(contentDTO.getStatus()){
             case NORMAL:
+                UserDTO userDTO = userService.get(contentDTO.getAuthorId());
+                contentDTO.setAuthorName(userDTO.getUsername());
+                contentDTO.setAuthorHeadUrl(userDTO.getHeadUrl());
                 contentDTO.setLike(likeService.get(contentDTO.getId(), contentDTO.getNo(), AuthUtil.getUserId()));
                 return contentDTO;
             case DELETED :
