@@ -66,11 +66,7 @@ public class LikeService {
         Map<LikeDTO, Long> likeCount = new HashMap<>();
         List<ContLike> createEntities = new ArrayList<>();
         List<ContLike> deleteEntities = new ArrayList<>();
-        try {
-            Thread.sleep(70000);
-        } catch (InterruptedException e) {
 
-        }
         try{
             collectLikeMap(updateQueue, likeMap);
             collectEntityAndCount(likeMap, createEntities, deleteEntities, likeCount);
