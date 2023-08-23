@@ -22,7 +22,6 @@ import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CharacterEncodingFilter;
 
 @Configuration
 @Slf4j
@@ -74,11 +73,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(csrfDoubleSubmitFilter, CsrfFilter.class);
-//                .addFilterBefore(xssHtmlEscapeFilter, CsrfFilter.class)
-//                .headers()
-//                    .xssProtection()
-//                    .and()
-//                    .contentSecurityPolicy("script-src 'self'");
+
         return http.build();
     }
 

@@ -23,7 +23,7 @@ public class SaveLikeSchedule extends QuartzJobBean {
     private final SystemLockService systemLockService;
     private final SaveLikeMessageSubscriber saveLikeMessageSubscriber;
     private static Queue<LikeDTO> updateQueue = new LinkedList<>();
-    private static final int MAX_UPDATE_SIZE = 10000;
+    private static final int MAX_UPDATE_SIZE = 100000;
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {

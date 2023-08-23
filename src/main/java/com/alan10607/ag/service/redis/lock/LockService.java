@@ -28,7 +28,7 @@ public class LockService {
                 log.info("Lock function, key={}", key);
                 runnable.run();
             }else{
-                Thread.sleep(busySleepMs);//Hotspot Invalid, reject request if the query exists
+                Thread.sleep(busySleepMs);//Cache Breakdown (Hotspot Invalid), reject request if the query exists
                 log.info("Function was locked by the key={}, skip this time", key);
                 throw new LockInterruptedRuntimeException("Function was locked by the key={}", key);
             }

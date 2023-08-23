@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -63,7 +64,7 @@ public class ArticleService {
                 return new ArticleDTO(articleDTO.getId(), StatusType.DELETED);
             case UNKNOWN :
             default:
-                log.info("Article not found, id={}", articleDTO.getId());
+                log.info("Article not found, id={}", articleDTO.getId());//Cache Penetration, store empty value
                 return new ArticleDTO(articleDTO.getId(), StatusType.UNKNOWN);
         }
     }
@@ -78,7 +79,7 @@ public class ArticleService {
     private Article prepareCreateEntity(ArticleDTO articleDTO){
         LocalDateTime createDate = TimeUtil.now();
         return new Article(UUID.randomUUID().toString(),
-                articleDTO.getTitle(),
+                HtmlUtils.htmlEscape(articleDTO.getTitle()),
                 StatusType.NORMAL,
                 createDate,
                 createDate);
