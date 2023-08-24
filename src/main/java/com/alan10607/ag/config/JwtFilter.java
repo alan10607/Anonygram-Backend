@@ -1,6 +1,7 @@
 package com.alan10607.ag.config;
 
 import com.alan10607.ag.model.ForumUser;
+import com.alan10607.ag.service.auth.AuthService;
 import com.alan10607.ag.service.auth.JwtService;
 import com.alan10607.ag.service.auth.UserService;
 import com.alan10607.ag.util.HttpUtil;
@@ -29,7 +30,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsServices;
     private final UserService userService;
-    private static final String AUTHORIZATION_NAME = HttpHeaders.AUTHORIZATION;
+    private final AuthService authService;
     private static final String BEARER = "Bearer ";
 
     @Override
@@ -37,45 +38,61 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         try{
-            setAuthentication(request);
+            setAuthentication(request, response);
         }catch (Exception e){
             log.info("JwtFilter fail: {}", e.getMessage());
         }
         filterChain.doFilter(request, response);
     }
 
-    private void setAuthentication(HttpServletRequest request) {
+    private void setAuthentication(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if(auth != null) return;//already set authentication
 
-        String token = getTokenFromRequest(request);
-        if(token == null) return;//token not found
-
-        ForumUser user = getUserDetails(token);
-        if(user == null) return;//token invalid
+        ForumUser user = getUserFromToken(request, response);
+        if(user == null) return;//user not found
 
         UsernamePasswordAuthenticationToken authToken = createAuthToken(user, request);
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 
-    public String getTokenFromRequest(HttpServletRequest request) {
-        String token = HttpUtil.getFromCookie(request, AUTHORIZATION_NAME);
+    private ForumUser getUserFromToken(HttpServletRequest request, HttpServletResponse response){
+        String accessToken = getTokenFromRequest(HttpHeaders.AUTHORIZATION, request);
+        if(StringUtils.isNotBlank(accessToken)) return getUserDetails(accessToken);
+
+        String refreshToken = getTokenFromRequest(HttpUtil.REFRESH_TOKEN, request);
+        if(StringUtils.isNotBlank(refreshToken)) return resetAccessTokenAndGetUserDetails(refreshToken, response);
+
+        return null;//no accessToken and refreshToken
+    }
+
+    private String getTokenFromRequest(String tokenName, HttpServletRequest request) {
+        String token = HttpUtil.getFromCookie(request, tokenName);
         if(StringUtils.isNotBlank(token)) {
             return token;
         }
 
-        token = request.getHeader(AUTHORIZATION_NAME);
+        token = request.getHeader(tokenName);
         if(StringUtils.isNotBlank(token) && token.length() > BEARER.length() && token.startsWith(BEARER)){
             return token.substring(BEARER.length());
         }
 
-        return HttpUtil.getFromParameter(request, AUTHORIZATION_NAME);
+        return HttpUtil.getFromParameter(request, tokenName);
     }
 
     private ForumUser getUserDetails(String token) {
         return checkIsAnonymous(token) ?
                 getAnonymousUser(token) :
                 getLoginUser(token);
+    }
+
+    private ForumUser resetAccessTokenAndGetUserDetails(String refreshToken, HttpServletResponse response){
+        ForumUser user = getUserDetails(refreshToken);
+        if(user == null) return null;//token invalid
+
+        response.setHeader(HttpHeaders.SET_COOKIE, authService.getAccessAndRefreshCookie(user));
+
+        return user;
     }
 
     private boolean checkIsAnonymous(String token) {

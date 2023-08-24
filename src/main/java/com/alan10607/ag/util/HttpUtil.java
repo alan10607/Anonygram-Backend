@@ -9,6 +9,7 @@ import java.util.Map;
 
 @Component
 public class HttpUtil {
+    public static final String REFRESH_TOKEN = "Refresh-Token";
 
     public static String getFromCookie(HttpServletRequest request, String name){
         Cookie[] cookies = request.getCookies();

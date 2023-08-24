@@ -3,6 +3,7 @@ package com.alan10607.ag.service.auth;
 import com.alan10607.ag.constant.RoleType;
 import com.alan10607.ag.dto.UserDTO;
 import com.alan10607.ag.model.ForumUser;
+import com.alan10607.ag.util.HttpUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -31,7 +32,7 @@ public class AuthService {
         user.setPassword(null);
         userDTO = UserDTO.from(user);
 
-        response.setHeader(HttpHeaders.SET_COOKIE, getJwtCookie(user).toString());
+        response.setHeader(HttpHeaders.SET_COOKIE, getAccessAndRefreshCookie(user));
         return userDTO;
     }
 
@@ -39,13 +40,26 @@ public class AuthService {
         ForumUser user = userService.getTempAnonymousUser(getSessionBase64());
         UserDTO userDTO = UserDTO.from(user);
 
-        response.setHeader(HttpHeaders.SET_COOKIE, getJwtCookie(user).toString());
+        response.setHeader(HttpHeaders.SET_COOKIE, getAccessCookie(user));
         return userDTO;
     }
 
-    public ResponseCookie getJwtCookie(ForumUser user) {
-        String token = jwtService.createToken(user);
-        return ResponseCookie.from(HttpHeaders.AUTHORIZATION, token)
+    public String getAccessAndRefreshCookie(ForumUser user){
+        return getAccessCookie(user) + "; " + getRefreshCookie(user);//combine cookies
+    }
+
+    private String getAccessCookie(ForumUser user) {
+        String token = jwtService.createAccessToken(user);
+        return getCookieByJwtToken(HttpHeaders.AUTHORIZATION, token).toString();
+    }
+
+    private String getRefreshCookie(ForumUser user) {
+        String token = jwtService.createRefreshToken(user);
+        return getCookieByJwtToken(HttpUtil.REFRESH_TOKEN, token).toString();
+    }
+
+    private ResponseCookie getCookieByJwtToken(String cookieName, String token) {
+        return ResponseCookie.from(cookieName, token)
                 .maxAge(jwtService.extractMaxAge(token))
                 .path("/")
                 .httpOnly(true)

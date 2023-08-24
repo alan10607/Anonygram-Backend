@@ -8,13 +8,11 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -26,7 +24,14 @@ public class JwtService {
     private static final String ID = "id";
     private static final String USERNAME = "username";
     private static final String EMAIL = "email";
-    private static final int VALID_HOUR = 1;
+    private static final String TOKEN_TYPE = "tokenType";
+    private static final int ACCESS_TOKEN_EXPIRED_HOUR = 1;
+    private static final int REFRESH_TOKEN_EXPIRED_HOUR = 24 * 30;
+
+    private enum TokenType {
+        ACCESS_TOKEN, REFRESH_TOKEN;
+    }
+
 
     public String extractSubject(String token){
         return extractClaims(token, Claims::getSubject);
@@ -40,31 +45,39 @@ public class JwtService {
         return (String) extractClaims(token, c -> c.get(EMAIL));
     }
 
+    public TokenType extractTokenType(String token) {
+        return (TokenType) extractClaims(token, c -> c.get(TOKEN_TYPE));
+    }
+
     public <T> T extractClaims(String token, Function<Claims, T> claimsResolver){
         Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    public String createToken(UserDetails userDetails){
-        return createToken(new HashMap<String, Object>(), userDetails);
-    }
-
-    public String createToken(Map<String, Object> extraClaim, UserDetails userDetails){
+    private String createToken(Map<String, Object> extraClaim, UserDetails userDetails, int expiredHour){
         return Jwts.builder()
                 .setClaims(extraClaim)
                 .setSubject(userDetails.getUsername())//subject=username
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * VALID_HOUR))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * expiredHour))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String createToken(ForumUser forumUser){
+    public String createAccessToken(ForumUser forumUser){
         return createToken(
                 Map.of(ID, forumUser.getId(),
-                    USERNAME, forumUser.getUsername(),
-                    EMAIL, forumUser.getEmail()),
-                forumUser);
+                       USERNAME, forumUser.getUsername(),
+                       EMAIL, forumUser.getEmail()),
+                forumUser,
+                ACCESS_TOKEN_EXPIRED_HOUR);
+    }
+
+    public String createRefreshToken(ForumUser forumUser){
+        return createToken(
+                Map.of(EMAIL, forumUser.getEmail()),
+                forumUser,
+                REFRESH_TOKEN_EXPIRED_HOUR);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails){
