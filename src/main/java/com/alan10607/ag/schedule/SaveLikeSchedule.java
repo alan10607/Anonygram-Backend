@@ -48,9 +48,10 @@ public class SaveLikeSchedule extends QuartzJobBean {
             return;
         }
 
-        log.info("Like updateQueue size={}, start batch process for saving like to DB", updateQueue.size());
+        log.info("Start batch process for saving like to DB, updateQueue size={}", updateQueue.size());
         likeService.saveLikeToDB(updateQueue);
         clearUpdateQueue();
+        log.info("End batch process for saving like to DB, updateQueue size={}", updateQueue.size());
     }
 
     private void fetchUpdateQueue(){

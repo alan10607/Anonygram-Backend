@@ -25,7 +25,7 @@ public class LockService {
         try{
             boolean tryLock = lock.tryLock(waitMs, keyExpireMs, TimeUnit.MILLISECONDS);
             if(tryLock){
-                log.info("Lock function, key={}", key);
+                log.debug("Lock function, key={}", key);
                 runnable.run();
             }else{
                 Thread.sleep(busySleepMs);//Cache Breakdown (Hotspot Invalid), reject request if the query exists
@@ -39,7 +39,7 @@ public class LockService {
         } finally {
             if(lock.isLocked() && lock.isHeldByCurrentThread()){
                 lock.unlock();//Unlock only if key is locked and belongs to the current thread
-                log.info("Unlock function, key={}", key);
+                log.debug("Unlock function, key={}", key);
             }
         }
     }

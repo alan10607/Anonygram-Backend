@@ -8,9 +8,12 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
@@ -21,17 +24,16 @@ import java.util.function.Function;
 @Slf4j
 public class JwtService {
     private static final String SECRET_KEY = "EsPKLbwWNsOtNoifyls3afApQVXy17mQTd+D22Qy5+/MiSV5eFYxEE651nY41mDt";
-    private static final String ID = "id";
-    private static final String USERNAME = "username";
     private static final String EMAIL = "email";
     private static final String TOKEN_TYPE = "tokenType";
-    private static final int ACCESS_TOKEN_EXPIRED_HOUR = 1;
-    private static final int REFRESH_TOKEN_EXPIRED_HOUR = 24 * 30;
+    private static final long ACCESS_TOKEN_EXPIRED_HOUR = 1;
+    private static final long REFRESH_TOKEN_EXPIRED_HOUR = 24 * 30;
+    public static final String ACCESS_TOKEN = HttpHeaders.AUTHORIZATION;
+    public static final String REFRESH_TOKEN = "Refresh-Token";
 
     private enum TokenType {
         ACCESS_TOKEN, REFRESH_TOKEN;
     }
-
 
     public String extractSubject(String token){
         return extractClaims(token, Claims::getSubject);
@@ -45,8 +47,17 @@ public class JwtService {
         return (String) extractClaims(token, c -> c.get(EMAIL));
     }
 
-    public TokenType extractTokenType(String token) {
-        return (TokenType) extractClaims(token, c -> c.get(TOKEN_TYPE));
+    private TokenType extractTokenType(String token) {
+        String tokenTypeName = (String) extractClaims(token, c -> c.get(TOKEN_TYPE));
+        return TokenType.valueOf(tokenTypeName);
+    }
+
+    public boolean extractIsAccessToken(String token) {
+        return extractTokenType(token) == TokenType.ACCESS_TOKEN;
+    }
+
+    public boolean extractIsRefreshToken(String token) {
+        return extractTokenType(token) == TokenType.REFRESH_TOKEN;
     }
 
     public <T> T extractClaims(String token, Function<Claims, T> claimsResolver){
@@ -54,7 +65,7 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    private String createToken(Map<String, Object> extraClaim, UserDetails userDetails, int expiredHour){
+    private String createToken(Map<String, Object> extraClaim, UserDetails userDetails, long expiredHour){
         return Jwts.builder()
                 .setClaims(extraClaim)
                 .setSubject(userDetails.getUsername())//subject=username
@@ -66,16 +77,16 @@ public class JwtService {
 
     public String createAccessToken(ForumUser forumUser){
         return createToken(
-                Map.of(ID, forumUser.getId(),
-                       USERNAME, forumUser.getUsername(),
-                       EMAIL, forumUser.getEmail()),
+                Map.of(EMAIL, forumUser.getEmail(),
+                       TOKEN_TYPE, TokenType.ACCESS_TOKEN),
                 forumUser,
                 ACCESS_TOKEN_EXPIRED_HOUR);
     }
 
     public String createRefreshToken(ForumUser forumUser){
         return createToken(
-                Map.of(EMAIL, forumUser.getEmail()),
+                Map.of(EMAIL, forumUser.getEmail(),
+                       TOKEN_TYPE, TokenType.REFRESH_TOKEN),
                 forumUser,
                 REFRESH_TOKEN_EXPIRED_HOUR);
     }
@@ -97,7 +108,7 @@ public class JwtService {
         return extractClaims(token, Claims::getIssuedAt);
     }
 
-    public long extractMaxAge(String token){
+    private long extractMaxAge(String token){
         return (extractExpiration(token).getTime() - extractIssuedAt(token).getTime()) / 1000;
     }
 
@@ -112,6 +123,31 @@ public class JwtService {
     private Key getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public void setResponseJwtCookie(HttpServletResponse response, ForumUser user){
+        response.addHeader(HttpHeaders.SET_COOKIE, getAccessCookie(user));
+        response.addHeader(HttpHeaders.SET_COOKIE, getRefreshCookie(user));
+    }
+
+    private String getAccessCookie(ForumUser user) {
+        String token = createAccessToken(user);
+        return getCookieByJwtToken(ACCESS_TOKEN, token).toString();
+    }
+
+    private String getRefreshCookie(ForumUser user) {
+        String token = createRefreshToken(user);
+        return getCookieByJwtToken(REFRESH_TOKEN, token).toString();
+    }
+
+    private ResponseCookie getCookieByJwtToken(String cookieName, String token) {
+        return ResponseCookie.from(cookieName, token)
+                .maxAge(extractMaxAge(token))
+                .path("/")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")//or default value is Lax
+                .build();
     }
 
 }

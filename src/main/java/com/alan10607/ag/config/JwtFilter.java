@@ -1,7 +1,6 @@
 package com.alan10607.ag.config;
 
 import com.alan10607.ag.model.ForumUser;
-import com.alan10607.ag.service.auth.AuthService;
 import com.alan10607.ag.service.auth.JwtService;
 import com.alan10607.ag.service.auth.UserService;
 import com.alan10607.ag.util.HttpUtil;
@@ -9,7 +8,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,7 +28,6 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsServices;
     private final UserService userService;
-    private final AuthService authService;
     private static final String BEARER = "Bearer ";
 
     @Override
@@ -57,11 +54,15 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private ForumUser getUserFromToken(HttpServletRequest request, HttpServletResponse response){
-        String accessToken = getTokenFromRequest(HttpHeaders.AUTHORIZATION, request);
-        if(StringUtils.isNotBlank(accessToken)) return getUserDetails(accessToken);
+        String accessToken = getTokenFromRequest(JwtService.ACCESS_TOKEN, request);
+        if(StringUtils.isNotBlank(accessToken) && jwtService.extractIsAccessToken(accessToken)) {
+            return getUserDetails(accessToken);
+        }
 
-        String refreshToken = getTokenFromRequest(HttpUtil.REFRESH_TOKEN, request);
-        if(StringUtils.isNotBlank(refreshToken)) return resetAccessTokenAndGetUserDetails(refreshToken, response);
+        String refreshToken = getTokenFromRequest(JwtService.REFRESH_TOKEN, request);
+        if(StringUtils.isNotBlank(refreshToken) && jwtService.extractIsRefreshToken(refreshToken)) {
+            return resetAccessTokenAndGetUserDetails(refreshToken, response);
+        }
 
         return null;//no accessToken and refreshToken
     }
@@ -90,8 +91,8 @@ public class JwtFilter extends OncePerRequestFilter {
         ForumUser user = getUserDetails(refreshToken);
         if(user == null) return null;//token invalid
 
-        response.setHeader(HttpHeaders.SET_COOKIE, authService.getAccessAndRefreshCookie(user));
-
+        jwtService.setResponseJwtCookie(response, user);
+        log.info("Refresh new JWT token for userId={}", user.getId());
         return user;
     }
 

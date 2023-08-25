@@ -3,11 +3,8 @@ package com.alan10607.ag.service.auth;
 import com.alan10607.ag.constant.RoleType;
 import com.alan10607.ag.dto.UserDTO;
 import com.alan10607.ag.model.ForumUser;
-import com.alan10607.ag.util.HttpUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -15,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Base64;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -32,48 +30,29 @@ public class AuthService {
         user.setPassword(null);
         userDTO = UserDTO.from(user);
 
-        response.setHeader(HttpHeaders.SET_COOKIE, getAccessAndRefreshCookie(user));
+        jwtService.setResponseJwtCookie(response, user);
         return userDTO;
     }
 
     public UserDTO anonymousLogin(HttpServletResponse response) {
-        ForumUser user = userService.getTempAnonymousUser(getSessionBase64());
+        ForumUser user = userService.getTempAnonymousUser(getUUIDBase64());
         UserDTO userDTO = UserDTO.from(user);
 
-        response.setHeader(HttpHeaders.SET_COOKIE, getAccessCookie(user));
+        jwtService.setResponseJwtCookie(response, user);
         return userDTO;
-    }
-
-    public String getAccessAndRefreshCookie(ForumUser user){
-        return getAccessCookie(user) + "; " + getRefreshCookie(user);//combine cookies
-    }
-
-    private String getAccessCookie(ForumUser user) {
-        String token = jwtService.createAccessToken(user);
-        return getCookieByJwtToken(HttpHeaders.AUTHORIZATION, token).toString();
-    }
-
-    private String getRefreshCookie(ForumUser user) {
-        String token = jwtService.createRefreshToken(user);
-        return getCookieByJwtToken(HttpUtil.REFRESH_TOKEN, token).toString();
-    }
-
-    private ResponseCookie getCookieByJwtToken(String cookieName, String token) {
-        return ResponseCookie.from(cookieName, token)
-                .maxAge(jwtService.extractMaxAge(token))
-                .path("/")
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")//or default value is Lax
-                .build();
     }
 
     public void register(UserDTO userDTO) {
         userService.create(userDTO, RoleType.NORMAL);
     }
 
+    private String getUUIDBase64(){
+        String tempId = UUID.randomUUID().toString();
+        return Base64.getEncoder().encodeToString(hashTo6Bytes(tempId.getBytes()));
+    }
 
     /**
+     * If using this function, SessionCreationPolicy.STATELESS will not work
      * Get temp id by hashing session
      * @return
      */
