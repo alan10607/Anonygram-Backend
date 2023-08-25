@@ -15,9 +15,8 @@ public class UserController {
 
     @GetMapping()
     @Operation(summary = "Get a user preferences")
-    public UserDTO get(@RequestBody UserDTO userDTO){
-        userService.get(AuthUtil.getUserId());
-        return userDTO;
+    public UserDTO get(){
+        return userService.get(AuthUtil.getUserId());
     }
 
     @PatchMapping()

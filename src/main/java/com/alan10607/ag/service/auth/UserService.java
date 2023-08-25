@@ -63,7 +63,7 @@ public class UserService implements UserDetailsService{
                         user.getUsername(),
                         user.getHeadUrl()))
                 .orElseGet(() -> {
-                    log.error("Pull user failed, id={}, will put empty data to redis", userId);
+                    log.info("Pull user failed, id={}, will put empty data to redis", userId);
                     return new UserDTO(userId, userId, "");
                 });
 

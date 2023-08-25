@@ -35,7 +35,7 @@ public class HttpUtil {
         return isMatchPath(path, new String[]{ matchPath });
     }
 
-    public static boolean isMatchPath(String path, String[] matchPaths) {
+    public static boolean isMatchPath(String path, String... matchPaths) {
         for(String matchPath : matchPaths){
             if(matchPath.endsWith("/**")){
                 int secondSlash = matchPath.indexOf("/", 1);
