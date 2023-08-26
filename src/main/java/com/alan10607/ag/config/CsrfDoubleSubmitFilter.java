@@ -28,7 +28,8 @@ public class CsrfDoubleSubmitFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !HttpUtil.isMatchPath(request.getRequestURI(), SecurityConfig.FORUM_PATH, SecurityConfig.USER_PATH);
+        return true;
+//        return !HttpUtil.isMatchPath(request.getRequestURI(), SecurityConfig.FORUM_PATH, SecurityConfig.USER_PATH);
     }
 
     @Override

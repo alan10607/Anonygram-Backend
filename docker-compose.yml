@@ -4,16 +4,16 @@ services:
     image: alan10607/anonygram:latest
     container_name: anonygram
     ports:
-      - "443:443"
+     - "443:443"
     volumes:
-      - "~/docker/volume/anonygram/log:/log"
+     - "~/docker/volume/anonygram/log:/log"
     environment:
-      - ACTIVE=prod
+     - ACTIVE=prod
     depends_on:
-      - ag-mysql
-      - ag-redis
+     - ag-mysql
+     - ag-redis
     networks:
-      - proxy
+     - proxy
     command: ["/wait-for-it.sh", "ag-mysql:3306", "--", "/wait-for-it.sh", "ag-redis:6379", "--", "java","-jar","/anonygram.jar"]
 
   ag-mysql:

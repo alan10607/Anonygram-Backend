@@ -36,6 +36,7 @@ public class InitConfig {
     @PostConstruct
     public void printProperties() {
         String[] properties = {
+                "spring.profiles.active",
                 "spring.datasource.url",
                 "spring.datasource.username",
                 "spring.datasource.password",
