@@ -31,7 +31,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final CsrfDoubleSubmitFilter csrfDoubleSubmitFilter;
-    private final XssHtmlEscapeFilter xssHtmlEscapeFilter;
     private final AuthenticationProvider authenticationProvider;
     public static final String ERROR_PAGE_PATH = "/err";//Redirect error status to this page
     public static final String FORUM_PATH = "/forum/**";
