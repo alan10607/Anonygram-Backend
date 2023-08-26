@@ -2,5 +2,4 @@
 
 source ab_common.sh
 
-ab -n 10 -c 1000 -t 60 -H "Authorization: Bearer $BEARER" -T application/json -p "body/POST:_forum_article.json" $HOST/forum/article 
-2>&1 | tee "out/POST:_forum_article.$NOW.txt"
+ab -n 1000 -c 10 -t 60 -T application/json -p "body/POST:_forum_article.json" -H "$HEADERS" -C "$COOKIES" $HOST/forum/article 2>&1 | tee "out/POST:_forum_article.$NOW.txt"

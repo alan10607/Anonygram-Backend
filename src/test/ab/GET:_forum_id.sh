@@ -2,5 +2,4 @@
 
 source ab_common.sh
 
-ab -n 100 -c 10000 -t 60 -H "Authorization: Bearer $BEARER" $HOST/forum/id 
-2>&1 | tee "out/GET:_forum_id.$NOW.txt"
+ab -n 10000 -c 100 -t 60 -H "$HEADERS" -C "$COOKIES" $HOST/forum/id 2>&1 | tee "out/GET:_forum_id.$NOW.txt"

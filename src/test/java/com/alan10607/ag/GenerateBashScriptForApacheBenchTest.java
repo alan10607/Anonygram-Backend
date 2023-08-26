@@ -27,15 +27,14 @@ public class GenerateBashScriptForApacheBenchTest {
     private static final String OUTPUT_FILE_PATH = "src/test/ab/out";
     private static final String BODY_FILE_PATH = "src/test/ab/body";
     private static final String COMMON_FILE_NAME = "ab_common.sh";
-    private static final String TOKEN_FILE_NAME = "token.txt";
 
-    private static final String GET_CONCURRENCY = "10000";
-    private static final String GET_NUMBER = "100";
-    private static final String POST_CONCURRENCY = "1000";
-    private static final String POST_NUMBER = "10";
+    private static final String GET_CONCURRENCY = "100";
+    private static final String GET_NUMBER = "10000";
+    private static final String POST_CONCURRENCY = "10";
+    private static final String POST_NUMBER = "1000";
     private static final String TIME = "60";
 
-    private Map<String, String> variableMap = new HashMap<>();
+    private Map<String, String> variableMap = new LinkedHashMap<>();
 
     @Test
     public void generateBashScriptForApacheBench() {
@@ -84,13 +83,14 @@ public class GenerateBashScriptForApacheBenchTest {
         if(commonFile.exists()) return;
 
         StringBuffer script = new StringBuffer("#!/bin/bash\n\n")
-                .append("clear\n")
-                .append("read -r BEARER < \"" + TOKEN_FILE_NAME + "\"\n");
+                .append("clear\n");
 
+        variableMap.put("BEARER", "");
         variableMap.put("HOST", "https://localhost");
         variableMap.put("NOW", "$(date +\"%Y-%m-%d.%H:%M:%S\")");
+        variableMap.put("HEADERS", "\"X-CSRF-TOKEN: 79eecf83-f808-47e8-a242-4cb9d8d81920\"");
+        variableMap.put("COOKIES", "\"X-CSRF-TOKEN=79eecf83-f808-47e8-a242-4cb9d8d81920;Authorization=$BEARER\"");
         variableMap.forEach((k, v) -> script.append(k).append("=").append(v).append("\n"));
-
         writeFile(commonFilePath, script.toString());
     }
 
@@ -128,7 +128,7 @@ public class GenerateBashScriptForApacheBenchTest {
     private String getScript(RequestMethod method, String path, String fileName){
         StringBuffer script = new StringBuffer("#!/bin/bash\n\n")
                 .append(getSourceScript()).append("\n\n")
-                .append(getApacheBenchScript(method, path, fileName)).append(" \n")
+                .append(getApacheBenchScript(method, path, fileName)).append(" ")
                 .append(getTeeScript(fileName));
         return script.toString();
     }
@@ -145,14 +145,14 @@ public class GenerateBashScriptForApacheBenchTest {
         String formattedPath = formatPath(path);
         switch(method) {
             case GET:
-                return String.format("ab -n %s -c %s -t %s -H \"Authorization: Bearer $BEARER\" $HOST%s",
+                return String.format("ab -n %s -c %s -t %s -H \"$HEADERS\" -C \"$COOKIES\" $HOST%s",
                         GET_NUMBER, GET_CONCURRENCY, TIME, formattedPath);
             case POST:
             case PATCH:
-                return String.format("ab -n %s -c %s -t %s -H \"Authorization: Bearer $BEARER\" -T application/json -p \"body/%s.json\" $HOST%s",
+                return String.format("ab -n %s -c %s -t %s -T application/json -p \"body/%s.json\" -H \"$HEADERS\" -C \"$COOKIES\" $HOST%s",
                         POST_NUMBER, POST_CONCURRENCY, TIME, fileName, formattedPath);
             case PUT:
-                return String.format("ab -n %s -c %s -t %s -H \"Authorization: Bearer $BEARER\" -T application/json -u \"body/%s.json\" $HOST%s",
+                return String.format("ab -n %s -c %s -t %s -T application/json -u \"body/%s.json\" -H \"$HEADERS\" -C \"$COOKIES\" $HOST%s",
                         POST_NUMBER, POST_CONCURRENCY, TIME, fileName, formattedPath);
             default:
                 return "exit #Not support";
