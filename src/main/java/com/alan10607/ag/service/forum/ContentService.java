@@ -18,7 +18,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.HtmlUtils;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
@@ -117,7 +116,7 @@ public class ContentService {
         return new Content(contentDTO.getId(),
                 no,
                 AuthUtil.getUserId(),
-                HtmlUtils.htmlEscape(contentDTO.getWord()),
+                contentDTO.getWord(),
                 0L,
                 StatusType.NORMAL,
                 createDate,
