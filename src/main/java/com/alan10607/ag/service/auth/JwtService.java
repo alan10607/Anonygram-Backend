@@ -32,7 +32,7 @@ public class JwtService {
     public static final String REFRESH_TOKEN = "Refresh-Token";
 
     private enum TokenType {
-        ACCESS_TOKEN, REFRESH_TOKEN;
+        ACCESS_TOKEN, REFRESH_TOKEN
     }
 
     public String extractSubject(String token){
