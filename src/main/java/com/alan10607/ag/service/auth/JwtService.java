@@ -1,6 +1,8 @@
 package com.alan10607.ag.service.auth;
 
 import com.alan10607.ag.model.ForumUser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -30,6 +32,7 @@ public class JwtService {
     private static final long REFRESH_TOKEN_EXPIRED_HOUR = 24 * 30;
     public static final String ACCESS_TOKEN = HttpHeaders.AUTHORIZATION;
     public static final String REFRESH_TOKEN = "Refresh-Token";
+    public static final String SET_JWT = "Set-Jwt";
 
     private enum TokenType {
         ACCESS_TOKEN, REFRESH_TOKEN
@@ -126,18 +129,21 @@ public class JwtService {
     }
 
     public void setResponseJwtCookie(HttpServletResponse response, ForumUser user){
-        response.addHeader(HttpHeaders.SET_COOKIE, getAccessCookie(user));
-        response.addHeader(HttpHeaders.SET_COOKIE, getRefreshCookie(user));
+        String accessToken = createAccessToken(user);
+        String refreshToken = createRefreshToken(user);
+        response.addHeader(HttpHeaders.SET_COOKIE, getCookieByJwtToken(ACCESS_TOKEN, accessToken).toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, getCookieByJwtToken(REFRESH_TOKEN, refreshToken).toString());
+        response.addHeader(SET_JWT, getJwtHeaderValue(accessToken, refreshToken));//for situation when phone's browser rejects cross-site cookies
     }
 
-    private String getAccessCookie(ForumUser user) {
-        String token = createAccessToken(user);
-        return getCookieByJwtToken(ACCESS_TOKEN, token).toString();
-    }
-
-    private String getRefreshCookie(ForumUser user) {
-        String token = createRefreshToken(user);
-        return getCookieByJwtToken(REFRESH_TOKEN, token).toString();
+    private String getJwtHeaderValue(String accessToken, String refreshToken) {
+        try {
+            Map<String, String> jwtHeader = Map.of(ACCESS_TOKEN, accessToken, REFRESH_TOKEN, refreshToken);
+            return new ObjectMapper().writeValueAsString(jwtHeader);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to create Jwt Header string", e);
+        }
+        return "";
     }
 
     private ResponseCookie getCookieByJwtToken(String cookieName, String token) {
