@@ -133,6 +133,7 @@ public class JwtService {
         String refreshToken = createRefreshToken(user);
         response.addHeader(HttpHeaders.SET_COOKIE, getCookieByJwtToken(ACCESS_TOKEN, accessToken).toString());
         response.addHeader(HttpHeaders.SET_COOKIE, getCookieByJwtToken(REFRESH_TOKEN, refreshToken).toString());
+        response.addHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, SET_JWT);
         response.addHeader(SET_JWT, getJwtHeaderValue(accessToken, refreshToken));//for situation when phone's browser rejects cross-site cookies
     }
 

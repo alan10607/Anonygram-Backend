@@ -54,17 +54,32 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private ForumUser getUserFromToken(HttpServletRequest request, HttpServletResponse response){
+        ForumUser user = getAccessTokenUser(request);
+        if(user != null) return user;
+
+        return getRefreshTokenUserAndResetAccessToken(request, response);
+    }
+
+    private ForumUser getAccessTokenUser(HttpServletRequest request){
         String accessToken = getTokenFromRequest(JwtService.ACCESS_TOKEN, request);
-        if(StringUtils.isNotBlank(accessToken) && jwtService.extractIsAccessToken(accessToken)) {
-            return getUserDetails(accessToken);
-        }
+        if(StringUtils.isBlank(accessToken)) return null;
+        if(!jwtService.extractIsAccessToken(accessToken)) return null;
 
+        return getUserDetails(accessToken);
+    }
+
+    private ForumUser getRefreshTokenUserAndResetAccessToken(HttpServletRequest request, HttpServletResponse response){
         String refreshToken = getTokenFromRequest(JwtService.REFRESH_TOKEN, request);
-        if(StringUtils.isNotBlank(refreshToken) && jwtService.extractIsRefreshToken(refreshToken)) {
-            return resetAccessTokenAndGetUserDetails(refreshToken, response);
-        }
+        if(StringUtils.isBlank(refreshToken)) return null;
+        if(!jwtService.extractIsRefreshToken(refreshToken)) return null;
 
-        return null;//no accessToken and refreshToken
+        ForumUser user = getUserDetails(refreshToken);
+        if(user == null) return null;//token invalid
+
+        jwtService.setResponseJwtCookie(response, user);
+        log.info("Refresh new JWT token for userId={}", user.getId());
+        return user;
+
     }
 
     private String getTokenFromRequest(String tokenName, HttpServletRequest request) {
@@ -82,21 +97,12 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private ForumUser getUserDetails(String token) {
-        return checkIsAnonymous(token) ?
+        return isAnonymousToken(token) ?
                 getAnonymousUser(token) :
                 getLoginUser(token);
     }
 
-    private ForumUser resetAccessTokenAndGetUserDetails(String refreshToken, HttpServletResponse response){
-        ForumUser user = getUserDetails(refreshToken);
-        if(user == null) return null;//token invalid
-
-        jwtService.setResponseJwtCookie(response, user);
-        log.info("Refresh new JWT token for userId={}", user.getId());
-        return user;
-    }
-
-    private boolean checkIsAnonymous(String token) {
+    private boolean isAnonymousToken(String token) {
         String email = jwtService.extractEmail(token);
         return StringUtils.isBlank(email);
     }
