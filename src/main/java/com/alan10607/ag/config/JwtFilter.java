@@ -37,7 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
         try{
             setAuthentication(request, response);
         }catch (Exception e){
-            log.info("JwtFilter fail: {}", e.getMessage());
+            log.info("JwtFilter error", e);
         }
         filterChain.doFilter(request, response);
     }
@@ -54,10 +54,22 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private ForumUser getUserFromToken(HttpServletRequest request, HttpServletResponse response){
-        ForumUser user = getAccessTokenUser(request);
-        if(user != null) return user;
+        ForumUser user;
+        try {
+            user = getAccessTokenUser(request);
+            if(user != null) return user;
+        }catch (Exception e){
+            log.debug("Get access token error: {}", e.getMessage());
+        }
 
-        return getRefreshTokenUserAndResetAccessToken(request, response);
+        try {
+            user = getRefreshTokenUserAndResetAccessToken(request, response);
+            if(user != null) return user;
+        }catch (Exception e){
+            log.debug("Get refresh token error: {}", e.getMessage());
+        }
+
+        return null;
     }
 
     private ForumUser getAccessTokenUser(HttpServletRequest request){
