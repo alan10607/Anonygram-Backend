@@ -142,7 +142,7 @@ public class ContentService {
     }
 
     public void updateLike(String id, int no, boolean like) {
-        contentRedisService.updateLikes(id, no, like ? 1 : -1);
         likeService.set(new LikeDTO(id, no, AuthUtil.getUserId(), like));
+        contentRedisService.updateLikes(id, no, like ? 1 : -1);
     }
 }
