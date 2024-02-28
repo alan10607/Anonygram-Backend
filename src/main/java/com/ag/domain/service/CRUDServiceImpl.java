@@ -31,30 +31,30 @@ public abstract class CRUDServiceImpl<Entity> implements CRUDService<Entity> {
 
     @Override
     public Entity create(Entity entity) {
-        this.validateCreateAndUpdateAndPatch(entity);
+        this.validateCreate(entity);
         return createImpl(entity);
     }
 
     @Override
     public Entity update(Entity entity) {
         this.validateExist(entity);
-        this.validateCreateAndUpdateAndPatch(entity);
+        this.validateUpdateAndPatch(entity);
         return updateImpl(entity);
     }
 
     @Override
-    public Entity patch(Entity newEntity) {
-        Entity entity = this.validateExist(newEntity);
-        ObjectFieldUtil.overwritePublicFields(entity, newEntity);
-        this.validateCreateAndUpdateAndPatch(entity);
-        return patchImpl(entity);
+    public Entity patch(Entity entity) {
+        Entity oldEntity = this.validateExist(entity);
+        ObjectFieldUtil.overwritePublicFields(oldEntity, entity);
+        this.validateUpdateAndPatch(oldEntity);
+        return patchImpl(oldEntity);
     }
 
     @Override
     public Entity delete(Entity entity) {
-        this.validateExist(entity);
-        this.validateDelete(entity);
-        return deleteImpl(entity);
+        Entity oldEntity = this.validateExist(entity);
+        this.validateDelete(oldEntity);
+        return deleteImpl(oldEntity);
     }
 
     private Entity validateExist(Entity entity) {
@@ -67,7 +67,10 @@ public abstract class CRUDServiceImpl<Entity> implements CRUDService<Entity> {
     protected void validateGet(Entity entity) {
     }
 
-    protected void validateCreateAndUpdateAndPatch(Entity entity) {
+    protected void validateCreate(Entity entity) {
+    }
+
+    protected void validateUpdateAndPatch(Entity entity) {
     }
 
     protected void validateDelete(Entity entity) {

@@ -1,6 +1,6 @@
 package com.ag.domain.dto;
 
-import com.alan10607.ag.constant.StatusType;
+import com.ag.domain.constant.StatusType;
 import com.alan10607.ag.dto.BaseDTO;
 import com.alan10607.ag.dto.ContentDTO;
 import com.alan10607.ag.util.ToolUtil;
@@ -25,8 +25,22 @@ public class ArticleDTO extends BaseDTO {
     @NotNull
     private String id;
 
+    @NotNull
+    @Min(0)
+    private Integer no;
+
+    @NotBlank
+    private String authorId;
+
     @NotBlank
     private String title;
+
+    @NotBlank
+    private String word;
+
+    @NotNull
+    @Min(0)
+    private Long likes;
 
     @NotNull
     private StatusType status;
@@ -37,11 +51,11 @@ public class ArticleDTO extends BaseDTO {
     @NotNull
     private LocalDateTime updateDate;
 
-    @NotNull
-    @Min(1)
-    private Integer contentSize;
-
-    private List<ContentDTO> contentList;
+    public ArticleDTO(String id,
+                      int no) {
+        this.id = id;
+        this.no = no;
+    }
 
     public ArticleDTO(String id,
                       StatusType status) {
@@ -60,12 +74,10 @@ public class ArticleDTO extends BaseDTO {
         this.status = status;
         this.createDate = createDate;
         this.updateDate = updateDate;
-        this.contentSize = contentSize;
     }
 
     public ArticleDTO(String title, List<ContentDTO> contentList) {
         this.title = title;
-        this.contentList = contentList;
     }
 
     public static ArticleDTO from(Object data) {

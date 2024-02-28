@@ -4,6 +4,7 @@ import com.ag.domain.dto.ArticleDTO;
 import com.ag.domain.constant.StatusType;
 import com.ag.domain.model.Article;
 import com.ag.domain.repository.ArticleRepository;
+import com.ag.domain.util.ObjectFieldUtil;
 import com.ag.domain.util.TimeUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,17 +15,35 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class ArticleService extends CRUDServiceImpl<ArticleDTO>{
+public class ArticleService extends CRUDServiceImpl<ArticleDTO> {
     private final ArticleRepository articleRepository;
 
-    public List<ArticleDTO> get(List<String> idList, List<Integer> noList){
-//...
-        Article a = new Article("a",1);
-        articleRepository.save(a);
-        return null;
+    public ArticleDTO get(String id, int no) {
+        return this.get(new ArticleDTO(id, no));
     }
 
-//    public List<String> getId(){
+    public ArticleDTO delete(String id, int no) {
+        return this.delete(new ArticleDTO(id, no));
+    }
+
+    public ArticleDTO patchWord(ArticleDTO articleDTO) {
+        ArticleDTO patchDTO = ObjectFieldUtil.retainFields(articleDTO, "id", "no", "word");
+        return this.patch(patchDTO);
+    }
+
+    public ArticleDTO patchStatus(ArticleDTO articleDTO) {
+        ArticleDTO patchDTO = ObjectFieldUtil.retainFields(articleDTO, "id", "no", "status");
+        return this.patch(patchDTO);
+    }
+
+//    public ArticleDTO patchLike(ArticleDTO articleDTO) {
+//        ArticleDTO patchDTO = this.get(articleDTO.getId(), articleDTO.getNo());
+//        patchDTO.setLikes(patchDTO.getLikes() + 1);
+//        //TODO: need work to impl like service
+//        return this.patch(patchDTO);
+//    }
+
+    //    public List<String> getId(){
 //        return idService.get();
 //    }
 //
@@ -91,4 +110,44 @@ public class ArticleService extends CRUDServiceImpl<ArticleDTO>{
     public ArticleDTO deleteImpl(ArticleDTO articleDTO) {
         return null;
     }
+
+    @Override
+    protected void validateCreate(ArticleDTO articleDTO) {
+        //TODO: prepareCreateEntity, if no=null, no=0
+        validateTitle(articleDTO);
+        validateWord(articleDTO);
+    }
+
+    protected void validateUpdateAndPatch(ArticleDTO articleDTO) {
+        //TODO: preparePatchEntity?
+        validateWord(articleDTO);
+        validateStatus(articleDTO);
+    }
+
+    protected void validateDelete(ArticleDTO articleDTO) {
+        validateStatus(articleDTO);
+    }
+
+    private void validateWord(ArticleDTO articleDTO) {
+        //TODO:if no =0 thenword not blank and size
+    }
+
+    private void validateTitle(ArticleDTO articleDTO) {
+        //TODO:word not blank and size
+    }
+
+    private void validateStatus(ArticleDTO articleDTO) {
+        //TODO:check status is legal
+    }
+
+    private void validateIsExist(ArticleDTO articleDTO) {
+        //TODO:must exist
+    }
+
+    private void validateIsNotExist(ArticleDTO articleDTO) {
+        //TODO:must not exist
+    }
+
+
+
 }
