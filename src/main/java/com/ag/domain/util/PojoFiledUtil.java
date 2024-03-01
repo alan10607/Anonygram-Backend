@@ -1,16 +1,15 @@
 package com.ag.domain.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.Sets;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
-public class ObjectFieldUtil {
+public class PojoFiledUtil {
 
     public static void overwritePublicFields(Object target, Object source) {
         if (!target.getClass().equals(source.getClass())) {
@@ -45,5 +44,11 @@ public class ObjectFieldUtil {
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException("Failed to retain POJO fields", e);
         }
+    }
+
+    public static <T> T convertObject(Object fromValue, Class<T> toClass) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        return objectMapper.convertValue(fromValue, toClass);
     }
 }

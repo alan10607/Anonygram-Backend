@@ -1,9 +1,6 @@
 package com.ag.domain.dto;
 
 import com.ag.domain.constant.StatusType;
-import com.alan10607.ag.dto.BaseDTO;
-import com.alan10607.ag.dto.ContentDTO;
-import com.alan10607.ag.util.ToolUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,14 +11,13 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Component
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ArticleDTO extends BaseDTO {
+public class ArticleDTO {
     @NotNull
     private String id;
 
@@ -51,6 +47,10 @@ public class ArticleDTO extends BaseDTO {
     @NotNull
     private LocalDateTime updateDate;
 
+    private Boolean like;
+    private String authorName;
+    private String authorHeadUrl;
+
     public ArticleDTO(String id,
                       int no) {
         this.id = id;
@@ -58,8 +58,10 @@ public class ArticleDTO extends BaseDTO {
     }
 
     public ArticleDTO(String id,
+                      int no,
                       StatusType status) {
         this.id = id;
+        this.no = no;
         this.status = status;
     }
 
@@ -76,12 +78,5 @@ public class ArticleDTO extends BaseDTO {
         this.updateDate = updateDate;
     }
 
-    public ArticleDTO(String title, List<ContentDTO> contentList) {
-        this.title = title;
-    }
-
-    public static ArticleDTO from(Object data) {
-        return ToolUtil.convertValue(data, ArticleDTO.class);
-    }
 
 }
