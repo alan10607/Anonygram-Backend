@@ -40,7 +40,7 @@ public class ArticleController {
     }
 
     @PatchMapping("/{id}/{no}/word")
-    @Operation(summary = "To modify a content")
+    @Operation(summary = "To modify a content word")
     public ArticleDTO patchWord(@PathVariable("id") String id,
                                 @PathVariable("no") int no,
                                 @RequestBody ArticleDTO articleDTO) {

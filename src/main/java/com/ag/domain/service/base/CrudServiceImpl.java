@@ -1,6 +1,6 @@
-package com.ag.domain.service;
+package com.ag.domain.service.base;
 
-import com.ag.domain.util.ObjectFieldUtil;
+import com.ag.domain.util.PojoFiledUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -10,7 +10,7 @@ import javax.persistence.EntityNotFoundException;
 @Service
 @AllArgsConstructor
 @Slf4j
-public abstract class CRUDServiceImpl<Entity> implements CRUDService<Entity> {
+public abstract class CrudServiceImpl<Entity> implements CrudService<Entity> {
 
     public abstract Entity getImpl(Entity entity);
 
@@ -22,58 +22,64 @@ public abstract class CRUDServiceImpl<Entity> implements CRUDService<Entity> {
 
     public abstract Entity deleteImpl(Entity entity);
 
-
     @Override
     public Entity get(Entity entity) {
-        this.validateGet(entity);
+        this.beforeGet(entity);
         return getImpl(entity);
     }
 
     @Override
     public Entity create(Entity entity) {
-        this.validateCreate(entity);
+        this.validateIsNotExist(entity);
+        this.beforeCreate(entity);
         return createImpl(entity);
     }
 
     @Override
     public Entity update(Entity entity) {
-        this.validateExist(entity);
-        this.validateUpdateAndPatch(entity);
+        this.validateIsExist(entity);
+        this.beforeUpdateAndPatch(entity);
         return updateImpl(entity);
     }
 
     @Override
     public Entity patch(Entity entity) {
-        Entity oldEntity = this.validateExist(entity);
-        ObjectFieldUtil.overwritePublicFields(oldEntity, entity);
-        this.validateUpdateAndPatch(oldEntity);
+        Entity oldEntity = this.validateIsExist(entity);
+        PojoFiledUtil.overwritePublicFields(oldEntity, entity);
+        this.beforeUpdateAndPatch(oldEntity);
         return patchImpl(oldEntity);
     }
 
     @Override
     public Entity delete(Entity entity) {
-        Entity oldEntity = this.validateExist(entity);
-        this.validateDelete(oldEntity);
+        Entity oldEntity = this.validateIsExist(entity);
+        this.beforeDelete(oldEntity);
         return deleteImpl(oldEntity);
     }
 
-    private Entity validateExist(Entity entity) {
+    private Entity validateIsExist(Entity entity) {
         if (this.get(entity) == null) {
             throw new EntityNotFoundException("Entity not found in CRUD");
         }
         return entity;
     }
 
-    protected void validateGet(Entity entity) {
+    private void validateIsNotExist(Entity entity) {
+        if (this.get(entity) != null) {
+            throw new EntityNotFoundException("Entity already found in CRUD");
+        }
     }
 
-    protected void validateCreate(Entity entity) {
+    protected void beforeGet(Entity entity) {
     }
 
-    protected void validateUpdateAndPatch(Entity entity) {
+    protected void beforeCreate(Entity entity) {
     }
 
-    protected void validateDelete(Entity entity) {
+    protected void beforeUpdateAndPatch(Entity entity) {
+    }
+
+    protected void beforeDelete(Entity entity) {
     }
 
 }

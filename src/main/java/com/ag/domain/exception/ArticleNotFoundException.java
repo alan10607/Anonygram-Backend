@@ -10,7 +10,7 @@ public class ArticleNotFoundException extends AnonygramRuntimeException {
     }
 
     public ArticleNotFoundException(String id, int no) {
-        super("Article {}/{} not found", id, no);
+        super("Article [{}/{}] not found", id, no);
     }
 
 }

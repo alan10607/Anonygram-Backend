@@ -31,6 +31,8 @@ public class ArticleRepository {
 
         try {
             client.indices().create(request);
+            //TODO: need test
+            this.save(new Article());
         } catch (IOException e) {
             log.error(e.getMessage());
 //            throw new RuntimeException(e);
@@ -54,4 +56,15 @@ public class ArticleRepository {
         return doc;
     }
 
+    public Article get(Article article) {
+        return null;
+    }
+    public Article delete(Article article) {
+        return null;
+    }
+
+
+    public Article get(String id, Integer no) {
+        return null;
+    }
 }

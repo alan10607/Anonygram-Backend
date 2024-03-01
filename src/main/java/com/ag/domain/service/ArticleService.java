@@ -1,153 +1,180 @@
 package com.ag.domain.service;
 
-import com.ag.domain.dto.ArticleDTO;
 import com.ag.domain.constant.StatusType;
+import com.ag.domain.dto.ArticleDTO;
+import com.ag.domain.exception.AgValidationException;
 import com.ag.domain.model.Article;
+import com.ag.domain.model.Like;
 import com.ag.domain.repository.ArticleRepository;
-import com.ag.domain.util.ObjectFieldUtil;
-import com.ag.domain.util.TimeUtil;
+import com.ag.domain.service.base.CrudServiceImpl;
+import com.ag.domain.util.PojoFiledUtil;
+import com.alan10607.ag.util.AuthUtil;
+import com.alan10607.ag.util.TimeUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 @Slf4j
-public class ArticleService extends CRUDServiceImpl<ArticleDTO> {
+public class ArticleService extends CrudServiceImpl<ArticleDTO> {
     private final ArticleRepository articleRepository;
+    private final LikeService likeService;
+    public static final int MAX_WORD_LENGTH = 5000;
+    public static final int MAX_TITLE_LENGTH = 100;
 
     public ArticleDTO get(String id, int no) {
-        return this.get(new ArticleDTO(id, no));
+        return get(new ArticleDTO(id, no));
     }
 
     public ArticleDTO delete(String id, int no) {
-        return this.delete(new ArticleDTO(id, no));
+        return delete(new ArticleDTO(id, no));
     }
 
     public ArticleDTO patchWord(ArticleDTO articleDTO) {
-        ArticleDTO patchDTO = ObjectFieldUtil.retainFields(articleDTO, "id", "no", "word");
-        return this.patch(patchDTO);
+        ArticleDTO patchDTO = PojoFiledUtil.retainFields(articleDTO, "id", "no", "word");
+        return patch(patchDTO);
     }
 
     public ArticleDTO patchStatus(ArticleDTO articleDTO) {
-        ArticleDTO patchDTO = ObjectFieldUtil.retainFields(articleDTO, "id", "no", "status");
-        return this.patch(patchDTO);
+        ArticleDTO patchDTO = PojoFiledUtil.retainFields(articleDTO, "id", "no", "status");
+        return patch(patchDTO);
     }
-
-//    public ArticleDTO patchLike(ArticleDTO articleDTO) {
-//        ArticleDTO patchDTO = this.get(articleDTO.getId(), articleDTO.getNo());
-//        patchDTO.setLikes(patchDTO.getLikes() + 1);
-//        //TODO: need work to impl like service
-//        return this.patch(patchDTO);
-//    }
-
-    //    public List<String> getId(){
-//        return idService.get();
-//    }
-//
-//    public List<ArticleDTO> getArticleWithContent(List<String> idList, List<Integer> noList){
-//        return idList.stream().map(id -> getArticleWithContent(id, noList)).collect(Collectors.toList());
-//    }
-//
-//    public ArticleDTO getArticleWithContent(String id, int no){
-//        return getArticleWithContent(id, Collections.singletonList(no));
-//    }
-//
-//    public ArticleDTO getArticleWithContent(String id, List<Integer> noList){
-//        ArticleDTO articleDTO = articleService.get(id);
-//        if(articleDTO.getStatus() == StatusType.NORMAL) {
-//            articleDTO.setContentList(noList.stream()
-//                    .map(no -> contentService.get(id, no))
-//                    .collect(Collectors.toList()));
-//        }else{
-//            articleDTO.setContentList(noList.stream()
-//                    .map(no -> new ContentDTO(id, no, articleDTO.getStatus()))
-//                    .collect(Collectors.toList()));
-//        }
-//        return articleDTO;
-//    }
-//
-//    public void checkArticleStatusIsNormal(String id){
-//        ArticleDTO articleDTO = articleService.get(id);
-//        if(articleDTO.getStatus() != StatusType.NORMAL){
-//            throw new AnonygramIllegalStateException("Article status of this content is {} normal, id={}",
-//                    articleDTO.getStatus(), id);
-//        }
-//    }
-//
-//    public void checkContentStatusIsNormal(String id, int no){
-//        checkArticleStatusIsNormal(id);
-//        ContentDTO contentDTO = contentService.get(id, no);
-//        if(contentDTO.getStatus() != StatusType.NORMAL){
-//            throw new AnonygramIllegalStateException("Content status is {}, id={}, no={}",
-//                    contentDTO.getStatus(), id, no);
-//        }
-//    }
 
     @Override
     public ArticleDTO getImpl(ArticleDTO articleDTO) {
-        return null;
+        Article article = articleRepository.get(null);
+        return returnFilter(article);
+    }
+
+    private ArticleDTO returnFilter(Article article) {
+        ArticleDTO articleDTO = PojoFiledUtil.convertObject(article, ArticleDTO.class);
+        switch (articleDTO.getStatus()) {
+            case NORMAL:
+                //TODO: prepare after get
+                Like like = likeService.get(articleDTO.getId(), articleDTO.getNo(), "userId");
+                articleDTO.setLike(like.getState());
+
+//                UserDTO userDTO = userService.get(contentDTO.getAuthorId());
+//                contentDTO.setAuthorName(userDTO.getUsername());
+//                contentDTO.setAuthorHeadUrl(userDTO.getHeadUrl());
+//                contentDTO.setLike(likeService.get(contentDTO.getId(), contentDTO.getNo(), AuthUtil.getUserId()));
+                return articleDTO;
+            case DELETED:
+                return new ArticleDTO(articleDTO.getId(), articleDTO.getNo(), StatusType.DELETED);
+            case UNKNOWN:
+            default:
+                log.info("Article {}/{} not found", articleDTO.getId(), articleDTO.getNo());
+                return new ArticleDTO(articleDTO.getId(), articleDTO.getNo(), StatusType.DELETED);
+        }
     }
 
     @Override
     public ArticleDTO createImpl(ArticleDTO articleDTO) {
-        return null;
+        LocalDateTime now = TimeUtil.now();
+        Article article = Article.builder()
+                .id(UUID.randomUUID().toString())
+                .no(0)
+                .authorId(AuthUtil.getUserId())
+                .title(articleDTO.getTitle())
+                .word(articleDTO.getWord())
+                .likes(0L)
+                .status(StatusType.NORMAL)
+                .createDate(now)
+                .updateDate(now)
+                .build();
+
+
+        article = articleRepository.save(article);
+        return returnFilter(article);
     }
 
     @Override
     public ArticleDTO updateImpl(ArticleDTO articleDTO) {
-        return null;
+        LocalDateTime now = TimeUtil.now();
+        Article article = Article.builder()
+                .id(articleDTO.getId())
+                .no(articleDTO.getNo())
+                .authorId(articleDTO.getAuthorId())
+                .title(articleDTO.getTitle())
+                .word(articleDTO.getWord())
+                .likes(articleDTO.getLikes())
+                .status(articleDTO.getStatus())
+                .createDate(articleDTO.getCreateDate())
+                .updateDate(now)
+                .build();
+
+        article = articleRepository.save(article);
+        return returnFilter(article);
     }
 
     @Override
     public ArticleDTO patchImpl(ArticleDTO articleDTO) {
-        return null;
+        return update(articleDTO);
     }
 
     @Override
     public ArticleDTO deleteImpl(ArticleDTO articleDTO) {
-        return null;
+        Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
+        return returnFilter(articleRepository.delete(article));
     }
 
     @Override
-    protected void validateCreate(ArticleDTO articleDTO) {
-        //TODO: prepareCreateEntity, if no=null, no=0
+    protected void beforeGet(ArticleDTO articleDTO) {
+        validateFirstArticleIsNormal(articleDTO);
+    }
+
+    @Override
+    protected void beforeCreate(ArticleDTO articleDTO) {
         validateTitle(articleDTO);
         validateWord(articleDTO);
     }
 
-    protected void validateUpdateAndPatch(ArticleDTO articleDTO) {
-        //TODO: preparePatchEntity?
+    @Override
+    protected void beforeUpdateAndPatch(ArticleDTO articleDTO) {
         validateWord(articleDTO);
         validateStatus(articleDTO);
     }
 
-    protected void validateDelete(ArticleDTO articleDTO) {
+    @Override
+    protected void beforeDelete(ArticleDTO articleDTO) {
         validateStatus(articleDTO);
     }
 
-    private void validateWord(ArticleDTO articleDTO) {
-        //TODO:if no =0 thenword not blank and size
+    void validateWord(ArticleDTO articleDTO) {
+        if (StringUtils.isBlank(articleDTO.getWord())) {
+            throw new AgValidationException("Word must not be blank", articleDTO);
+        }//TODO: please update front end
+        if (articleDTO.getWord().getBytes().length > MAX_WORD_LENGTH) {
+            throw new AgValidationException("Word length must in {} bytes", articleDTO, MAX_WORD_LENGTH);
+        }
     }
 
-    private void validateTitle(ArticleDTO articleDTO) {
-        //TODO:word not blank and size
+    void validateTitle(ArticleDTO articleDTO) {
+        if (articleDTO.getNo() == 0 && StringUtils.isBlank(articleDTO.getTitle())) {
+            throw new AgValidationException("Title must not be blank when create", articleDTO);
+        }
+        if (articleDTO.getTitle().getBytes().length > MAX_TITLE_LENGTH) {
+            throw new AgValidationException("Title length must in {} bytes", articleDTO, MAX_TITLE_LENGTH);
+        }
     }
 
-    private void validateStatus(ArticleDTO articleDTO) {
-        //TODO:check status is legal
+    void validateStatus(ArticleDTO articleDTO) {
+        if (articleDTO.getStatus() != StatusType.NORMAL) {
+            throw new AgValidationException("Status is not normal", articleDTO);
+        }
     }
 
-    private void validateIsExist(ArticleDTO articleDTO) {
-        //TODO:must exist
+    void validateFirstArticleIsNormal(ArticleDTO articleDTO) {
+        Article firstArticle = articleRepository.get(articleDTO.getId(), 0);
+        if (firstArticle.getStatus() != StatusType.NORMAL) {
+            throw new AgValidationException("First article's status is not normal", articleDTO);
+        }
     }
-
-    private void validateIsNotExist(ArticleDTO articleDTO) {
-        //TODO:must not exist
-    }
-
 
 
 }
