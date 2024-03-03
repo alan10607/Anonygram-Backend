@@ -20,7 +20,7 @@ public class LikeService extends CrudServiceImpl<Like> {
 
     @Override
     public Like getImpl(Like like) {
-        return likeRepository.get(like);
+        return likeRepository.findById(null).get();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class LikeService extends CrudServiceImpl<Like> {
 
     @Override
     public Like deleteImpl(Like like) {
-        return likeRepository.delete(like);
+        return null;
     }
 
     @Override
