@@ -47,7 +47,7 @@ public class ArticleService extends CrudServiceImpl<ArticleDTO> {
 
     @Override
     public ArticleDTO getImpl(ArticleDTO articleDTO) {
-        Article article = articleRepository.get(null);
+        Article article = articleRepository.findById(articleDTO.getId()).get();
         return returnFilter(article);
     }
 
@@ -120,7 +120,7 @@ public class ArticleService extends CrudServiceImpl<ArticleDTO> {
     @Override
     public ArticleDTO deleteImpl(ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
-        return returnFilter(articleRepository.delete(article));
+        return  null;//returnFilter(articleRepository.delete(article));
     }
 
     @Override
@@ -170,10 +170,10 @@ public class ArticleService extends CrudServiceImpl<ArticleDTO> {
     }
 
     void validateFirstArticleIsNormal(ArticleDTO articleDTO) {
-        Article firstArticle = articleRepository.get(articleDTO.getId(), 0);
-        if (firstArticle.getStatus() != StatusType.NORMAL) {
-            throw new AgValidationException("First article's status is not normal", articleDTO);
-        }
+//        Article firstArticle = articleRepository.get(articleDTO.getId(), 0);
+//        if (firstArticle.getStatus() != StatusType.NORMAL) {
+//            throw new AgValidationException("First article's status is not normal", articleDTO);
+//        }
     }
 
 
