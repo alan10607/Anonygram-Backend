@@ -18,4 +18,10 @@ public class Like {
         this.no = no;
         this.userId = userId;
     }
+
+    public Like(String id, Integer no, Boolean state) {
+        this.id = id;
+        this.no = no;
+        this.state = state;
+    }
 }

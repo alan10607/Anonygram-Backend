@@ -25,37 +25,44 @@ public class LikeService extends CrudServiceImpl<Like> {
 
     @Override
     public Like createImpl(Like like) {
+        //TODO: need work, update like to article repo
         return likeRepository.save(like);
     }
 
     @Override
     public Like updateImpl(Like like) {
+        //TODO: need work, update like to article repo
         return likeRepository.save(like);
     }
 
     @Override
     public Like patchImpl(Like like) {
+        //TODO: need work, update like to article repo
         return likeRepository.save(like);
     }
 
     @Override
     public Like deleteImpl(Like like) {
+        //TODO: need work, update like to article repo
         return null;
     }
 
     @Override
     protected void beforeCreate(Like like) {
         validateDataIsSet(like);
+        validateHavePermission(like);
     }
 
     @Override
     protected void beforeUpdateAndPatch(Like like) {
         validateDataIsSet(like);
+        validateHavePermission(like);
     }
 
     @Override
     protected void beforeDelete(Like like) {
         validateDataIsSet(like);
+        validateHavePermission(like);
     }
 
     private void validateDataIsSet(Like like) {
@@ -71,6 +78,10 @@ public class LikeService extends CrudServiceImpl<Like> {
         if (like.getState() == null) {
             throw new AgValidationException("No like state");
         }
+    }
+
+    void validateHavePermission(Like like) {
+
     }
     //
 //    private final ContentRedisService contentRedisService;

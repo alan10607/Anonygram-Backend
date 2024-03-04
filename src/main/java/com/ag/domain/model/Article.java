@@ -27,4 +27,9 @@ public class Article {
     private StatusType status;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
+
+    public Article(String id, Integer no) {
+        this.id = id;
+        this.no = no;
+    }
 }
