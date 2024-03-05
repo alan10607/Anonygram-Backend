@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.elasticsearch.annotations.Document;
 
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,10 +16,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Document(indexName = "article")
+@IdClass(ArticleId.class)
 public class Article {
 
     @Id
     private String id;
+    @Id
     private Integer no;
     private String authorId;
     private String title;
