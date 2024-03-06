@@ -31,7 +31,6 @@ public abstract class CrudServiceImpl<Entity> implements CrudService<Entity> {
     @Override
     public Entity create(Entity entity) {
         this.beforeCreate(entity);
-        this.validateIsNotExist(entity);
         return createImpl(entity);
     }
 
