@@ -54,7 +54,8 @@ public class ArticleService extends CrudServiceImpl<Article> {
         article = Article.builder()
                 .id(UUID.randomUUID().toString())
                 .no(0)
-                .authorId(AuthUtil.getUserId())
+                .authorId("test")
+//                .authorId(AuthUtil.getUserId())//TODO: fix it
                 .title(article.getTitle())
                 .word(article.getWord())
                 .likes(0L)
@@ -69,18 +70,11 @@ public class ArticleService extends CrudServiceImpl<Article> {
 
     @Override
     public Article updateImpl(Article article) {
-        LocalDateTime now = TimeUtil.now();
-        article = Article.builder()
-                .id(article.getId())
-                .no(article.getNo())
-                .authorId(article.getAuthorId())
-                .title(article.getTitle())
-                .word(article.getWord())
-                .likes(article.getLikes())
-                .status(article.getStatus())
-                .createDate(article.getCreateDate())
-                .updateDate(now)
-                .build();
+        Article existed = articleRepository.findById(article.getId()).get();
+        article.setId(existed.getId());
+        article.setNo(existed.getNo());
+        article.setCreateDate(existed.getCreateDate());
+        article.setUpdateDate(TimeUtil.now());
 
         return articleRepository.save(article);
     }
@@ -99,10 +93,12 @@ public class ArticleService extends CrudServiceImpl<Article> {
     @Override
     protected void beforeGet(Article article) {
         validateFirstArticleIsNormal(article);
+        validateFirstArticleIsNormal(article);
     }
 
     @Override
     protected void beforeCreate(Article article) {
+        article.setNo(0);
         validateTitle(article);
         validateWord(article);
     }
@@ -141,6 +137,12 @@ public class ArticleService extends CrudServiceImpl<Article> {
     void validateStatus(Article article) {
         if (article.getStatus() != StatusType.NORMAL) {
             throw new AgValidationException("Status is not normal", article);
+        }
+    }
+
+    void validateId(Article article) {
+        if (StringUtils.isBlank(article.getId())) {
+            throw new AgValidationException("I", article);
         }
     }
 

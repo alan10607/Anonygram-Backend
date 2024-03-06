@@ -78,24 +78,25 @@ public class ArticleController {
 
     private ArticleDTO outputFilter(Article article) {
         ArticleDTO articleDTO = PojoFiledUtil.convertObject(article, ArticleDTO.class);
-        switch (articleDTO.getStatus()) {
-            case NORMAL:
-                //TODO: prepare after get
-                Like like = likeService.get(article.getId(), article.getNo(), "userId");
-                articleDTO.setLike(like.getState());
-
-//                UserDTO userDTO = userService.get(contentDTO.getAuthorId());
-//                contentDTO.setAuthorName(userDTO.getUsername());
-//                contentDTO.setAuthorHeadUrl(userDTO.getHeadUrl());
-//                contentDTO.setLike(likeService.get(contentDTO.getId(), contentDTO.getNo(), AuthUtil.getUserId()));
-                return articleDTO;
-            case DELETED:
-                return new ArticleDTO(article.getId(), article.getNo(), StatusType.DELETED);
-            case UNKNOWN:
-            default:
-                log.info("article {}/{} not found", article.getId(), article.getNo());
-                return new ArticleDTO(article.getId(), article.getNo(), StatusType.DELETED);
-        }
+        return articleDTO;
+//        switch (articleDTO.getStatus()) {
+//            case NORMAL:
+//                //TODO: prepare after get
+//                Like like = likeService.get(article.getId(), article.getNo(), "userId");
+//                articleDTO.setLike(like.getState());
+//
+////                UserDTO userDTO = userService.get(contentDTO.getAuthorId());
+////                contentDTO.setAuthorName(userDTO.getUsername());
+////                contentDTO.setAuthorHeadUrl(userDTO.getHeadUrl());
+////                contentDTO.setLike(likeService.get(contentDTO.getId(), contentDTO.getNo(), AuthUtil.getUserId()));
+//                return articleDTO;
+//            case DELETED:
+//                return new ArticleDTO(article.getId(), article.getNo(), StatusType.DELETED);
+//            case UNKNOWN:
+//            default:
+//                log.info("article {}/{} not found", article.getId(), article.getNo());
+//                return new ArticleDTO(article.getId(), article.getNo(), StatusType.DELETED);
+//        }
     }
 
 
