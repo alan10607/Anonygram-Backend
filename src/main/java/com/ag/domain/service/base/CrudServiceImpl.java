@@ -1,11 +1,10 @@
 package com.ag.domain.service.base;
 
+import com.ag.domain.exception.AgValidationException;
 import com.ag.domain.util.PojoFiledUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.EntityNotFoundException;
 
 @Service
 @AllArgsConstructor
@@ -58,14 +57,14 @@ public abstract class CrudServiceImpl<Entity> implements CrudService<Entity> {
 
     private Entity validateIsExist(Entity entity) {
         if (this.get(entity) == null) {
-            throw new EntityNotFoundException("Entity not found in CRUD");
+            throw new AgValidationException("Entity not found in CRUD");
         }
         return entity;
     }
 
     private void validateIsNotExist(Entity entity) {
         if (this.get(entity) != null) {
-            throw new EntityNotFoundException("Entity already found in CRUD");
+            throw new AgValidationException("Entity already found in CRUD");
         }
     }
 

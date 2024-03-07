@@ -1,59 +1,5 @@
 package com.ag.domain.config;
-//
-//import co.elastic.clients.elasticsearch.ElasticsearchClient;
-//import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-//import co.elastic.clients.transport.ElasticsearchTransport;
-//import co.elastic.clients.transport.rest_client.RestClientTransport;
-//import org.apache.http.Header;
-//import org.apache.http.HttpHost;
-//import org.apache.http.conn.ssl.TrustAllStrategy;
-//import org.apache.http.message.BasicHeader;
-//import org.apache.http.ssl.SSLContextBuilder;
-//import org.elasticsearch.client.RestClient;
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//
-//import javax.net.ssl.SSLContext;
-//import java.security.KeyManagementException;
-//import java.security.KeyStoreException;
-//import java.security.NoSuchAlgorithmException;
-//
-//@Configuration
-//public class EsConfig {
-//    private final String host = "localhost";
-//    private final int port = 9200;
-//    private final String password = "OGmrJovJi37nakTDF*zc";
-//
-////    @Bean
-////    public ElasticsearchClient elasticsearchClient() {
-////        // Create the low-level client
-////        HttpHost serverUrl = new HttpHost(host, port, "https");
-////        RestClient restClient = RestClient
-////                .builder(serverUrl)
-////                .setDefaultHeaders(new Header[]{
-////                        new BasicHeader("Authorization", "ApiKey " + password)
-////                })
-////                .build();
-////
-////        // Create the transport with a Jackson mapper
-////        ElasticsearchTransport transport = new RestClientTransport(
-////                restClient, new JacksonJsonpMapper());
-////
-////        // And create the API client
-////        ElasticsearchClient esClient = new ElasticsearchClient(transport);
-////        return esClient;
-////    }
-//
-//    private SSLContext buildSSLContext() {
-//        try {
-//            return new SSLContextBuilder().loadTrustMaterial(null, TrustAllStrategy.INSTANCE).build();
-//        } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//}
-//
+
 ///**
 // * https://www.elastic.co/guide/en/kibana/current/docker.html
 // * <p>
@@ -80,33 +26,36 @@ package com.ag.domain.config;
 // **/
 
 
-import org.elasticsearch.client.RestHighLevelClient;
-import org.springframework.context.annotation.Bean;
+import org.apache.http.conn.ssl.TrustAllStrategy;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
-import org.springframework.data.elasticsearch.client.RestClients;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfiguration;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
+import javax.net.ssl.SSLContext;
+
 @Configuration
-//@EnableElasticsearchRepositories()
-public class EsConfig {
+@EnableElasticsearchRepositories()
+public class EsConfig extends ElasticsearchConfiguration {
 
-
-    @Bean
-    public RestHighLevelClient client() {
-        ClientConfiguration clientConfiguration = ClientConfiguration.builder()
+    @Override
+    public ClientConfiguration clientConfiguration() {
+        return ClientConfiguration.builder()
                 .connectedTo("localhost:9200")
-                .usingSsl()
+                .usingSsl(buildSslContext())
                 .withBasicAuth("elastic", "OGmrJovJi37nakTDF*zc") // put your
                 .build();
-
-        return RestClients.create(clientConfiguration).rest();
     }
 
-    @Bean
-    public ElasticsearchOperations elasticsearchTemplate() {
-        return new ElasticsearchRestTemplate(client());
+    private static SSLContext buildSslContext() {
+        try {
+            return new SSLContextBuilder()
+                    .loadTrustMaterial(null, TrustAllStrategy.INSTANCE)
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
