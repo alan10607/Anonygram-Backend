@@ -33,9 +33,10 @@ public class ArticleController {
 
     @PostMapping()
     @Operation(summary = "Create a article with first content")
-    public void create(@RequestBody ArticleDTO articleDTO) {
+    public ArticleDTO create(@RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
-        articleService.create(article);
+        article = articleService.create(article);
+        return outputFilter(article);
     }
 
     @PostMapping("/{id}")

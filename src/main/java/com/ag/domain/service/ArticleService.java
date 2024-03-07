@@ -6,8 +6,7 @@ import com.ag.domain.model.Article;
 import com.ag.domain.repository.ArticleRepository;
 import com.ag.domain.service.base.CrudServiceImpl;
 import com.ag.domain.util.PojoFiledUtil;
-import com.alan10607.ag.util.AuthUtil;
-import com.alan10607.ag.util.TimeUtil;
+import com.ag.domain.util.TimeUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -60,8 +59,8 @@ public class ArticleService extends CrudServiceImpl<Article> {
                 .word(article.getWord())
                 .likes(0L)
                 .status(StatusType.NORMAL)
-                .createDate(now)
-                .updateDate(now)
+                .createdTime(now)
+                .updatedTime(now)
                 .build();
 
 
@@ -73,8 +72,8 @@ public class ArticleService extends CrudServiceImpl<Article> {
         Article existed = articleRepository.findById(article.getId()).get();
         article.setId(existed.getId());
         article.setNo(existed.getNo());
-        article.setCreateDate(existed.getCreateDate());
-        article.setUpdateDate(TimeUtil.now());
+        article.setCreatedTime(existed.getCreatedTime());
+        article.setUpdatedTime(TimeUtil.now());
 
         return articleRepository.save(article);
     }

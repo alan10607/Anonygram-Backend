@@ -1,25 +1,21 @@
 package com.ag.domain.model;
 
-import com.alan10607.ag.model.ContLikeId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.Id;
-import javax.persistence.IdClass;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@IdClass(LikeId.class)
+@Document(indexName = "like")
 public class Like {
     @Id
     private String id;
 
-    @Id
     private Integer no;
 
-    @Id
     private String userId;
     private Boolean state;
 

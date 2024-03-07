@@ -6,13 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import javax.persistence.Id;
-import javax.persistence.IdClass;
 import java.time.LocalDateTime;
 
 @Data
@@ -21,12 +20,11 @@ import java.time.LocalDateTime;
 @Builder
 @Document(indexName = "article")
 @JsonIgnoreProperties(ignoreUnknown = true)
-@IdClass(ArticleId.class)
 public class Article {
 
     @Id
+    @Field(type = FieldType.Keyword)
     private String id;
-    @Id
     private Integer no;
     private String authorId;
     private String title;
@@ -34,10 +32,11 @@ public class Article {
     private Long likes;
     private StatusType status;
 
-    @Field(type = FieldType.Date, pattern = "uuuu-MM-dd'T'HH:mm:ss.SSS", format = {})
-    private LocalDateTime createDate;
-    @Field(type = FieldType.Date, pattern = "uuuu-MM-dd'T'HH:mm:ss.SSS", format = {})
-    private LocalDateTime updateDate;
+    @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
+    private LocalDateTime createdTime;
+
+    @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
+    private LocalDateTime updatedTime;
 
     public Article(String id, Integer no) {
         this.id = id;
