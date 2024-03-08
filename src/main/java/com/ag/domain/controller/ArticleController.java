@@ -23,11 +23,11 @@ public class ArticleController {
     private final LikeService likeService;
 
 
-    @GetMapping("/{id}/{no}")
+    @GetMapping("/{serial}/{no}")
     @Operation(summary = "Get a article")
-    public ArticleDTO get(@PathVariable("id") String id,
+    public ArticleDTO get(@PathVariable("serial") String serial,
                           @PathVariable("no") Integer no) {
-        Article article = articleService.get(id, no);
+        Article article = articleService.get(serial, no);
         return outputFilter(article);
     }
 
@@ -39,40 +39,40 @@ public class ArticleController {
         return outputFilter(article);
     }
 
-    @PostMapping("/{id}")
+    @PostMapping("/{serial}")
     @Operation(summary = "Create a content under article")
-    public void createContent(@PathVariable("id") String id,
+    public void createContent(@PathVariable("serial") String serial,
                               @RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
-        article.setId(id);
+        article.setSerial(serial);
         articleService.create(article);
     }
 
-    @PatchMapping("/{id}/{no}/word")
+    @PatchMapping("/{serial}/{no}/word")
     @Operation(summary = "To modify a content word")
-    public void patchWord(@PathVariable("id") String id,
+    public void patchWord(@PathVariable("serial") String serial,
                           @PathVariable("no") int no,
                           @RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
-        article.setId(id);
+        article.setSerial(serial);
         article.setNo(no);
         articleService.patchWord(article);
     }
 
-    @PatchMapping("/{id}/{no}/like")
+    @PatchMapping("/{serial}/{no}/like")
     @Operation(summary = "To like a content")
-    public void patchLike(@PathVariable("id") String id,
+    public void patchLike(@PathVariable("serial") String serial,
                           @PathVariable("no") int no,
                           @RequestBody ArticleDTO articleDTO) {
-        Like like = new Like(id, no, articleDTO.getLike());
+        Like like = new Like(serial, no, articleDTO.getLike());
         likeService.update(like);
     }
 
-    @DeleteMapping("/{id}/{no}")
+    @DeleteMapping("/{serial}/{no}")
     @Operation(summary = "Delete a content. If delete first content, will also delete its article")
-    public void patchStatusToDelete(@PathVariable("id") String id,
+    public void patchStatusToDelete(@PathVariable("serial") String serial,
                                     @PathVariable("no") int no) {
-        Article article = new Article(id, no);
+        Article article = new Article(serial, no);
         article.setStatus(StatusType.DELETED);
         articleService.patchStatus(article);
     }

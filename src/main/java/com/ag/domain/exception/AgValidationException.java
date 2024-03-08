@@ -11,7 +11,7 @@ public class AgValidationException extends AnonygramRuntimeException {
     }
 
     public AgValidationException(String message, ArticleDTO articleDTO) {
-        this(message, articleDTO.getId(), articleDTO.getNo());
+        this(message, articleDTO.getSerial(), articleDTO.getNo());
     }
 
     public AgValidationException(String message, String id, int no) {

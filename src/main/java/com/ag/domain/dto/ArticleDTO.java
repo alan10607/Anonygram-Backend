@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ArticleDTO {
     @NotNull
-    private String id;
+    private String serial;
 
     @NotNull
     @Min(0)
@@ -50,11 +50,5 @@ public class ArticleDTO {
     private Boolean like;
     private String authorName;
     private String authorHeadUrl;
-
-    public ArticleDTO(String id,
-                      int no) {
-        this.id = id;
-        this.no = no;
-    }
 
 }

@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -51,7 +52,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
     public Article createImpl(Article article) {
         LocalDateTime now = TimeUtil.now();
         article = Article.builder()
-                .id(UUID.randomUUID().toString())
+                .serial(UUID.randomUUID().toString())
                 .no(0)
                 .authorId("test")
 //                .authorId(AuthUtil.getUserId())//TODO: fix it
@@ -69,8 +70,8 @@ public class ArticleService extends CrudServiceImpl<Article> {
 
     @Override
     public Article updateImpl(Article article) {
-        Article existed = articleRepository.findById(article.getId()).get();
-        article.setId(existed.getId());
+        Article existed = articleRepository.findById(article.getSerial()).get();
+        article.setSerial(existed.getSerial());
         article.setNo(existed.getNo());
         article.setCreatedTime(existed.getCreatedTime());
         article.setUpdatedTime(TimeUtil.now());
@@ -97,9 +98,12 @@ public class ArticleService extends CrudServiceImpl<Article> {
 
     @Override
     protected void beforeCreate(Article article) {
-        article.setNo(0);
+        if(article.getNo() == 0) {
+            article.setNo(0);
+        }
         validateTitle(article);
         validateWord(article);
+        validateHaveFirstArticle(article);
     }
 
     @Override
@@ -139,9 +143,10 @@ public class ArticleService extends CrudServiceImpl<Article> {
         }
     }
 
-    void validateId(Article article) {
-        if (StringUtils.isBlank(article.getId())) {
-            throw new AgValidationException("I", article);
+    void validateHaveFirstArticle(Article article) {
+        if (StringUtils.isNotBlank(article.getSerial()) ) {
+            articleRepository.findById(article.getId())
+                    .orElseThrow(() -> new AgValidationException("First article not found, can't reply"));
         }
     }
 
