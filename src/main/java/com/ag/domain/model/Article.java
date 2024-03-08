@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.AccessType;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -21,10 +22,7 @@ import java.time.LocalDateTime;
 @Document(indexName = "article")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Article {
-
-    @Id
-    @Field(type = FieldType.Keyword)
-    private String id;
+    private String serial;
     private Integer no;
     private String authorId;
     private String title;
@@ -38,8 +36,19 @@ public class Article {
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
     private LocalDateTime updatedTime;
 
-    public Article(String id, Integer no) {
-        this.id = id;
+    public Article(String serial, Integer no) {
+        this.serial = serial;
         this.no = no;
     }
+
+    @Id
+    @AccessType(AccessType.Type.PROPERTY)
+    public String getId(){
+        return this.serial + ":" + this.no;
+    }
+
+    public void setId(String ignored) {
+        throw new RuntimeException("Ignored setter");
+    }
+
 }
