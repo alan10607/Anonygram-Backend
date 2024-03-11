@@ -5,6 +5,10 @@ import com.ag.domain.exception.base.AnonygramRuntimeException;
 
 public class ArticleNotFoundException extends AnonygramRuntimeException {
 
+    public ArticleNotFoundException() {
+        super();
+    }
+
     public ArticleNotFoundException(String format, Object... args) {
         super(format, args);
     }
