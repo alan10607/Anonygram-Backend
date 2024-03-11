@@ -44,7 +44,7 @@ public class ArticleController {
     public void createContent(@PathVariable("serial") String serial,
                               @RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
-        article.setSerial(serial);
+        article.setArticleId(serial);
         articleService.create(article);
     }
 
@@ -54,7 +54,7 @@ public class ArticleController {
                           @PathVariable("no") int no,
                           @RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
-        article.setSerial(serial);
+        article.setArticleId(serial);
         article.setNo(no);
         articleService.patchWord(article);
     }
