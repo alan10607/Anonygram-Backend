@@ -1,10 +1,9 @@
 package com.ag.domain.model;
 
 import com.ag.domain.constant.StatusType;
+import com.ag.domain.model.base.CompositeEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
-import org.springframework.data.annotation.AccessType;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;

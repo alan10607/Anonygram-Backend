@@ -70,7 +70,6 @@ public class ArticleService extends CrudServiceImpl<Article> {
                 .updatedTime(now)
                 .build();
 
-
         return articleRepository.save(article);
     }
 
