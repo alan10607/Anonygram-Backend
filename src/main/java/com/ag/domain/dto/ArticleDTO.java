@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ArticleDTO {
     @NotNull
-    private String serial;
+    private String articleId;
 
     @NotNull
     @Min(0)

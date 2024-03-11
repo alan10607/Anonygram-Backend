@@ -1,4 +1,4 @@
-package com.ag.domain.model;
+package com.ag.domain.model.base;
 
 import org.springframework.data.annotation.AccessType;
 import org.springframework.data.annotation.Id;
@@ -10,7 +10,7 @@ public abstract class CompositeEntity {
     public abstract String getId();
 
     public void setId(String ignored) {
-        throw new RuntimeException("Ignored setter");
+        // Ignored setter
     }
 
 
