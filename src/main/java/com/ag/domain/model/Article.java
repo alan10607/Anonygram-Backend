@@ -28,7 +28,6 @@ public class Article extends CompositeEntity {
     private String authorId;
     private String title;
     private String word;
-    private Long likes;
     private StatusType status;
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)

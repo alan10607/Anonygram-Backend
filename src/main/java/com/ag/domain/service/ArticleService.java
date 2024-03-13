@@ -160,8 +160,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
     }
 
     void validateHavePermission(Article article) {
-        ValidationUtil.assertTrue(AuthUtil.getUserId().equals(article.getAuthorId()),
-                "No permission to update");
+        ValidationUtil.assertTrue(AuthUtil.checkPermission(article.getAuthorId()), "No permission to update");
     }
 
 }
