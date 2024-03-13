@@ -6,12 +6,10 @@ import com.ag.domain.model.Article;
 import com.ag.domain.repository.ArticleRepository;
 import com.ag.domain.service.base.CrudServiceImpl;
 import com.ag.domain.util.AuthUtil;
-import com.ag.domain.util.PojoFiledUtil;
 import com.ag.domain.util.TimeUtil;
 import com.ag.domain.util.ValidationUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -35,7 +33,21 @@ public class ArticleService extends CrudServiceImpl<Article> {
 
     @Override
     public Article getImpl(Article article) {
-        return articleRepository.findById(article.getId()).orElse(null);
+        Article firstArticle = articleRepository.findById(new Article(article.getArticleId(), 0).getId())
+                .filter(this::isNormalStatus)
+                .orElse(null);
+
+        if (firstArticle == null) {
+            return null;
+        }
+
+        if (article.getNo() == 0) {
+            return firstArticle;
+        }
+
+        return articleRepository.findById(article.getId())
+                .filter(this::isNormalStatus)
+                .orElse(null);
     }
 
     @Override
@@ -58,26 +70,27 @@ public class ArticleService extends CrudServiceImpl<Article> {
 
     @Override
     public Article updateImpl(Article article) {
-        Article existing = articleRepository.findById(article.getArticleId())
+        Article existing = articleRepository.findById(article.getId())
                 .orElseThrow(ArticleNotFoundException::new);
         existing.setTitle(article.getTitle());
         existing.setWord(article.getWord());
-        existing.setStatus(article.getStatus());
         existing.setUpdatedTime(TimeUtil.now());
         return articleRepository.save(existing);
     }
 
     @Override
     public Article deleteImpl(Article article) {
-        articleRepository.delete(article);
-        return article;
+        Article existing = articleRepository.findById(article.getId())
+                .orElseThrow(ArticleNotFoundException::new);
+        existing.setStatus(StatusType.DELETED);
+        existing.setUpdatedTime(TimeUtil.now());
+        return articleRepository.save(existing);
     }
 
     @Override
     protected void beforeGet(Article article) {
         validateArticleId(article);
         validateNo(article);
-        validateFirstArticleStatusIsNormal(article);
     }
 
     @Override
@@ -109,6 +122,10 @@ public class ArticleService extends CrudServiceImpl<Article> {
         return article.getArticleId() == null;
     }
 
+    private boolean isNormalStatus(Article article) {
+        return article.getStatus() == StatusType.NORMAL;
+    }
+
     void validateArticleId(Article article) {
         ValidationUtil.assertUUID(article.getArticleId(), "Article id is not a UUID");
     }
@@ -118,10 +135,9 @@ public class ArticleService extends CrudServiceImpl<Article> {
     }
 
     void validateFirstArticleStatusIsNormal(Article article) {
-        Article firstArticle = articleRepository.findById(Article.getId(article.getArticleId(), 0))
+        Article firstArticle = articleRepository.findById(new Article(article.getArticleId(), 0).getId())
                 .orElseThrow(ArticleNotFoundException::new);
-        ValidationUtil.assertTrue(firstArticle.getStatus() == StatusType.NORMAL,
-                "First article's status is not normal");
+        ValidationUtil.assertTrue(isNormalStatus(firstArticle), "First article's status is not normal");
     }
 
     void validateWord(Article article) {//TODO: please update front end
@@ -140,8 +156,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
     }
 
     void validateStatusIsNormal(Article article) {
-        ValidationUtil.assertTrue(article.getStatus() == StatusType.NORMAL,
-                "Status is not normal");
+        ValidationUtil.assertTrue(isNormalStatus(article),"Status is not normal");
     }
 
     void validateHavePermission(Article article) {

@@ -41,7 +41,7 @@ public abstract class CrudServiceImpl<Entity> implements CrudService<Entity> {
     @Override
     public Entity patch(Entity entity) {
         Entity oldEntity = this.validateIsExist(entity);
-        PojoFiledUtil.overwritePublicFields(oldEntity, entity);
+        PojoFiledUtil.overwriteFields(oldEntity, entity);
         this.beforeUpdateAndPatch(oldEntity);
         return updateImpl(oldEntity);
     }
@@ -54,10 +54,11 @@ public abstract class CrudServiceImpl<Entity> implements CrudService<Entity> {
     }
 
     private Entity validateIsExist(Entity entity) {
-        if (this.get(entity) == null) {
+        Entity existing = this.get(entity);
+        if (existing == null) {
             throw new AgValidationException("Entity not found in CRUD");
         }
-        return entity;
+        return existing;
     }
 
     private void validateIsNotExist(Entity entity) {

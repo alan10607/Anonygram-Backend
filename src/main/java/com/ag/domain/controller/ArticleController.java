@@ -41,8 +41,8 @@ public class ArticleController {
 
     @PostMapping("/{articleId}")
     @Operation(summary = "Create a reply article")
-    public ArticleDTO createContent(@PathVariable("articleId") String articleId,
-                                    @RequestBody ArticleDTO articleDTO) {
+    public ArticleDTO createReply(@PathVariable("articleId") String articleId,
+                                  @RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
         article.setArticleId(articleId);
         article.setNo(null);
@@ -66,6 +66,8 @@ public class ArticleController {
                            @PathVariable("no") int no,
                            @RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
+        article.setArticleId(articleId);
+        article.setNo(no);
         article = PojoFiledUtil.retainFields(article, "articleId", "no", "title");
         articleService.patch(article);
     }
@@ -76,6 +78,8 @@ public class ArticleController {
                           @PathVariable("no") int no,
                           @RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
+        article.setArticleId(articleId);
+        article.setNo(no);
         article = PojoFiledUtil.retainFields(article, "articleId", "no", "word");
         articleService.patch(article);
     }
@@ -95,14 +99,13 @@ public class ArticleController {
 
     @DeleteMapping("/{articleId}/{no}")
     @Operation(summary = "Delete an article. If delete the first content, will also delete all replied articles")
-    public void patchStatusToDelete(@PathVariable("articleId") String articleId,
-                                    @PathVariable("no") int no) {
-        Article article = new Article(articleId, no);
-        article.setStatus(StatusType.DELETED);
-        articleService.patch(article);
+    public void delete(@PathVariable("articleId") String articleId,
+                       @PathVariable("no") int no) {
+        articleService.delete(articleId, no);
     }
 
     private ArticleDTO outputFilter(Article article) {
+        if(article == null) return new ArticleDTO();
         ArticleDTO articleDTO = PojoFiledUtil.convertObject(article, ArticleDTO.class);
         return articleDTO;
 //        switch (articleDTO.getStatus()) {
