@@ -107,6 +107,7 @@ public class ArticleController {
     private ArticleDTO outputFilter(Article article) {
         if(article == null) return new ArticleDTO();
         ArticleDTO articleDTO = PojoFiledUtil.convertObject(article, ArticleDTO.class);
+        articleDTO.setLike(isLike(article));
         return articleDTO;
 //        switch (articleDTO.getStatus()) {
 //            case NORMAL:
@@ -126,6 +127,10 @@ public class ArticleController {
 //                log.info("article {}/{} not found", article.getId(), article.getNo());
 //                return new ArticleDTO(article.getId(), article.getNo(), StatusType.DELETED);
 //        }
+    }
+
+    private boolean isLike(Article article){
+        return likeService.get(article.getArticleId(), article.getNo(), AuthUtil.getUserId()) != null;
     }
 
 

@@ -35,10 +35,6 @@ public class ArticleDTO {
     private String word;
 
     @NotNull
-    @Min(0)
-    private Long likes;
-
-    @NotNull
     private StatusType status;
 
     @NotNull
@@ -47,6 +43,7 @@ public class ArticleDTO {
     @NotNull
     private LocalDateTime updatedTime;
 
+    private Long likes;
     private Boolean like;
     private String authorName;
     private String authorHeadUrl;
