@@ -8,6 +8,10 @@ public abstract class AnonygramRuntimeException extends IllegalStateException {
         super();
     }
 
+    public AnonygramRuntimeException(Throwable cause) {
+        super(cause);
+    }
+
     public AnonygramRuntimeException(String format, Object... args) {
         super(MessageFormatter.arrayFormat(format, args).getMessage());
     }

@@ -17,8 +17,6 @@ public abstract class CrudServiceImpl<Entity> implements CrudService<Entity> {
 
     public abstract Entity updateImpl(Entity entity);
 
-    public abstract Entity patchImpl(Entity entity);
-
     public abstract Entity deleteImpl(Entity entity);
 
     @Override
@@ -45,7 +43,7 @@ public abstract class CrudServiceImpl<Entity> implements CrudService<Entity> {
         Entity oldEntity = this.validateIsExist(entity);
         PojoFiledUtil.overwritePublicFields(oldEntity, entity);
         this.beforeUpdateAndPatch(oldEntity);
-        return patchImpl(oldEntity);
+        return updateImpl(oldEntity);
     }
 
     @Override

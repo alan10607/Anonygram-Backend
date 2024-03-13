@@ -20,7 +20,7 @@ public class LikeService extends CrudServiceImpl<Like> {
 
     @Override
     public Like getImpl(Like like) {
-        return likeRepository.findById(null).get();
+        return likeRepository.findById(like.getId()).orElse(null);
     }
 
     @Override
@@ -31,12 +31,6 @@ public class LikeService extends CrudServiceImpl<Like> {
 
     @Override
     public Like updateImpl(Like like) {
-        //TODO: need work, update like to article repo
-        return likeRepository.save(like);
-    }
-
-    @Override
-    public Like patchImpl(Like like) {
         //TODO: need work, update like to article repo
         return likeRepository.save(like);
     }
@@ -66,7 +60,7 @@ public class LikeService extends CrudServiceImpl<Like> {
     }
 
     private void validateDataIsSet(Like like) {
-        if (like.getId().isBlank()) {
+        if (like.getArticleId().isBlank()) {
             throw new AgValidationException("No article id");
         }
         if (like.getNo() == null) {
@@ -74,9 +68,6 @@ public class LikeService extends CrudServiceImpl<Like> {
         }
         if (like.getUserId().isBlank()) {
             throw new AgValidationException("No user id");
-        }
-        if (like.getState() == null) {
-            throw new AgValidationException("No like state");
         }
     }
 

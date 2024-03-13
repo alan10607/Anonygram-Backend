@@ -1,23 +1,34 @@
 package com.ag.domain.util;
 
 import com.ag.domain.exception.AgValidationException;
-import com.ag.domain.model.Article;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.regex.Pattern;
 
 public class ValidationUtil {
+    private static final Pattern UUID_REGEX = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
-    public static void checkArgument(boolean condition, String errorMessage, Object... args) {
+    public static void assertTrue(boolean condition, String errorMessage, Object... args) {
         if (!condition) {
             throw new AgValidationException(errorMessage, args);
         }
     }
 
-    public static void checkArgument(boolean condition, String errorMessage, Article article, Object... args) {
-        if (!condition) {
-            throw new AgValidationException(errorMessage, article, args);
-        }
+    public static void assertFalse(boolean condition, String errorMessage, Object... args) {
+        assertTrue(!condition, errorMessage, args);
     }
 
-    public static void assertFalse(boolean condition, String errorMessage, Article article, Object... args) {
-        checkArgument(!condition, errorMessage, article, args);
+    public static void assertUUID(String uuidString, String errorMessage, Object... args) {
+        assertTrue(UUID_REGEX.matcher(uuidString).matches(), errorMessage, args);
     }
+
+    public static void assertInRange(Integer value, Integer min, Integer max, String errorMessage, Object... args) {
+        assertTrue(value != null && (min == null || value >= min) && (max == null || value <= max), errorMessage, args);
+    }
+
+    public static void assertInLength(String string, int maxLength, String errorMessage, Object... args) {
+        assertTrue(StringUtils.isNotBlank(string) && string.getBytes().length <= maxLength, errorMessage, args);
+    }
+
+
 }

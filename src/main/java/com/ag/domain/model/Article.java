@@ -42,8 +42,13 @@ public class Article extends CompositeEntity {
         this.no = no;
     }
 
+    @Override
     public String getId(){
-        return this.articleId + ":" + this.no;
+        return getId(this.articleId, this.no);
+    }
+
+    public static String getId(String articleId, int no){
+        return String.format("%s:%s", articleId, no);
     }
 
 }

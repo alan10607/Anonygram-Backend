@@ -22,7 +22,6 @@ import java.util.UUID;
 @Slf4j
 public class ArticleService extends CrudServiceImpl<Article> {
     private final ArticleRepository articleRepository;
-    private final LikeService likeService;
     public static final int MAX_WORD_LENGTH = 5000;
     public static final int MAX_TITLE_LENGTH = 100;
 
@@ -32,21 +31,6 @@ public class ArticleService extends CrudServiceImpl<Article> {
 
     public Article delete(String articleId, int no) {
         return delete(new Article(articleId, no));
-    }
-
-    public Article patchTitle(Article article) {
-        Article patchedArticle = PojoFiledUtil.retainFields(article, "articleId", "no", "title");
-        return patch(patchedArticle);
-    }
-
-    public Article patchWord(Article article) {
-        Article patchedArticle = PojoFiledUtil.retainFields(article, "articleId", "no", "word");
-        return patch(patchedArticle);
-    }
-
-    public Article patchStatus(Article article) {
-        Article patchedArticle = PojoFiledUtil.retainFields(article, "articleId", "no", "status");
-        return patch(patchedArticle);
     }
 
     @Override
@@ -67,25 +51,20 @@ public class ArticleService extends CrudServiceImpl<Article> {
                 .likes(0L)
                 .status(StatusType.NORMAL)
                 .createdTime(now)
-                .updatedTime(now)
-                .build();
+                .updatedTime(now).build();
 
         return articleRepository.save(article);
     }
 
     @Override
     public Article updateImpl(Article article) {
-        Article existing = articleRepository.findById(article.getId()).orElseThrow(ArticleNotFoundException::new);
+        Article existing = articleRepository.findById(article.getArticleId())
+                .orElseThrow(ArticleNotFoundException::new);
         existing.setTitle(article.getTitle());
         existing.setWord(article.getWord());
         existing.setStatus(article.getStatus());
         existing.setUpdatedTime(TimeUtil.now());
         return articleRepository.save(existing);
-    }
-
-    @Override
-    public Article patchImpl(Article article) {
-        return update(article);
     }
 
     @Override
@@ -103,9 +82,9 @@ public class ArticleService extends CrudServiceImpl<Article> {
 
     @Override
     protected void beforeCreate(Article article) {
-        if(article.getArticleId() == null){
+        if (isCreateFirstArticle(article)) {
             validateTitle(article);
-        }else{
+        } else {
             validateArticleId(article);
             validateFirstArticleStatusIsNormal(article);
         }
@@ -126,50 +105,48 @@ public class ArticleService extends CrudServiceImpl<Article> {
         validateHavePermission(article);
     }
 
-    void validateArticleId(Article article){
-        ValidationUtil.checkArgument(StringUtils.isNotBlank(article.getArticleId()),
-                "Article id must not be blank", article);
+    private boolean isCreateFirstArticle(Article article) {
+        return article.getArticleId() == null;
     }
 
-    void validateNo(Article article){
-        ValidationUtil.checkArgument(article.getNo() != null && article.getNo() >= 0,
-                "No must > 0", article);
+    void validateArticleId(Article article) {
+        ValidationUtil.assertUUID(article.getArticleId(), "Article id is not a UUID");
+    }
+
+    void validateNo(Article article) {
+        ValidationUtil.assertInRange(article.getNo(), 0, null, "No must > 0");
     }
 
     void validateFirstArticleStatusIsNormal(Article article) {
-        Article firstArticle = articleRepository.findByArticleIdAndNo(article.getArticleId(), 0)
+        Article firstArticle = articleRepository.findById(Article.getId(article.getArticleId(), 0))
                 .orElseThrow(ArticleNotFoundException::new);
-        ValidationUtil.checkArgument(firstArticle.getStatus() == StatusType.NORMAL,
-                "First article's status is not normal", article);
+        ValidationUtil.assertTrue(firstArticle.getStatus() == StatusType.NORMAL,
+                "First article's status is not normal");
     }
 
-    void validateWord(Article article) {
-        ValidationUtil.checkArgument(StringUtils.isNotBlank(article.getWord()),
-                "Word must not be blank", article);
-        ValidationUtil.checkArgument(article.getWord().getBytes().length <= MAX_WORD_LENGTH,
-                "Word length must in {} bytes", article, MAX_WORD_LENGTH);//TODO: please update front end
+    void validateWord(Article article) {//TODO: please update front end
+        ValidationUtil.assertInLength(article.getWord(), MAX_WORD_LENGTH,
+                "Word length must in {} bytes", MAX_WORD_LENGTH);
     }
 
     void validateTitle(Article article) {
-        if(article.getNo() == null || article.getNo() == 0){
-            ValidationUtil.checkArgument(StringUtils.isNotBlank(article.getTitle()),
-                    "Title must not be blank", article);
-            ValidationUtil.checkArgument(article.getTitle().getBytes().length <= MAX_TITLE_LENGTH,
-                    "Title length must in {} bytes", article, MAX_TITLE_LENGTH);
-        }else{
-            ValidationUtil.checkArgument(article.getTitle() == null,
-                    "Title must null if it is not first article", article);
+        if (article.getNo() != null && article.getNo() == 0) {
+            ValidationUtil.assertInLength(article.getTitle(), MAX_TITLE_LENGTH,
+                    "Title length must in {} bytes", MAX_TITLE_LENGTH);
+        } else {
+            ValidationUtil.assertTrue(article.getTitle() == null,
+                    "Title must null if it is not first article");
         }
     }
 
     void validateStatusIsNormal(Article article) {
-        ValidationUtil.checkArgument(article.getStatus() == StatusType.NORMAL,
-                "Status is not normal", article);
+        ValidationUtil.assertTrue(article.getStatus() == StatusType.NORMAL,
+                "Status is not normal");
     }
 
     void validateHavePermission(Article article) {
-        ValidationUtil.checkArgument(AuthUtil.getUserId().equals(article.getAuthorId()),
-                "No permission to update", article);
+        ValidationUtil.assertTrue(AuthUtil.getUserId().equals(article.getAuthorId()),
+                "No permission to update");
     }
 
 }

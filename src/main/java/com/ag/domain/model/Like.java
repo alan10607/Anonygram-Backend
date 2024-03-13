@@ -1,33 +1,33 @@
 package com.ag.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
+import com.ag.domain.model.base.CompositeEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.*;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Document(indexName = "like")
-public class Like {
-    @Id
-    private String id;
+public class Like extends CompositeEntity {
 
+    @Field(type = FieldType.Keyword)
+    private String articleId;
+
+    @Field(type = FieldType.Keyword)
     private Integer no;
 
+    @Field(type = FieldType.Keyword)
     private String userId;
-    private Boolean state;
 
-    public Like(String id, Integer no, String userId) {
-        this.id = id;
-        this.no = no;
-        this.userId = userId;
-    }
 
-    public Like(String id, Integer no, Boolean state) {
-        this.id = id;
-        this.no = no;
-        this.state = state;
+    @Override
+    public String getId() {
+        return String.format("%s:%s:%s", this.articleId, this.no, this.userId);
     }
 }

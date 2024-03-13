@@ -6,6 +6,7 @@ import com.ag.domain.model.Article;
 import com.ag.domain.model.Like;
 import com.ag.domain.service.ArticleService;
 import com.ag.domain.service.LikeService;
+import com.ag.domain.util.AuthUtil;
 import com.ag.domain.util.PojoFiledUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,67 +15,91 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "article")
 @AllArgsConstructor
 @Tag(name = "Anonygram Forum")
-@Slf4j
+@RequestMapping(path = "article")
 public class ArticleController {
     private final ArticleService articleService;
     private final LikeService likeService;
 
 
-    @GetMapping("/{serial}/{no}")
-    @Operation(summary = "Get a article")
-    public ArticleDTO get(@PathVariable("serial") String serial,
+    @GetMapping("/{articleId}/{no}")
+    @Operation(summary = "Get an article")
+    public ArticleDTO get(@PathVariable("articleId") String articleId,
                           @PathVariable("no") Integer no) {
-        Article article = articleService.get(serial, no);
-        return outputFilter(article);
+        return outputFilter(articleService.get(articleId, no));
     }
 
     @PostMapping()
-    @Operation(summary = "Create a article with first content")
+    @Operation(summary = "Create a new article")
     public ArticleDTO create(@RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
-        article = articleService.create(article);
-        return outputFilter(article);
+        article.setArticleId(null);
+        article.setNo(0);
+        return outputFilter(articleService.create(article));
     }
 
-    @PostMapping("/{serial}")
-    @Operation(summary = "Create a content under article")
-    public void createContent(@PathVariable("serial") String serial,
-                              @RequestBody ArticleDTO articleDTO) {
+    @PostMapping("/{articleId}")
+    @Operation(summary = "Create a reply article")
+    public ArticleDTO createContent(@PathVariable("articleId") String articleId,
+                                    @RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
-        article.setArticleId(serial);
-        articleService.create(article);
+        article.setArticleId(articleId);
+        article.setNo(null);
+        return outputFilter(articleService.create(article));
     }
 
-    @PatchMapping("/{serial}/{no}/word")
-    @Operation(summary = "To modify a content word")
-    public void patchWord(@PathVariable("serial") String serial,
-                          @PathVariable("no") int no,
-                          @RequestBody ArticleDTO articleDTO) {
+    @PatchMapping("/{articleId}/{no}")
+    @Operation(summary = "To patch an article")
+    public void update(@PathVariable("articleId") String articleId,
+                       @PathVariable("no") int no,
+                       @RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
-        article.setArticleId(serial);
+        article.setArticleId(articleId);
         article.setNo(no);
-        articleService.patchWord(article);
+        articleService.patch(article);
     }
 
-    @PatchMapping("/{serial}/{no}/like")
-    @Operation(summary = "To like a content")
-    public void patchLike(@PathVariable("serial") String serial,
+    @PatchMapping("/{articleId}/{no}/title")
+    @Operation(summary = "To patch the first article title")
+    public void patchTitle(@PathVariable("articleId") String articleId,
+                           @PathVariable("no") int no,
+                           @RequestBody ArticleDTO articleDTO) {
+        Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
+        article = PojoFiledUtil.retainFields(article, "articleId", "no", "title");
+        articleService.patch(article);
+    }
+
+    @PatchMapping("/{articleId}/{no}/word")
+    @Operation(summary = "To patch an article word")
+    public void patchWord(@PathVariable("articleId") String articleId,
                           @PathVariable("no") int no,
                           @RequestBody ArticleDTO articleDTO) {
-        Like like = new Like(serial, no, articleDTO.getLike());
-        likeService.update(like);
+        Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
+        article = PojoFiledUtil.retainFields(article, "articleId", "no", "word");
+        articleService.patch(article);
     }
 
-    @DeleteMapping("/{serial}/{no}")
-    @Operation(summary = "Delete a content. If delete first content, will also delete its article")
-    public void patchStatusToDelete(@PathVariable("serial") String serial,
+    @PatchMapping("/{articleId}/{no}/like")
+    @Operation(summary = "To like a content")
+    public void patchLike(@PathVariable("articleId") String articleId,
+                          @PathVariable("no") int no,
+                          @RequestBody ArticleDTO articleDTO) {
+        Like like = new Like(articleId, no, AuthUtil.getUserId());
+        if (articleDTO.getLike()) {
+            likeService.create(like);
+        } else {
+            likeService.delete(like);
+        }
+    }
+
+    @DeleteMapping("/{articleId}/{no}")
+    @Operation(summary = "Delete an article. If delete the first content, will also delete all replied articles")
+    public void patchStatusToDelete(@PathVariable("articleId") String articleId,
                                     @PathVariable("no") int no) {
-        Article article = new Article(serial, no);
+        Article article = new Article(articleId, no);
         article.setStatus(StatusType.DELETED);
-        articleService.patchStatus(article);
+        articleService.patch(article);
     }
 
     private ArticleDTO outputFilter(Article article) {
