@@ -1,6 +1,7 @@
 package com.ag.domain.model;
 
 import com.ag.domain.constant.RoleType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Document(indexName = "user")
 public class ForumUser {//implements UserDetails {
 

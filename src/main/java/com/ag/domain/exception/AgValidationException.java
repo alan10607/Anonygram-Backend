@@ -5,6 +5,10 @@ import com.ag.domain.model.Article;
 
 public class AgValidationException extends AnonygramRuntimeException {
 
+    public AgValidationException(Throwable cause) {
+        super(cause);
+    }
+
     public AgValidationException(String format, Object... args) {
         super(format, args);
     }
