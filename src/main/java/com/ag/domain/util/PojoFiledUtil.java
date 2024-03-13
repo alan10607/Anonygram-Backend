@@ -2,23 +2,21 @@ package com.ag.domain.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.common.collect.Sets;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.Set;
 
 public class PojoFiledUtil {
 
-    public static void overwritePublicFields(Object target, Object source) {
+    public static void overwriteFields(Object target, Object source) {
         if (!target.getClass().equals(source.getClass())) {
             throw new IllegalArgumentException("Objects must be of the same type");
         }
 
         try {
-            for (Field field : target.getClass().getFields()) {
+            for (Field field : target.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
                 Object newValue = field.get(source);
                 if (newValue != null) {
                     field.set(target, newValue);
@@ -37,6 +35,7 @@ public class PojoFiledUtil {
 
             for(String retainField : retainFields){
                 Field field = clazz.getDeclaredField(retainField);
+                field.setAccessible(true);
                 field.set(newPojo, field.get(pojo));
             }
             return newPojo;

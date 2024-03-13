@@ -15,9 +15,9 @@ class PojoFiledUtilTest {
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class TestObject {
-        public int id;
-        public String name;
-        public String title;
+        private int id;
+        private String name;
+        private String title;
     }
 
     @Data
@@ -25,18 +25,18 @@ class PojoFiledUtilTest {
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class TestObject2 {
-        public int id;
-        public String name;
-        public int age;
+        private int id;
+        private String name;
+        private int age;
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     static class NoJsonIgnoreObject {
-        public int id;
-        public String name;
-        public int age;
+        private int id;
+        private String name;
+        private int age;
     }
 
     @Test
@@ -46,7 +46,7 @@ class PojoFiledUtilTest {
         TestObject source = new TestObject(20, "newValue", "title");
 
         // act
-        PojoFiledUtil.overwritePublicFields(target, source);
+        PojoFiledUtil.overwriteFields(target, source);
 
         // assert
         assertEquals(20, target.id);
