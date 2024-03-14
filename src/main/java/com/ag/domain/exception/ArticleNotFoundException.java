@@ -1,6 +1,5 @@
 package com.ag.domain.exception;
 
-
 import com.ag.domain.exception.base.AnonygramRuntimeException;
 
 public class ArticleNotFoundException extends AnonygramRuntimeException {

@@ -1,6 +1,6 @@
 package com.ag.domain.model;
 
-import com.ag.domain.constant.StatusType;
+import com.ag.domain.constant.ArticleStatus;
 import com.ag.domain.model.base.CompositeEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
@@ -28,7 +28,7 @@ public class Article extends CompositeEntity {
     private String authorId;
     private String title;
     private String word;
-    private StatusType status;
+    private ArticleStatus status;
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
     private LocalDateTime createdTime;
@@ -42,7 +42,7 @@ public class Article extends CompositeEntity {
     }
 
     @Override
-    public String getId(){
+    public String getId() {
         return String.format("%s:%s", articleId, no);
     }
 

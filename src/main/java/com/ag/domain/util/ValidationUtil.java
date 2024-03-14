@@ -30,5 +30,9 @@ public class ValidationUtil {
         assertTrue(StringUtils.isNotBlank(string) && string.getBytes().length <= maxLength, errorMessage, args);
     }
 
+    public static void assertInLengthOrNull(String string, int maxLength, String errorMessage, Object... args) {
+        assertTrue(string == null || (StringUtils.isNotBlank(string) && string.getBytes().length <= maxLength), errorMessage, args);
+    }
+
 
 }

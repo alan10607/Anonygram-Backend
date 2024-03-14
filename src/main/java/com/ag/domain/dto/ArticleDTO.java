@@ -1,6 +1,6 @@
 package com.ag.domain.dto;
 
-import com.ag.domain.constant.StatusType;
+import com.ag.domain.constant.ArticleStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -35,7 +35,7 @@ public class ArticleDTO {
     private String word;
 
     @NotNull
-    private StatusType status;
+    private ArticleStatus status;
 
     @NotNull
     private LocalDateTime createdTime;

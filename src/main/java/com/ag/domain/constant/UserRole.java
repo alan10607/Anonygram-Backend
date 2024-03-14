@@ -3,7 +3,7 @@ package com.ag.domain.constant;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public enum RoleType {
+public enum UserRole {
     NORMAL(1),
     ADMIN(2),
     ANONYMOUS(3);
