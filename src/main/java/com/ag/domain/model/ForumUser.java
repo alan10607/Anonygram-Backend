@@ -1,11 +1,9 @@
 package com.ag.domain.model;
 
-import com.ag.domain.constant.RoleType;
+import com.ag.domain.constant.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.json.JsonObject;
+import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
@@ -26,19 +24,27 @@ import java.util.List;
 public class ForumUser {//implements UserDetails {
 
     @Id
+    @Field(type = FieldType.Keyword)
     private String id;
     private String username;
+
+    @Field(type = FieldType.Keyword)
     private String email;
     private String password;
-    private List<RoleType> role = new ArrayList<>();
+    private List<UserRole> roles;
     private String headUrl;
     private String language;
     private String theme;
+
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
     private LocalDateTime createdTime;
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
     private LocalDateTime updatedTime;
+
+    public ForumUser(String id) {
+        this.id = id;
+    }
 
 
 //    @Override

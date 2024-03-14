@@ -1,6 +1,6 @@
 package com.ag.domain.service;
 
-import com.ag.domain.constant.StatusType;
+import com.ag.domain.constant.ArticleStatus;
 import com.ag.domain.exception.ArticleNotFoundException;
 import com.ag.domain.model.Article;
 import com.ag.domain.repository.ArticleRepository;
@@ -60,8 +60,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
                 .authorId(AuthUtil.getUserId())
                 .title(article.getTitle())
                 .word(article.getWord())
-                .likes(0L)
-                .status(StatusType.NORMAL)
+                .status(ArticleStatus.NORMAL)
                 .createdTime(now)
                 .updatedTime(now).build();
 
@@ -82,7 +81,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
     public Article deleteImpl(Article article) {
         Article existing = articleRepository.findById(article.getId())
                 .orElseThrow(ArticleNotFoundException::new);
-        existing.setStatus(StatusType.DELETED);
+        existing.setStatus(ArticleStatus.DELETED);
         existing.setUpdatedTime(TimeUtil.now());
         return articleRepository.save(existing);
     }
@@ -123,7 +122,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
     }
 
     private boolean isNormalStatus(Article article) {
-        return article.getStatus() == StatusType.NORMAL;
+        return article.getStatus() == ArticleStatus.NORMAL;
     }
 
     void validateArticleId(Article article) {
@@ -141,26 +140,23 @@ public class ArticleService extends CrudServiceImpl<Article> {
     }
 
     void validateWord(Article article) {//TODO: please update front end
-        ValidationUtil.assertInLength(article.getWord(), MAX_WORD_LENGTH,
-                "Word length must in {} bytes", MAX_WORD_LENGTH);
+        ValidationUtil.assertInLength(article.getWord(), MAX_WORD_LENGTH, "Word length must in {} bytes", MAX_WORD_LENGTH);
     }
 
     void validateTitle(Article article) {
         if (article.getNo() != null && article.getNo() == 0) {
-            ValidationUtil.assertInLength(article.getTitle(), MAX_TITLE_LENGTH,
-                    "Title length must in {} bytes", MAX_TITLE_LENGTH);
+            ValidationUtil.assertInLength(article.getTitle(), MAX_TITLE_LENGTH, "Title length must in {} bytes", MAX_TITLE_LENGTH);
         } else {
-            ValidationUtil.assertTrue(article.getTitle() == null,
-                    "Title must null if it is not first article");
+            ValidationUtil.assertTrue(article.getTitle() == null, "Title must null if it is not first article");
         }
     }
 
     void validateStatusIsNormal(Article article) {
-        ValidationUtil.assertTrue(isNormalStatus(article),"Status is not normal");
+        ValidationUtil.assertTrue(isNormalStatus(article), "Status is not normal");
     }
 
     void validateHavePermission(Article article) {
-        ValidationUtil.assertTrue(AuthUtil.checkPermission(article.getAuthorId()), "No permission to update");
+        ValidationUtil.assertTrue(AuthUtil.isUserEquals(article.getAuthorId()), "No permission to update");
     }
 
 }

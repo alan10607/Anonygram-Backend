@@ -1,6 +1,5 @@
 package com.ag.domain.controller;
 
-import com.ag.domain.constant.StatusType;
 import com.ag.domain.dto.ArticleDTO;
 import com.ag.domain.model.Article;
 import com.ag.domain.model.Like;
@@ -11,7 +10,6 @@ import com.ag.domain.util.PojoFiledUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,7 +25,7 @@ public class ArticleController {
     @Operation(summary = "Get an article")
     public ArticleDTO get(@PathVariable("articleId") String articleId,
                           @PathVariable("no") Integer no) {
-        return outputFilter(articleService.get(articleId, no));
+        return PojoFiledUtil.convertObject(articleService.get(articleId, no), ArticleDTO.class);
     }
 
     @PostMapping()
@@ -36,7 +34,7 @@ public class ArticleController {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
         article.setArticleId(null);
         article.setNo(0);
-        return outputFilter(articleService.create(article));
+        return PojoFiledUtil.convertObject(articleService.create(article), ArticleDTO.class);
     }
 
     @PostMapping("/{articleId}")
@@ -46,14 +44,14 @@ public class ArticleController {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
         article.setArticleId(articleId);
         article.setNo(null);
-        return outputFilter(articleService.create(article));
+        return PojoFiledUtil.convertObject(articleService.create(article), ArticleDTO.class);
     }
 
     @PatchMapping("/{articleId}/{no}")
     @Operation(summary = "To patch an article")
-    public void update(@PathVariable("articleId") String articleId,
-                       @PathVariable("no") int no,
-                       @RequestBody ArticleDTO articleDTO) {
+    public void patch(@PathVariable("articleId") String articleId,
+                      @PathVariable("no") int no,
+                      @RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
         article.setArticleId(articleId);
         article.setNo(no);
@@ -104,34 +102,29 @@ public class ArticleController {
         articleService.delete(articleId, no);
     }
 
-    private ArticleDTO outputFilter(Article article) {
-        if(article == null) return new ArticleDTO();
-        ArticleDTO articleDTO = PojoFiledUtil.convertObject(article, ArticleDTO.class);
-        articleDTO.setLike(isLike(article));
-        return articleDTO;
-//        switch (articleDTO.getStatus()) {
-//            case NORMAL:
-//                //TODO: prepare after get
-//                Like like = likeService.get(article.getId(), article.getNo(), "userId");
-//                articleDTO.setLike(like.getState());
-//
-////                UserDTO userDTO = userService.get(contentDTO.getAuthorId());
-////                contentDTO.setAuthorName(userDTO.getUsername());
-////                contentDTO.setAuthorHeadUrl(userDTO.getHeadUrl());
-////                contentDTO.setLike(likeService.get(contentDTO.getId(), contentDTO.getNo(), AuthUtil.getUserId()));
-//                return articleDTO;
-//            case DELETED:
-//                return new ArticleDTO(article.getId(), article.getNo(), StatusType.DELETED);
-//            case UNKNOWN:
-//            default:
-//                log.info("article {}/{} not found", article.getId(), article.getNo());
-//                return new ArticleDTO(article.getId(), article.getNo(), StatusType.DELETED);
-//        }
-    }
-
-    private boolean isLike(Article article){
-        return likeService.get(article.getArticleId(), article.getNo(), AuthUtil.getUserId()) != null;
-    }
+//    private ArticleDTO outputFilter(Article article) {
+//        if (article == null) return new ArticleDTO();
+//        ArticleDTO articleDTO = PojoFiledUtil.convertObject(article, ArticleDTO.class);
+//        return articleDTO;
+////        switch (articleDTO.getStatus()) {
+////            case NORMAL:
+////                //TODO: prepare after get
+////                Like like = likeService.get(article.getId(), article.getNo(), "userId");
+////                articleDTO.setLike(like.getState());
+////
+//////                UserDTO userDTO = userService.get(contentDTO.getAuthorId());
+//////                contentDTO.setAuthorName(userDTO.getUsername());
+//////                contentDTO.setAuthorHeadUrl(userDTO.getHeadUrl());
+//////                contentDTO.setLike(likeService.get(contentDTO.getId(), contentDTO.getNo(), AuthUtil.getUserId()));
+////                return articleDTO;
+////            case DELETED:
+////                return new ArticleDTO(article.getId(), article.getNo(), StatusType.DELETED);
+////            case UNKNOWN:
+////            default:
+////                log.info("article {}/{} not found", article.getId(), article.getNo());
+////                return new ArticleDTO(article.getId(), article.getNo(), StatusType.DELETED);
+////        }
+//    }
 
 
 }

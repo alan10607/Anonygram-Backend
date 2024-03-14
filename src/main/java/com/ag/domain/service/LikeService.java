@@ -1,6 +1,5 @@
 package com.ag.domain.service;
 
-import com.ag.domain.exception.base.AnonygramRuntimeException;
 import com.ag.domain.model.Article;
 import com.ag.domain.model.Like;
 import com.ag.domain.repository.LikeRepository;
@@ -88,7 +87,7 @@ public class LikeService extends CrudServiceImpl<Like> {
     }
 
     void validateHavePermission(Like like) {
-        ValidationUtil.assertTrue(AuthUtil.checkPermission(like.getUserId()), "No permission to update");
+        ValidationUtil.assertTrue(AuthUtil.isUserEquals(like.getUserId()), "No permission to update");
     }
 
     void validateArticleIsExist(Like like) {
