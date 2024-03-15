@@ -28,6 +28,8 @@ public class UserDTO {
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;
 
+    private String accessToken;
+    private String refreshToken;
     private String imageBase64;
 
 }

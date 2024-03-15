@@ -10,6 +10,8 @@ import com.ag.domain.util.TimeUtil;
 import com.ag.domain.util.ValidationUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class UserService extends CrudServiceImpl<ForumUser> {//implements UserDetailsService{
+public class UserService extends CrudServiceImpl<ForumUser> implements UserDetailsService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     public static final int MAX_USERNAME_LENGTH = 50;
@@ -30,20 +32,20 @@ public class UserService extends CrudServiceImpl<ForumUser> {//implements UserDe
     public static final int MAX_LANGUAGE_LENGTH = 5;
     public static final int MAX_THEME_LENGTH = 10;
 
-//    /**
-//     * Spring security load username
-//     * @param email login email
-//     * @return UserDetails
-//     * @throws UsernameNotFoundException User not found
-//     */
-//    @Override
-//    public ForumUser loadUserByUsername(String email) throws UsernameNotFoundException {
-//        ForumUser user = userRepository.findByEmail(email)
-//                .orElseThrow(() -> new UsernameNotFoundException(String.format("Email not found: %s", email)));
-//
-//        log.debug("Spring security get user by email: {} succeeded", email);
-//        return user;//Entity need extend org.springframework.security.core.UserDetails.User
-//    }
+    /**
+     * Spring security load username
+     * @param email login email
+     * @return UserDetails
+     * @throws UsernameNotFoundException User not found
+     */
+    @Override
+    public ForumUser loadUserByUsername(String email) throws UsernameNotFoundException {
+        ForumUser user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("Email not found: %s", email)));
+
+        log.debug("Spring security get user by email: {} succeeded", email);
+        return user;//Entity need extend org.springframework.security.core.UserDetails.User
+    }
 
     public ForumUser get(String userId) {
         return this.get(new ForumUser(userId));
@@ -62,7 +64,7 @@ public class UserService extends CrudServiceImpl<ForumUser> {//implements UserDe
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .password(bCryptPasswordEncoder.encode(user.getPassword()))
-                .roles(Collections.singletonList(UserRole.NORMAL))
+                .roles(Collections.singletonList(UserRole.ROLE_NORMAL))
                 .createdTime(now)
                 .updatedTime(now)
                 .build();
