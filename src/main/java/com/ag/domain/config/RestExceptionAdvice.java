@@ -89,7 +89,7 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
     @ExceptionHandler(value = { Throwable.class })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleException(Throwable ex) {
-        log.error("", ex);
+        log.error("Debug exception", ex);
         return toErrorMap(ex);
     }
 
