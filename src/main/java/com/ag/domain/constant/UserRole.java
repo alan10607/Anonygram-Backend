@@ -9,5 +9,5 @@ public enum UserRole {
     ADMIN(2,"ROLE_NORMAL"),
     ANONYMOUS(3,"ROLE_NORMAL");
     public final int id;
-    private final String name;
+    public final String name;
 }
