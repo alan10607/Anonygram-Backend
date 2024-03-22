@@ -15,6 +15,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpResponse;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -93,6 +94,13 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
         return toErrorMap(ex);
     }
 
+
+    @ExceptionHandler(value = { AccessDeniedException.class })
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, String> handleAccessDeniedException(AccessDeniedException ex) {
+        log.error("{}", ex.getMessage());
+        return toErrorMap(ex);
+    }
     @ExceptionHandler(value = { AnonygramRuntimeException.class })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleAnonygramRuntimeException(AnonygramRuntimeException ex) {

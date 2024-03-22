@@ -18,7 +18,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}")
-//    @PreAuthorize("hasRole('NORMAL')") TODO: need study
+    @PreAuthorize("isAuthenticated()") //TODO: need study
     @Operation(summary = "Get a user")
     public UserDTO get(@PathVariable("userId") String userId) {
         return outputFilter(userService.get(userId));

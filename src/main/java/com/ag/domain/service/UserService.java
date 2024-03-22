@@ -132,12 +132,12 @@ public class UserService extends CrudServiceImpl<ForumUser> implements UserDetai
 
     void validateUsername(ForumUser user) {
         ValidationUtil.assertInLength(user.getUsername(), MAX_USERNAME_LENGTH, "Username length must in {} bytes", MAX_USERNAME_LENGTH);
-        ValidationUtil.assertTrue(AuthUtil.isUserEquals(user.getId()) || userRepository.findByUsername(user.getUsername()).isEmpty(), "Username already exists");
+        ValidationUtil.assertTrue(userRepository.findByUsername(user.getUsername()).isEmpty() || AuthUtil.isUserEquals(user.getId()), "Username already exists");
     }
 
     void validateEmail(ForumUser user) {
         ValidationUtil.assertInLength(user.getEmail(), MAX_EMAIL_LENGTH, "Email length must in {} bytes", MAX_EMAIL_LENGTH);
-        ValidationUtil.assertTrue(AuthUtil.isUserEquals(user.getId()) || userRepository.findByEmail(user.getEmail()).isEmpty(), "Email already exists");
+        ValidationUtil.assertTrue(userRepository.findByEmail(user.getEmail()).isEmpty() || AuthUtil.isUserEquals(user.getId()), "Email already exists");
     }
 
     void validatePassword(ForumUser user) {
@@ -148,10 +148,10 @@ public class UserService extends CrudServiceImpl<ForumUser> implements UserDetai
         List<UserRole> notNormalRoles = Optional.ofNullable(user.getRoles())
                 .orElse(Collections.emptyList())
                 .stream()
-                .filter(role -> !role.equals(UserRole.NORMAL))
+                .filter(role -> !role.equals(UserRole.ROLE_NORMAL))
                 .collect(Collectors.toList());
 
-        ValidationUtil.assertTrue(AuthUtil.isRolesHave(UserRole.ADMIN) || notNormalRoles.isEmpty(), "No permission to add role {}", notNormalRoles);
+        ValidationUtil.assertTrue(notNormalRoles.isEmpty() || AuthUtil.isRolesHave(UserRole.ROLE_ADMIN), "No permission to add role {}", notNormalRoles);
     }
 
     void validateHeadUrl(ForumUser user) {

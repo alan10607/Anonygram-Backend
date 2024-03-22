@@ -99,7 +99,7 @@ public class ForumUser implements UserDetails {
     public static class AnonymousUserBuilder {
         private final String id;
         private final String username;
-        private final List<UserRole> roles = Collections.singletonList(UserRole.ANONYMOUS);
+        private final List<UserRole> roles = Collections.singletonList(UserRole.ROLE_ANONYMOUS);
 
         public AnonymousUserBuilder() {
             String id = getRandom8Base64();

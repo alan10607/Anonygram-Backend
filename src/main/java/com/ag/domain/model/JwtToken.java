@@ -4,12 +4,15 @@ import com.ag.domain.constant.TokenType;
 import com.ag.domain.util.JwtUtil;
 import com.google.common.collect.ImmutableMap;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
 import java.util.Map;
 
 @Data
+@Slf4j
 public class JwtToken {
     private String value;
     private String userId;
@@ -32,14 +35,20 @@ public class JwtToken {
     }
 
     private void init(String token){
-        Claims claims = JwtUtil.extractAllClaims(token);
-        this.value = token;
-        this.userId = (String) claims.get(CLAIM_NAME_ID);
-        this.anonymous = (Boolean) claims.get(CLAIM_NAME_IS_ANONYMOUS);
-        this.tokenType = TokenType.valueOf((String) claims.get(CLAIM_NAME_TOKEN_TYPE));
-        this.subject = claims.getSubject();
-        this.issuedAt = claims.getIssuedAt();
-        this.expiration = claims.getExpiration();
+        try {
+            Claims claims = JwtUtil.extractAllClaims(token);
+            this.value = token;
+            this.userId = (String) claims.get(CLAIM_NAME_ID);
+            this.anonymous = (Boolean) claims.get(CLAIM_NAME_IS_ANONYMOUS);
+            this.tokenType = TokenType.valueOf((String) claims.get(CLAIM_NAME_TOKEN_TYPE));
+            this.subject = claims.getSubject();
+            this.issuedAt = claims.getIssuedAt();
+            this.expiration = claims.getExpiration();
+        }catch (MalformedJwtException e){
+            log.error("Failed to extract JWT", e);
+            throw new RuntimeException("Failed to extract JWT");
+        }
+
     }
 
     private String createToken(ForumUser user, TokenType tokenType) {
