@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@Tag(name = "Anonygram Forum")
+@Tag(name = "Article")
 @RequestMapping(path = "article")
 public class ArticleController {
     private final ArticleService articleService;
