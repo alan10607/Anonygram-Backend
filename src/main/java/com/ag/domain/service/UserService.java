@@ -170,16 +170,4 @@ public class UserService extends CrudServiceImpl<ForumUser> implements UserDetai
         ValidationUtil.assertTrue(AuthUtil.isUserEquals(user.getId()), "No permission to update");
     }
 
-//    public ForumUser getTempAnonymousUser(String tempId) {
-//        Role role = roleDAO.findByRoleName(RoleType.ANONYMOUS.name());
-//        ForumUser user = new ForumUser();
-//        user.setId(tempId);
-//        user.setUsername(tempId);
-//        user.setEmail("");
-//        user.setRoles(Collections.singletonList(role));
-//        user.setUpdatedDate(TimeUtil.now());
-//        return user;
-//    }
-
-
 }
