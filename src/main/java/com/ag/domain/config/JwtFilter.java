@@ -47,16 +47,16 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private void setAuthentication(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) return;//Already set authentication
+        if (auth != null) return;// Already set authentication
 
         String token = getAccessTokenFromRequest(request, TokenType.ACCESS_TOKEN.header);
-        if (token == null) return;
+        if (token == null) return;// Token not found
 
         JwtToken accessToken = new JwtToken.ParseFromTokenBuilder(token).build();
         if (accessToken == null || !isValidAccessToken(accessToken)) return;// Invalid token
 
         ForumUser user = getUserFromToken(accessToken);
-        if (user == null) return;//user not found
+        if (user == null) return;// User not found
 
         UsernamePasswordAuthenticationToken authToken = createAuthToken(user, request);
         SecurityContextHolder.getContext().setAuthentication(authToken);
