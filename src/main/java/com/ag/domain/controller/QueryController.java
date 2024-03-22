@@ -3,6 +3,7 @@ package com.ag.domain.controller;
 import com.ag.domain.dto.UserDTO;
 import com.ag.domain.model.Article;
 import com.ag.domain.model.ForumUser;
+import com.ag.domain.service.QueryArticleService;
 import com.ag.domain.service.UserService;
 import com.ag.domain.service.base.QueryService;
 import com.ag.domain.util.PojoFiledUtil;
@@ -19,12 +20,12 @@ import java.util.List;
 @Tag(name = "Query Article")
 @RequestMapping(path = "/query")
 public class QueryController {
-    private final QueryService queryService;
+    private final QueryArticleService queryArticleService;
 
     @PostMapping("/{key}")
     @Operation(summary = "Query article")
     public List<Article> get(@PathVariable("key") String key) {
-        return queryService.search(Article.class, "articleId", key);
+        return queryArticleService.search("articleId", key);
     }
 
 }
