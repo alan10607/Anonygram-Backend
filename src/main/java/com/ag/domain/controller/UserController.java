@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @AllArgsConstructor
 @Tag(name = "User")
-@RequestMapping(path = "/user")
+@RequestMapping(path = "user")
 public class UserController {
     private final UserService userService;
 

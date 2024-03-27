@@ -25,6 +25,10 @@ public class Like extends CompositeEntity {
     @Field(type = FieldType.Keyword)
     private String userId;
 
+    public static final String COL_ID = "id";
+    public static final String COL_ARTICLE_ID = "articleId";
+    public static final String COL_NO = "no";
+    public static final String COL_USER_ID = "userId";
 
     @Override
     public String getId() {

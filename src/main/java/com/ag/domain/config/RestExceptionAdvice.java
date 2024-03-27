@@ -94,7 +94,6 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
         return toErrorMap(ex);
     }
 
-
     @ExceptionHandler(value = { AccessDeniedException.class })
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public Map<String, String> handleAccessDeniedException(AccessDeniedException ex) {
@@ -109,13 +108,13 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
     }
 
     @ExceptionHandler(value = { AgValidationException.class })
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public Map<String, String> handleAgValidationException(AgValidationException ex) {
         return toErrorMap(ex);
     }
 
     @ExceptionHandler(value = { MethodArgumentNotValidException.class })
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public Map<String, String> handleNotValidException(MethodArgumentNotValidException ex) {
         Map<String, String> suggestions = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> {

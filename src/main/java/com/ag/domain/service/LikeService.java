@@ -36,7 +36,6 @@ public class LikeService extends CrudServiceImpl<Like> {
 
     @Override
     public Like createImpl(Like like) {
-        //TODO: need work, update like to article repo
         return likeRepository.save(like);
     }
 
@@ -79,7 +78,7 @@ public class LikeService extends CrudServiceImpl<Like> {
     }
 
     void validateNo(Like like) {
-        ValidationUtil.assertInRange(like.getNo(), 0, null, "No must > 0");
+        ValidationUtil.assertInRange(like.getNo(), 0, null, "No must >= 0");
     }
 
     void validateUserId(Like like) {

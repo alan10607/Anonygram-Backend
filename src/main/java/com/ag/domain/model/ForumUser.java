@@ -28,14 +28,26 @@ public class ForumUser implements UserDetails {
     @Id
     @Field(type = FieldType.Keyword)
     private String id;
+
+    @Field(type = FieldType.Text)
     private String username;
 
     @Field(type = FieldType.Keyword)
     private String email;
+
+    @Field(type = FieldType.Text)
     private String password;
+
+    @Field(type = FieldType.Text)
     private List<UserRole> roles;
+
+    @Field(type = FieldType.Text)
     private String headUrl;
+
+    @Field(type = FieldType.Text)
     private String language;
+
+    @Field(type = FieldType.Text)
     private String theme;
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
@@ -43,6 +55,8 @@ public class ForumUser implements UserDetails {
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
     private LocalDateTime updatedTime;
+
+    public static final String COL_USERNAME = "username";
 
     public ForumUser(String id) {
         this.id = id;
