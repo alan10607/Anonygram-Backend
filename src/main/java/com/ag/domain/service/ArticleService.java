@@ -53,10 +53,16 @@ public class ArticleService extends CrudServiceImpl<Article> {
     @Override
     public Article createImpl(Article article) {
         LocalDateTime now = TimeUtil.now();
+        String articleId = UUID.randomUUID().toString();
         int no = 0;
+        if (!isCreateFirstArticle(article)) {
+            articleId = article.getArticleId();
+            no = articleRepository.countByArticleId(article.getArticleId());
+        }
+
         article = Article.builder()
-                .articleId(UUID.randomUUID().toString())
-                .no(no)//TODO: get current no
+                .articleId(articleId)
+                .no(no)
                 .authorId(AuthUtil.getUserId())
                 .title(article.getTitle())
                 .word(article.getWord())
@@ -130,7 +136,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
     }
 
     void validateNo(Article article) {
-        ValidationUtil.assertInRange(article.getNo(), 0, null, "No must > 0");
+        ValidationUtil.assertInRange(article.getNo(), 0, null, "No must >= 0");
     }
 
     void validateFirstArticleStatusIsNormal(Article article) {

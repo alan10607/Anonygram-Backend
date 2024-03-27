@@ -43,9 +43,15 @@ public class ArticleDTO {
     @NotNull
     private LocalDateTime updatedTime;
 
-    private Long likes;
+    private Long likeCount;
     private Boolean like;
     private String authorName;
     private String authorHeadUrl;
+
+    public ArticleDTO(String articleId, Integer no, ArticleStatus status) {
+        this.articleId = articleId;
+        this.no = no;
+        this.status = status;
+    }
 
 }

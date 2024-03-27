@@ -22,12 +22,19 @@ public class Article extends CompositeEntity {
     @Field(type = FieldType.Keyword)
     private String articleId;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Integer)
     private Integer no;
 
+    @Field(type = FieldType.Keyword)
     private String authorId;
+
+    @Field(type = FieldType.Text)
     private String title;
+
+    @Field(type = FieldType.Text)
     private String word;
+
+    @Field(type = FieldType.Keyword)
     private ArticleStatus status;
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
@@ -35,6 +42,13 @@ public class Article extends CompositeEntity {
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
     private LocalDateTime updatedTime;
+
+    public static final String COL_ARTICLE_ID = "articleId";
+    public static final String COL_NO = "no";
+    public static final String COL_TITLE = "title";
+    public static final String COL_WORD = "word";
+    public static final String COL_STATUS = "status";
+    public static final String COL_CREATED_TIME = "createdTime";
 
     public Article(String articleId, Integer no) {
         this.articleId = articleId;
