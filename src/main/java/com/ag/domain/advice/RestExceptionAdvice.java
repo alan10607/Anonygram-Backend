@@ -1,4 +1,4 @@
-package com.ag.domain.config;
+package com.ag.domain.advice;
 
 import com.ag.domain.dto.RestResponseEntity;
 import com.ag.domain.exception.AgValidationException;

@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 @AllArgsConstructor
 @Slf4j
 public class LockUtil {
-    private static final Striped<Lock> stripedLocks = Striped.lock(100);
+    private static final Striped<Lock> stripedLocks = Striped.lock(10000);
     private static final long WAIT_TRY_LOCK_MS = 3000;
     private static final long BUSY_SLEEP_MS = 1000;
 
