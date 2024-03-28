@@ -123,7 +123,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
         validateHavePermission(article);
     }
 
-    private boolean isCreateFirstArticle(Article article) {
+    public boolean isCreateFirstArticle(Article article) {
         return article.getArticleId() == null;
     }
 
