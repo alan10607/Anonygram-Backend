@@ -16,14 +16,12 @@ import java.util.Map;
 public class JwtToken {
     private String value;
     private String userId;
-    private Boolean anonymous;
     private TokenType tokenType;
     private String subject;
     private Date issuedAt;
     private Date expiration;
 
     private static final String CLAIM_NAME_ID = "userId";
-    private static final String CLAIM_NAME_IS_ANONYMOUS = "isAnonymous";
     private static final String CLAIM_NAME_TOKEN_TYPE = "tokenType";
 
     public JwtToken(DefaultTokenBuilder builder) {
@@ -39,7 +37,6 @@ public class JwtToken {
             Claims claims = JwtUtil.extractAllClaims(token);
             this.value = token;
             this.userId = (String) claims.get(CLAIM_NAME_ID);
-            this.anonymous = (Boolean) claims.get(CLAIM_NAME_IS_ANONYMOUS);
             this.tokenType = TokenType.valueOf((String) claims.get(CLAIM_NAME_TOKEN_TYPE));
             this.subject = claims.getSubject();
             this.issuedAt = claims.getIssuedAt();
@@ -54,7 +51,6 @@ public class JwtToken {
     private String createToken(ForumUser user, TokenType tokenType) {
         Map<String, Object> extraClaim = ImmutableMap.<String, Object>builder()
                 .put(CLAIM_NAME_ID, user.getId())
-                .put(CLAIM_NAME_IS_ANONYMOUS, user.isAnonymous())
                 .put(CLAIM_NAME_TOKEN_TYPE, tokenType)
                 .build();
 

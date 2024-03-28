@@ -28,13 +28,6 @@ public class TokenController {
         return tokenService.createToken(tokenDTO, response);
     }
 
-    @PostMapping("/anonymousToken")
-    @Operation(summary = "Create anonymous JWT")
-    public TokenDTO createAnonymousToken(@RequestBody TokenDTO tokenDTO,
-                                         HttpServletResponse response) {
-        return tokenService.createAnonymousToken(tokenDTO, response);
-    }
-
     @PutMapping("/token")
     @Operation(summary = "Refresh JWT")
     public TokenDTO refreshToken(@RequestBody TokenDTO tokenDTO) {

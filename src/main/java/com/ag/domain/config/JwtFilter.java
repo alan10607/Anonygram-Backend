@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -84,19 +85,11 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     public ForumUser getUserFromToken(JwtToken jwtToken) {
-        return jwtToken.getAnonymous() ? getAnonymousUserFromToken(jwtToken) : getLoginUserFromToken(jwtToken);
-    }
-
-    private ForumUser getLoginUserFromToken(JwtToken jwtToken) {
         ForumUser user = userService.get(jwtToken.getUserId());
         if (user == null || !jwtToken.isTokenValid(user)) {
             throw new JwtException(String.format("Invalid token=%s for user=%s", jwtToken.getValue(), jwtToken.getUserId()));
         }
         return user;
-    }
-
-    private ForumUser getAnonymousUserFromToken(JwtToken jwtToken) {
-        return new ForumUser.AnonymousUserBuilder(jwtToken.getUserId()).build();
     }
 
     private boolean isValidAccessToken(JwtToken accessToken) {
@@ -117,7 +110,6 @@ public class JwtFilter extends OncePerRequestFilter {
     public void validateRefreshToken(JwtToken jwtToken) {
         ValidationUtil.assertTrue(jwtToken.getTokenType() == TokenType.REFRESH_TOKEN, "Not a refreshToken");
         ValidationUtil.assertTrue(!jwtToken.isTokenExpired(), "RefreshToken is expired ");
-        ValidationUtil.assertTrue(!jwtToken.getAnonymous(), "Can't refresh an anonymous token");
     }
 
 }

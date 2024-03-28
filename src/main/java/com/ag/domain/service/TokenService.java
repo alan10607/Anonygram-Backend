@@ -49,15 +49,6 @@ public class TokenService {
         return new TokenDTO(accessToken.getValue(), refreshToken.getValue());
     }
 
-    public TokenDTO createAnonymousToken(TokenDTO tokenDTO, HttpServletResponse response) {
-        ForumUser user = new ForumUser.AnonymousUserBuilder().build();
-        JwtToken accessToken = new JwtToken.DefaultTokenBuilder(user, TokenType.ACCESS_TOKEN).build();
-        if (BooleanUtils.isTrue(tokenDTO.getSetCookie())) {
-            setTokenToCookie(response, accessToken);
-        }
-        return new TokenDTO(accessToken.getValue());
-    }
-
     public TokenDTO refreshToken(TokenDTO tokenDTO) {
         JwtToken refreshToken = new JwtToken.ParseFromTokenBuilder(tokenDTO.getRefreshToken()).build();
         jwtFilter.validateRefreshToken(refreshToken);

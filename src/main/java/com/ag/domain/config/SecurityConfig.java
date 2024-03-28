@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
     private final JwtFilter jwtFilter;
+    private final AnonymousFilter anonymousFilter;
 //    private final CsrfDoubleSubmitFilter csrfDoubleSubmitFilter;
 //    private final AuthenticationProvider authenticationProvider;
 //    public static final String ERROR_PAGE_PATH = "/err";//Redirect error status to this page
@@ -72,7 +74,8 @@ public class SecurityConfig {
                 )
 //                .exceptionHandling(customizer -> customizer.accessDeniedHandler(new RestExceptionAdvice.CustomAccessDeniedHandler()))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-//                .addFilterBefore(new CustomSessionFilter(), SessionManagementFilter.class)
+               .addFilterBefore(anonymousFilter, AnonymousAuthenticationFilter.class)
+////                .addFilterBefore(new CustomSessionFilter(), SessionManagementFilter.class)
 //                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS); // 启用基于 Servlet 容器的会话管理
 //                .formLogin(formLogin -> formLogin
 //                        .loginPage("/signin")
