@@ -51,7 +51,7 @@ public class JwtFilter extends OncePerRequestFilter {
         if (auth != null) return;// Already set authentication
 
         String token = getAccessTokenFromRequest(request, TokenType.ACCESS_TOKEN.header);
-        if (token == null) return;// Token not found
+        if (StringUtils.isBlank(token)) return;// Token not found
 
         JwtToken accessToken = new JwtToken.ParseFromTokenBuilder(token).build();
         if (accessToken == null || !isValidAccessToken(accessToken)) return;// Invalid token

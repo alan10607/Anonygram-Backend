@@ -70,7 +70,6 @@ public class TokenService {
         String header = jwtToken.getTokenType().header;
         long maxAge = (jwtToken.getExpiration().getTime() - jwtToken.getIssuedAt().getTime()) / 1000;
         response.addHeader(HttpHeaders.SET_COOKIE, CookieUtil.createHttpOnlyCookie(header, jwtToken.getValue(), maxAge).toString());
-
     }
 
     void validateEmail(TokenDTO tokenDTO) {
