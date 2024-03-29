@@ -19,7 +19,7 @@ public class ValidationUtil {
     }
 
     public static void assertUUID(String uuidString, String errorMessage, Object... args) {
-        assertTrue(StringUtils.isNotBlank(uuidString) && UUID_REGEX.matcher(uuidString).matches(), errorMessage, args);
+        assertTrue(StringUtils.isNotBlank(uuidString) && isUuid(uuidString), errorMessage, args);
     }
 
     public static void assertInRange(Integer value, Integer min, Integer max, String errorMessage, Object... args) {
@@ -34,5 +34,8 @@ public class ValidationUtil {
         assertTrue(string == null || (StringUtils.isNotBlank(string) && string.getBytes().length <= maxLength), errorMessage, args);
     }
 
+    public static boolean isUuid(String uuidString) {
+        return UUID_REGEX.matcher(uuidString).matches();
+    }
 
 }

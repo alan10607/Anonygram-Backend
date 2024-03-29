@@ -1,6 +1,5 @@
 package com.ag.domain.service.base;
 
-import com.ag.domain.advice.LockFunction;
 import com.ag.domain.exception.AgValidationException;
 import com.ag.domain.util.PojoFiledUtil;
 import lombok.AllArgsConstructor;
@@ -27,7 +26,6 @@ public abstract class CrudServiceImpl<Entity> implements CrudService<Entity> {
     }
 
     @Override
-    @LockFunction()
     public Entity create(Entity entity) {
         this.beforeCreate(entity);
         return createImpl(entity);

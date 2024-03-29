@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthUtil {
     public static ForumUser getUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();// get Authentication
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth instanceof UsernamePasswordAuthenticationToken
                 || auth instanceof AnonymousAuthenticationToken) {
             ForumUser user = (ForumUser) auth.getPrincipal();

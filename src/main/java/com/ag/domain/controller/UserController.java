@@ -18,7 +18,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}")
-    @PreAuthorize("isAuthenticated()") //TODO: need study
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get a user")
     public UserDTO get(@PathVariable("userId") String userId) {
         return outputFilter(userService.get(userId));
@@ -32,6 +32,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "To patch a user")
     public void patch(@PathVariable("userId") String userId,
                       @RequestBody UserDTO userDTO) {
