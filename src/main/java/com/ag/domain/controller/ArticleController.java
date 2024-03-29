@@ -2,10 +2,7 @@ package com.ag.domain.controller;
 
 import com.ag.domain.dto.ArticleDTO;
 import com.ag.domain.model.Article;
-import com.ag.domain.model.Like;
 import com.ag.domain.service.ArticleService;
-import com.ag.domain.service.LikeService;
-import com.ag.domain.util.AuthUtil;
 import com.ag.domain.util.PojoFiledUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,8 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "article")
 public class ArticleController {
     private final ArticleService articleService;
-    private final LikeService likeService;
-
 
     @GetMapping("/{articleId}/{no}")
     @Operation(summary = "Get an article")
@@ -80,19 +75,6 @@ public class ArticleController {
         article.setNo(no);
         article = PojoFiledUtil.retainFields(article, "articleId", "no", "word");
         articleService.patch(article);
-    }
-
-    @PatchMapping("/{articleId}/{no}/like")
-    @Operation(summary = "To like a content")
-    public void patchLike(@PathVariable("articleId") String articleId,
-                          @PathVariable("no") int no,
-                          @RequestBody ArticleDTO articleDTO) {
-        Like like = new Like(articleId, no, AuthUtil.getUserId());
-        if (articleDTO.getLike()) {
-            likeService.create(like);
-        } else {
-            likeService.delete(like);
-        }
     }
 
     @DeleteMapping("/{articleId}/{no}")
