@@ -14,29 +14,26 @@ import org.springframework.web.bind.annotation.*;
 public class LikeController {
     private final LikeService likeService;
 
-    @GetMapping("/{articleId}/{no}/{userId}")
+    @GetMapping("/{articleId}/{no}")
     @Operation(summary = "Get article like state")
     public LikeDTO get(@PathVariable("articleId") String articleId,
-                       @PathVariable("no") Integer no,
-                       @PathVariable("userId") String userId) {
-        boolean isLike = likeService.get(articleId, no, userId) != null;
+                       @PathVariable("no") Integer no) {
+        boolean isLike = likeService.get(articleId, no) != null;
         return new LikeDTO(isLike);
     }
 
-    @PostMapping("/{articleId}/{no}/{userId}")
+    @PostMapping("/{articleId}/{no}")
     @Operation(summary = "Like a article")
     public void create(@PathVariable("articleId") String articleId,
-                       @PathVariable("no") Integer no,
-                       @PathVariable("userId") String userId) {
-        likeService.create(articleId, no, userId);
+                       @PathVariable("no") Integer no) {
+        likeService.create(articleId, no);
     }
 
-    @DeleteMapping("/{articleId}/{no}/{userId}")
+    @DeleteMapping("/{articleId}/{no}")
     @Operation(summary = "Dislike a article")
     public void delete(@PathVariable("articleId") String articleId,
-                       @PathVariable("no") Integer no,
-                       @PathVariable("userId") String userId) {
-        likeService.delete(articleId, no, userId);
+                       @PathVariable("no") Integer no) {
+        likeService.delete(articleId, no);
     }
 
 

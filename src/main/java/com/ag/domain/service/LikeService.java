@@ -17,16 +17,16 @@ public class LikeService extends CrudServiceImpl<Like> {
     private final ArticleService articleService;
     private final LikeRepository likeRepository;
 
-    public Like get(String articleId, int no, String userId) {
-        return this.get(new Like(articleId, no, userId));
+    public Like get(String articleId, int no) {
+        return this.get(new Like(articleId, no, AuthUtil.getUserId()));
     }
 
-    public Like create(String articleId, int no, String userId) {
-        return this.create(new Like(articleId, no, userId));
+    public Like create(String articleId, int no) {
+        return this.create(new Like(articleId, no, AuthUtil.getUserId()));
     }
 
-    public Like delete(String articleId, int no, String userId) {
-        return this.delete(new Like(articleId, no, userId));
+    public Like delete(String articleId, int no) {
+        return this.delete(new Like(articleId, no, AuthUtil.getUserId()));
     }
 
     @Override
@@ -55,14 +55,12 @@ public class LikeService extends CrudServiceImpl<Like> {
     protected void beforeGet(Like like) {
         validateArticleId(like);
         validateNo(like);
-        validateUserId(like);
     }
 
     @Override
     protected void beforeCreate(Like like) {
         validateArticleId(like);
         validateNo(like);
-        validateUserId(like);
         validateHavePermission(like);
         validateArticleIsExist(like);
     }
@@ -79,10 +77,6 @@ public class LikeService extends CrudServiceImpl<Like> {
 
     void validateNo(Like like) {
         ValidationUtil.assertInRange(like.getNo(), 0, null, "No must >= 0");
-    }
-
-    void validateUserId(Like like) {
-        ValidationUtil.assertUUID(like.getUserId(), "User id is not a UUID");
     }
 
     void validateHavePermission(Like like) {
