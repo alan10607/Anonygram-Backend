@@ -30,11 +30,11 @@ public class LockUtil {
         try {
             if (lock.tryLock(WAIT_TRY_LOCK_MS, TimeUnit.MILLISECONDS)) {
                 try {
-                    log.debug("Lock function with key={}", key);
+                    log.info("Lock function with key={}", key);
                     return supplier.get();
                 } finally {
                     lock.unlock();
-                    log.debug("Unlock function with key={}", key);
+                    log.info("Unlock function with key={}", key);
                 }
             } else {
                 Thread.sleep(BUSY_SLEEP_MS);//Cache Breakdown (Hotspot Invalid), reject request if the query exists
