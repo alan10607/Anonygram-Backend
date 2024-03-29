@@ -1,6 +1,6 @@
 package com.ag.domain.service;
 
-import com.ag.domain.config.JwtFilter;
+import com.ag.domain.config.filter.JwtFilter;
 import com.ag.domain.constant.TokenType;
 import com.ag.domain.dto.TokenDTO;
 import com.ag.domain.exception.base.AnonygramRuntimeException;

@@ -2,7 +2,10 @@ package com.ag.domain.model;
 
 import com.ag.domain.constant.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
@@ -115,25 +118,24 @@ public class ForumUser implements UserDetails {
         private final String username;
         private final List<UserRole> roles = Collections.singletonList(UserRole.ROLE_ANONYMOUS);
 
-        public AnonymousUserBuilder() {
-            String id = getRandom8Base64();
-            this.id = id;
-            this.username = id;
-        }
-
-
         public AnonymousUserBuilder(String id) {
             this.id = id;
             this.username = id;
         }
 
+        public AnonymousUserBuilder(UUID uuid) {
+            String id = get8Base64(uuid.toString());
+            this.id = id;
+            this.username = id;
+        }
+
+
         public ForumUser build() {
             return new ForumUser(this);
         }
 
-        private String getRandom8Base64() {
-            String tempId = UUID.randomUUID().toString();
-            return Base64.getEncoder().encodeToString(hashTo6Bytes(tempId.getBytes()));
+        private String get8Base64(String s) {
+            return Base64.getEncoder().encodeToString(hashTo6Bytes(s.getBytes()));
         }
 
         /**
