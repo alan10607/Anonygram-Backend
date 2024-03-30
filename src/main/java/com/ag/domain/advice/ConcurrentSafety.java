@@ -5,7 +5,6 @@ import java.lang.annotation.*;
 @Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LockFunction {
-    String autoKey() default "";
-    boolean alwaysPrint() default false;
+public @interface ConcurrentSafety {
+    Class<?> entity() default Void.class;
 }

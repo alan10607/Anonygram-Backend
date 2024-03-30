@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 
 public class PojoFiledUtil {
 
@@ -16,6 +17,10 @@ public class PojoFiledUtil {
 
         try {
             for (Field field : target.getClass().getDeclaredFields()) {
+                if (Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())) {
+                    return;
+                }
+
                 field.setAccessible(true);
                 Object newValue = field.get(source);
                 if (newValue != null) {
@@ -33,13 +38,13 @@ public class PojoFiledUtil {
             Constructor<?> constructor = clazz.getConstructor();
             T newPojo = (T) (constructor.newInstance());
 
-            for(String retainField : retainFields){
+            for (String retainField : retainFields) {
                 Field field = clazz.getDeclaredField(retainField);
                 field.setAccessible(true);
                 field.set(newPojo, field.get(pojo));
             }
             return newPojo;
-        }catch (NoSuchFieldException | InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException e) {
+        } catch (NoSuchFieldException | InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException("Failed to retain POJO fields", e);
         }
     }
