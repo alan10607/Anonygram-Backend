@@ -1,5 +1,6 @@
 package com.ag.domain.service;
 
+import com.ag.domain.advice.ConcurrentSafety;
 import com.ag.domain.constant.ArticleStatus;
 import com.ag.domain.exception.ArticleNotFoundException;
 import com.ag.domain.model.Article;
@@ -27,6 +28,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
         return get(new Article(articleId, no));
     }
 
+    @ConcurrentSafety(entity = Article.class)
     public Article delete(String articleId, int no) {
         return delete(new Article(articleId, no));
     }

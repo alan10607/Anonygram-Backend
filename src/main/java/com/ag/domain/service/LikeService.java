@@ -1,5 +1,6 @@
 package com.ag.domain.service;
 
+import com.ag.domain.advice.ConcurrentSafety;
 import com.ag.domain.model.Article;
 import com.ag.domain.model.Like;
 import com.ag.domain.repository.LikeRepository;
@@ -21,10 +22,12 @@ public class LikeService extends CrudServiceImpl<Like> {
         return this.get(new Like(articleId, no, AuthUtil.getUserId()));
     }
 
+    @ConcurrentSafety(entity = Like.class)
     public Like create(String articleId, int no) {
         return this.create(new Like(articleId, no, AuthUtil.getUserId()));
     }
 
+    @ConcurrentSafety(entity = Like.class)
     public Like delete(String articleId, int no) {
         return this.delete(new Like(articleId, no, AuthUtil.getUserId()));
     }

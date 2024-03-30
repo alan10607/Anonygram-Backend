@@ -1,6 +1,6 @@
 package com.ag.domain.service.base;
 
-import com.ag.domain.advice.LockFunction;
+import com.ag.domain.advice.ConcurrentSafety;
 import com.ag.domain.exception.AgValidationException;
 import com.ag.domain.util.PojoFiledUtil;
 import lombok.AllArgsConstructor;
@@ -27,13 +27,14 @@ public abstract class CrudServiceImpl<Entity> implements CrudService<Entity> {
     }
 
     @Override
-    @LockFunction
+    @ConcurrentSafety
     public Entity create(Entity entity) {
         this.beforeCreate(entity);
         return createImpl(entity);
     }
 
     @Override
+    @ConcurrentSafety
     public Entity update(Entity entity) {
         this.validateIsExist(entity);
         this.beforeUpdateAndPatch(entity);
@@ -41,6 +42,7 @@ public abstract class CrudServiceImpl<Entity> implements CrudService<Entity> {
     }
 
     @Override
+    @ConcurrentSafety
     public Entity patch(Entity entity) {
         Entity oldEntity = this.validateIsExist(entity);
         PojoFiledUtil.overwriteFields(oldEntity, entity);
@@ -49,6 +51,7 @@ public abstract class CrudServiceImpl<Entity> implements CrudService<Entity> {
     }
 
     @Override
+    @ConcurrentSafety
     public Entity delete(Entity entity) {
         Entity oldEntity = this.validateIsExist(entity);
         this.beforeDelete(oldEntity);
