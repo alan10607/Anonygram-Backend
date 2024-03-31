@@ -16,11 +16,15 @@ import com.ag.domain.repository.esQuery.UserQueryHandler;
 import com.ag.domain.util.AuthUtil;
 import com.ag.domain.util.PojoFiledUtil;
 import com.ag.domain.util.ValidationUtil;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,11 +38,21 @@ public class QueryService {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
 
+    private final Cache<String, List<String>> articleCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(5, TimeUnit.SECONDS)
+            .maximumSize(1)
+            .build();
+
     private static final int MAX_QUERY_ARTICLE_SIZE = 10;
     private static final int PAGEABLE_SIZE = 10;
 
     public List<String> queryArticleIds() {
-        return articleQueryHandler.searchLatestArticleId();
+        try {
+            String cacheKey = "articleIds";
+            return articleCache.get(cacheKey, articleQueryHandler::searchLatestArticleId);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public List<QueryDTO> queryMultiArticle(List<String> articleIdList, int page) {
