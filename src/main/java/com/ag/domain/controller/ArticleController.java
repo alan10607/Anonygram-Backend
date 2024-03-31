@@ -19,6 +19,7 @@ public class ArticleController {
 
     @GetMapping("/{articleId}/{no}")
     @Operation(summary = "Get an article")
+    @ResponseStatus(HttpStatus.OK)
     public ArticleDTO get(@PathVariable("articleId") String articleId,
                           @PathVariable("no") Integer no) {
         return PojoFiledUtil.convertObject(articleService.get(articleId, no), ArticleDTO.class);
@@ -36,6 +37,7 @@ public class ArticleController {
 
     @PostMapping("/{articleId}")
     @Operation(summary = "Create a reply article")
+    @ResponseStatus(HttpStatus.CREATED)
     public ArticleDTO createReply(@PathVariable("articleId") String articleId,
                                   @RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
@@ -46,6 +48,7 @@ public class ArticleController {
 
     @PatchMapping("/{articleId}/{no}")
     @Operation(summary = "To patch an article")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void patch(@PathVariable("articleId") String articleId,
                       @PathVariable("no") int no,
                       @RequestBody ArticleDTO articleDTO) {
@@ -57,6 +60,7 @@ public class ArticleController {
 
     @PatchMapping("/{articleId}/{no}/title")
     @Operation(summary = "To patch the first article title")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void patchTitle(@PathVariable("articleId") String articleId,
                            @PathVariable("no") int no,
                            @RequestBody ArticleDTO articleDTO) {
@@ -69,6 +73,7 @@ public class ArticleController {
 
     @PatchMapping("/{articleId}/{no}/word")
     @Operation(summary = "To patch an article word")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void patchWord(@PathVariable("articleId") String articleId,
                           @PathVariable("no") int no,
                           @RequestBody ArticleDTO articleDTO) {
@@ -81,6 +86,7 @@ public class ArticleController {
 
     @DeleteMapping("/{articleId}/{no}")
     @Operation(summary = "Delete an article. If delete the first content, will also delete all replied articles")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("articleId") String articleId,
                        @PathVariable("no") int no) {
         articleService.delete(articleId, no);
