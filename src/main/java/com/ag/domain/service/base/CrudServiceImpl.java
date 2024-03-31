@@ -61,7 +61,7 @@ public abstract class CrudServiceImpl<Entity> implements CrudService<Entity> {
     private Entity validateIsExist(Entity entity) {
         Entity existing = this.get(entity);
         if (existing == null) {
-            throw new AgValidationException("Entity not found in CRUD");
+            throw new AgValidationException("{} not found", entity.getClass().getSimpleName());
         }
         return existing;
     }

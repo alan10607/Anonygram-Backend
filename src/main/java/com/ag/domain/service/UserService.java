@@ -1,7 +1,7 @@
 package com.ag.domain.service;
 
 import com.ag.domain.constant.UserRole;
-import com.ag.domain.exception.UserNotFoundException;
+import com.ag.domain.exception.EntityNotFoundException;
 import com.ag.domain.model.ForumUser;
 import com.ag.domain.repository.UserRepository;
 import com.ag.domain.service.base.CrudServiceImpl;
@@ -16,7 +16,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,7 +78,7 @@ public class UserService extends CrudServiceImpl<ForumUser> implements UserDetai
     @Override
     public ForumUser updateImpl(ForumUser user) {
         ForumUser existing = userRepository.findById(user.getId())
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ForumUser.class));
         existing.setUsername(user.getUsername());
         existing.setEmail(user.getEmail());
         existing.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));

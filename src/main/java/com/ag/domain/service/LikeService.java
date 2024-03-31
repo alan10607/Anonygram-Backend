@@ -2,6 +2,7 @@ package com.ag.domain.service;
 
 import com.ag.domain.advice.ConcurrentSafety;
 import com.ag.domain.model.Article;
+import com.ag.domain.model.ForumUser;
 import com.ag.domain.model.Like;
 import com.ag.domain.repository.LikeRepository;
 import com.ag.domain.service.base.CrudServiceImpl;
@@ -9,6 +10,7 @@ import com.ag.domain.util.AuthUtil;
 import com.ag.domain.util.ValidationUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,26 +21,28 @@ public class LikeService extends CrudServiceImpl<Like> {
     private final LikeRepository likeRepository;
 
     public Like get(String articleId, int no) {
-        return this.get(new Like(articleId, no, AuthUtil.getUserId()));
+        return this.get(new Like(articleId, no));
     }
 
     @ConcurrentSafety(entity = Like.class)
     public Like create(String articleId, int no) {
-        return this.create(new Like(articleId, no, AuthUtil.getUserId()));
+        return this.create(new Like(articleId, no));
     }
 
     @ConcurrentSafety(entity = Like.class)
     public Like delete(String articleId, int no) {
-        return this.delete(new Like(articleId, no, AuthUtil.getUserId()));
+        return this.delete(new Like(articleId, no));
     }
 
     @Override
     public Like getImpl(Like like) {
+        like.setUserId(AuthUtil.getUserId());
         return likeRepository.findById(like.getId()).orElse(null);
     }
 
     @Override
     public Like createImpl(Like like) {
+        like.setUserId(AuthUtil.getUserId());
         return likeRepository.save(like);
     }
 
@@ -50,6 +54,7 @@ public class LikeService extends CrudServiceImpl<Like> {
 
     @Override
     public Like deleteImpl(Like like) {
+        like.setUserId(AuthUtil.getUserId());
         likeRepository.deleteById(like.getId());
         return like;
     }
@@ -64,13 +69,14 @@ public class LikeService extends CrudServiceImpl<Like> {
     protected void beforeCreate(Like like) {
         validateArticleId(like);
         validateNo(like);
-        validateHavePermission(like);
         validateArticleIsExist(like);
+        validateLikeIsExist(like);
     }
 
     @Override
     protected void beforeDelete(Like like) {
-        validateHavePermission(like);
+        validateArticleId(like);
+        validateNo(like);
         validateArticleIsExist(like);
     }
 
@@ -82,8 +88,9 @@ public class LikeService extends CrudServiceImpl<Like> {
         ValidationUtil.assertInRange(like.getNo(), 0, null, "No must >= 0");
     }
 
-    void validateHavePermission(Like like) {
-        ValidationUtil.assertTrue(AuthUtil.isUserEquals(like.getUserId()), "No permission to update");
+    void validateLikeIsExist(Like like) {
+        like.setUserId(AuthUtil.getUserId());
+        ValidationUtil.assertTrue(likeRepository.findById(like.getId()).isEmpty(), "Like already exists");
     }
 
     void validateArticleIsExist(Like like) {

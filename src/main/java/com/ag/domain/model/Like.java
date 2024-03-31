@@ -30,6 +30,11 @@ public class Like extends CompositeEntity {
     public static final String COL_NO = "no";
     public static final String COL_USER_ID = "userId";
 
+    public Like(String articleId, Integer no) {
+        this.articleId = articleId;
+        this.no = no;
+    }
+
     @Override
     public String getId() {
         return String.format("%s:%s:%s", this.articleId, this.no, this.userId);

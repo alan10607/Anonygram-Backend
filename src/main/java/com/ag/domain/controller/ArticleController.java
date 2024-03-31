@@ -7,6 +7,7 @@ import com.ag.domain.util.PojoFiledUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,6 +26,7 @@ public class ArticleController {
 
     @PostMapping()
     @Operation(summary = "Create a new article")
+    @ResponseStatus(HttpStatus.CREATED)
     public ArticleDTO create(@RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
         article.setArticleId(null);

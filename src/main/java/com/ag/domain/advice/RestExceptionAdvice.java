@@ -2,6 +2,7 @@ package com.ag.domain.advice;
 
 import com.ag.domain.dto.RestResponseEntity;
 import com.ag.domain.exception.AgValidationException;
+import com.ag.domain.exception.EntityNotFoundException;
 import com.ag.domain.exception.LockNotGotException;
 import com.ag.domain.exception.base.AnonygramRuntimeException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,98 +45,72 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
                                   MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request, ServerHttpResponse response) {
-        if (body == null) {
-            HttpServletResponse httpServletResponse = ((ServletServerHttpResponse) response).getServletResponse();
-            httpServletResponse.setStatus(HttpServletResponse.SC_NO_CONTENT);
-        }
-
-        if (needWarpResponse(request)) {
-            /*
-            If body type is String.class, selectedConverterType will be StringHttpMessageConverter,
-            need to transform to string.
-            Normally selectedConverterType will be MappingJackson2HttpMessageConverter if returnType is not String.class
-             */
-            RestResponseEntity restResponseEntity = new RestResponseEntity(getHttpStatus(response), body);
-            if (returnType.getParameterType().equals(String.class)) {
-                return toJSONString(restResponseEntity);
-            }
-            return restResponseEntity;
-        }
-
         return body;
     }
 
-    private boolean needWarpResponse(ServerHttpRequest request) {
-        return false;
-//        return HttpUtil.isMatchPath(request.getURI().getPath(), SecurityConfig.REST_APIS);
-    }
-
-    private HttpStatus getHttpStatus(ServerHttpResponse response) {
-        HttpServletResponse httpServletResponse = ((ServletServerHttpResponse) response).getServletResponse();
-        return HttpStatus.valueOf(httpServletResponse.getStatus());
-    }
-
-    private String toJSONString(RestResponseEntity restResponseEntity) {
-        try {
-            return new ObjectMapper().writeValueAsString(restResponseEntity);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Response body transform JSON string error");
-        }
-    }
-
     private Map<String, String> toErrorMap(Throwable throwable) {
-        Map<String, String> errMap = new HashMap<>();
-        errMap.put("error", throwable.getMessage());
-        return errMap;
+        return toErrorMap(throwable.getMessage());
+    }
+
+    private Map<String, String> toErrorMap(String message) {
+        Map<String, String> errorMap = new HashMap<>();
+        errorMap.put("error", message);
+        return errorMap;
     }
 
     @ExceptionHandler(value = {Throwable.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleException(Throwable ex) {
-        log.error("Debug exception", ex);
-        return toErrorMap(ex);
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Map<String, String> handle(Throwable e) {
+        log.error("Handle internal error", e);
+        return toErrorMap("Internal server error");
     }
 
     @ExceptionHandler(value = {AccessDeniedException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public Map<String, String> handleAccessDeniedException(AccessDeniedException ex) {
-        log.error("{}", ex.getMessage());
-        return toErrorMap(ex);
+    public Map<String, String> handle(AccessDeniedException e) {
+        log.error("{}", e.getMessage());
+        return toErrorMap(e);
     }
 
     @ExceptionHandler(value = {AnonygramRuntimeException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleAnonygramRuntimeException(AnonygramRuntimeException ex) {
-        log.error("{}", ex.getMessage());
-        return toErrorMap(ex);
+    public Map<String, String> handle(AnonygramRuntimeException e) {
+        log.error("{}", e.getMessage());
+        return toErrorMap(e);
     }
 
     @ExceptionHandler(value = {HttpRequestMethodNotSupportedException.class})
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    public Map<String, String> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
-        return toErrorMap(ex);
+    public Map<String, String> handle(HttpRequestMethodNotSupportedException e) {
+        return toErrorMap(e);
     }
 
     @ExceptionHandler(value = {AgValidationException.class})
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    public Map<String, String> handleAgValidationException(AgValidationException ex) {
-        return toErrorMap(ex);
+    public Map<String, String> handle(AgValidationException e) {
+        return toErrorMap(e);
     }
 
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    public Map<String, String> handleNotValidException(MethodArgumentNotValidException ex) {
+    public Map<String, String> handle(MethodArgumentNotValidException e) {
         Map<String, String> suggestions = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            suggestions.put(error.getField(), error.getDefaultMessage());
-        });
+        e.getBindingResult().getFieldErrors().forEach(error ->
+                suggestions.put(error.getField(), error.getDefaultMessage())
+        );
         return suggestions;
     }
 
     @ExceptionHandler(value = {LockNotGotException.class})
     @ResponseStatus(HttpStatus.LOCKED)
-    public Map<String, String> handleLockNotGotException(LockNotGotException ex) {
-        return toErrorMap(ex);
+    public Map<String, String> handle(LockNotGotException e) {
+        return toErrorMap(e);
     }
 
+
+    @ExceptionHandler(value = {EntityNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handle(EntityNotFoundException e) {
+        return toErrorMap(e);
+    }
 }

@@ -2,7 +2,7 @@ package com.ag.domain.service;
 
 import com.ag.domain.advice.ConcurrentSafety;
 import com.ag.domain.constant.ArticleStatus;
-import com.ag.domain.exception.ArticleNotFoundException;
+import com.ag.domain.exception.EntityNotFoundException;
 import com.ag.domain.model.Article;
 import com.ag.domain.repository.ArticleRepository;
 import com.ag.domain.service.base.CrudServiceImpl;
@@ -78,7 +78,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
     @Override
     public Article updateImpl(Article article) {
         Article existing = articleRepository.findById(article.getId())
-                .orElseThrow(ArticleNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(Article.class));
         existing.setTitle(article.getTitle());
         existing.setWord(article.getWord());
         existing.setUpdatedTime(TimeUtil.now());
@@ -88,7 +88,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
     @Override
     public Article deleteImpl(Article article) {
         Article existing = articleRepository.findById(article.getId())
-                .orElseThrow(ArticleNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(Article.class));
         existing.setStatus(ArticleStatus.DELETED);
         existing.setUpdatedTime(TimeUtil.now());
         return articleRepository.save(existing);
@@ -143,7 +143,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
 
     void validateFirstArticleStatusIsNormal(Article article) {
         Article firstArticle = articleRepository.findById(new Article(article.getArticleId(), 0).getId())
-                .orElseThrow(ArticleNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(Article.class));
         ValidationUtil.assertTrue(isNormalStatus(firstArticle), "First article's status is not normal");
     }
 
