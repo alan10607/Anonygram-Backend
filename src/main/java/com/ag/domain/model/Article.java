@@ -55,9 +55,38 @@ public class Article extends CompositeEntity {
         this.no = no;
     }
 
+    public Article(CreateNewArticleBuilder builder) {
+        this.no = 0;
+    }
+
+    public Article(ReplyArticleBuilder builder) {
+        this.articleId = builder.articleId;
+    }
+
     @Override
     public String getId() {
         return String.format("%s:%s", articleId, no);
+    }
+
+    public static class CreateNewArticleBuilder {
+        public CreateNewArticleBuilder() {
+        }
+
+        public Article build() {
+            return new Article(this);
+        }
+    }
+
+    public static class ReplyArticleBuilder {
+        private final String articleId;
+
+        public ReplyArticleBuilder(String articleId) {
+            this.articleId = articleId;
+        }
+
+        public Article build() {
+            return new Article(this);
+        }
     }
 
 }

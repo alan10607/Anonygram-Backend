@@ -99,13 +99,14 @@ public class ConcurrentSafetyAdvice {
             @Override
             public String getKeyByEntity(Object entity) {
                 Like like = (Like) entity;
+                like.setUserId(AuthUtil.getUserId());
                 return String.format("%s_%s", this.getClazz().getName(), like.getId());
             }
 
             @Override
             public String getKeyByArgs(Object... args) {
                 validateArguments(args, String.class, Integer.class);
-                return getKeyByEntity(new Like((String) args[0], (Integer) args[1], AuthUtil.getUserId()));
+                return getKeyByEntity(new Like((String) args[0], (Integer) args[1]));
             }
         },
         USER(ForumUser.class) {
