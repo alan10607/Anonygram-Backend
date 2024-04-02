@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@Tag(name = "Article Like")
+@Tag(name = "Like")
 @RequestMapping(path = "like")
 public class LikeController {
     private final LikeService likeService;

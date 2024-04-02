@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @AllArgsConstructor
-@Tag(name = "Imgur Setting")
+@Tag(name = "Admin Setting")
 @RequestMapping(path = "admin")
 public class AdminController {
     private final ImgurService imgurService;

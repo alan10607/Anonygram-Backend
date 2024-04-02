@@ -65,11 +65,11 @@ public class ConcurrentSafetyAdvice {
     }
 
     private String getKey(Class<?> entityClass, Object[] args) {
-        if (entityClass.equals(Void.class)) {
+        if (entityClass.equals(Void.class)) { // Used within CrudService's create, update, or delete methods.
             Object entity = args[0];
             EntityType entityType = EntityType.of(entity);
             return entityType.getKeyByEntity(entity);
-        } else {
+        } else { // Used in a custom method where the entity type needs to be assigned.
             EntityType entityType = EntityType.of(entityClass);
             return entityType.getKeyByArgs(args);
         }
