@@ -21,11 +21,11 @@ public class AdminController {
     @GetMapping("/imgur/token")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Redirect to Imgur authorization URL")
-    public RedirectView redirectImgurAuthorizationUrl(){
+    public RedirectView redirectImgurAuthorizationUrl() {
         return new RedirectView(imgurService.getAuthorizationUrl());
     }
 
-    @PostMapping("/imgur/token")
+    @PutMapping("/imgur/token")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Refresh token of Imgur authorization")
     @ResponseStatus(HttpStatus.CREATED)
@@ -35,6 +35,7 @@ public class AdminController {
 
     /**
      * Need to set Imgur's redirect as https://localhost/redirect?to=/admin/imgur/saveToken
+     *
      * @return tokens
      */
     @GetMapping("/imgur/saveToken")
@@ -42,7 +43,7 @@ public class AdminController {
     @Operation(summary = "Save token of Imgur authorization, used by Imgur redirect")
     @ResponseStatus(HttpStatus.CREATED)
     public Map<String, String> imgurSaveToken(@RequestParam("access_token") String accessToken,
-                                         @RequestParam("refresh_token") String refreshToken){
+                                              @RequestParam("refresh_token") String refreshToken) {
         return imgurService.saveToken(accessToken, refreshToken);
     }
 

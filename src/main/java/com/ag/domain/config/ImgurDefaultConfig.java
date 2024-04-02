@@ -34,7 +34,7 @@ public class ImgurDefaultConfig {
                     .clientSecret(this.clientSecret)
                     .albumId(this.albumId)
                     .build();
-            configService.save(imgurConfig);
+            configService.patch(imgurConfig);
             log.info("Initializing Imgur client configuration done");
         } else {
             log.info("Existing Imgur client configuration found");

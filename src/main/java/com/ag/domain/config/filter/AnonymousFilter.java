@@ -27,8 +27,8 @@ public class AnonymousFilter extends BaseAuthenticationFilter<AnonymousAuthentic
     @Override
     protected AnonymousAuthenticationToken extractAuthentication(HttpServletRequest request, HttpServletResponse response) {
         String token = getAnonymousIdTokenFromRequest(request);
-        boolean havePreviousToken = StringUtils.isNotBlank(token) && ValidationUtil.isUuid(token);
-        UUID uuid = havePreviousToken ? UUID.fromString(token) : UUID.randomUUID();
+        boolean havePreviousToken = havePreviousToken(token);
+        UUID uuid = havePreviousToken(token) ? UUID.fromString(token) : UUID.randomUUID();
 
         ForumUser user = new ForumUser.AnonymousUserBuilder(uuid).build();
         AnonymousAuthenticationToken anonymousToken = createAnonymousToken(user, request);
@@ -37,6 +37,19 @@ public class AnonymousFilter extends BaseAuthenticationFilter<AnonymousAuthentic
                     CookieUtil.createHttpOnlyCookie(ANONYMOUS_TOKEN, uuid.toString(), ANONYMOUS_COOKIE_MAX_AGE).toString());
         }
         return anonymousToken;
+    }
+
+    private boolean havePreviousToken(String token) {
+        if (StringUtils.isNotBlank(token)) {
+            try {
+                UUID.fromString(token);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     private String getAnonymousIdTokenFromRequest(HttpServletRequest request) {
