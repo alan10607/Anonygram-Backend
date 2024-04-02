@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@Tag(name = "Query Article")
+@Tag(name = "Query")
 @RequestMapping(path = "query")
 public class QueryController {
     private final QueryService queryService;

@@ -5,9 +5,6 @@ import com.ag.domain.exception.AgValidationException;
 import com.ag.domain.exception.EntityNotFoundException;
 import com.ag.domain.exception.LockNotGotException;
 import com.ag.domain.exception.base.AnonygramRuntimeException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
@@ -16,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -66,16 +62,16 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
         return toErrorMap("Internal server error");
     }
 
-    @ExceptionHandler(value = {AccessDeniedException.class})
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public Map<String, String> handle(AccessDeniedException e) {
+    @ExceptionHandler(value = {AnonygramRuntimeException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handle(AnonygramRuntimeException e) {
         log.error("{}", e.getMessage());
         return toErrorMap(e);
     }
 
-    @ExceptionHandler(value = {AnonygramRuntimeException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handle(AnonygramRuntimeException e) {
+    @ExceptionHandler(value = {AccessDeniedException.class})
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, String> handle(AccessDeniedException e) {
         log.error("{}", e.getMessage());
         return toErrorMap(e);
     }
