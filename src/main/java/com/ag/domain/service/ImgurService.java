@@ -1,73 +1,109 @@
-//package com.ag.domain.service;
-//
-//import com.alan10607.ag.config.ImgurConfig;
-//import com.alan10607.ag.constant.TxnParamKey;
-//import com.alan10607.ag.exception.AnonygramIllegalStateException;
-//import com.alan10607.ag.service.TxnParamService;
-//import com.alan10607.ag.service.request.ImgurRequestService;
-//import com.alan10607.ag.util.AuthUtil;
-//import com.alan10607.ag.util.TimeUtil;
-//import lombok.AllArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//import org.apache.commons.lang3.StringUtils;
-//import org.springframework.stereotype.Service;
-//
-//import java.util.Map;
-//import java.util.Optional;
-//
-//@Service
-//@AllArgsConstructor
-//@Slf4j
-//public class ImgurService {
-//    private final TxnParamService txnParamService;
-//    private final ImgurConfig imgurConfig;
-//    private final ImgurRequestService imgurRequestService;
-//
-//    public String upload(String imageBase64) {
-//        if(StringUtils.isBlank(imgurConfig.getAccessToken())){
-//            throw new AnonygramIllegalStateException("Access token not found, need admin auth");
-//        }
-//
-//        Map<String, Object> body = Map.of(
-//                "title", String.format("%s:%s", AuthUtil.getUserId(), TimeUtil.nowShortString()),
-//                "image", imageBase64,
-//                "description", "User upload",
-//                "type", "base64",
-//                "album", imgurConfig.getAlbumId());
-//
-//        Map<String, Object> response = imgurRequestService.postUpload(imgurConfig.getAccessToken(), body);
-//
-//        return Optional.ofNullable((Map<String, Object>) response.get("data"))
-//                .map(data -> (String) data.get("link"))
-//                .orElseThrow(() -> new AnonygramIllegalStateException("No image url in response payload"));
-//    }
-//
-//    public Map<String, String> refreshToken() {
-//        Map<String, String> body = Map.of(
-//                "refresh_token", imgurConfig.getRefreshToken(),
-//                "client_id", imgurConfig.getClientId(),
-//                "client_secret", imgurConfig.getClientSecret(),
-//                "grant_type", "refresh_token");
-//
-//        Map<String, Object> response = imgurRequestService.postRefreshToken(body);
-//        String accessToken = (String) response.get("access_token");
-//        String refreshToken = (String) response.get("refresh_token");
-//
-//        log.info("Try to refresh new access and refresh token from imgur");
-//        return saveToken(accessToken, refreshToken);
-//    }
-//
-//    public Map<String, String> saveToken(String accessToken, String refreshToken) {
-//        if(StringUtils.isBlank(accessToken) || StringUtils.isBlank(refreshToken)){
-//            throw new AnonygramIllegalStateException("No accessToken or refreshToken for Imgur saving token");
-//        }
-//
-//        txnParamService.set(TxnParamKey.IMGUR_ACCESS_TOKEN, accessToken);
-//        txnParamService.set(TxnParamKey.IMGUR_REFRESH_TOKEN, refreshToken);
-//        imgurConfig.setAccessToken(accessToken);
-//        imgurConfig.setRefreshToken(refreshToken);
-//        log.info("Save access and refresh token to DB and config succeeded");
-//        return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
-//    }
-//
-//}
+package com.ag.domain.service;
+
+import com.ag.domain.exception.base.AnonygramRuntimeException;
+import com.ag.domain.model.ImgurConfig;
+import com.ag.domain.model.base.ConfigEntity;
+import com.ag.domain.util.AuthUtil;
+import com.ag.domain.util.TimeUtil;
+import com.ag.domain.util.ValidationUtil;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
+
+@Service
+@AllArgsConstructor
+@Slf4j
+public class ImgurService {
+    private final ConfigService<ImgurConfig> configService;
+
+    public String upload(String imageBase64) {
+        ImgurConfig imgurConfig = configService.get(ConfigEntity.Type.IMGUR);
+        ValidationUtil.assertTrue(imgurConfig.isAllConfigNotBlank(), "Imgur config not found, please try to authenticate");
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("title", String.format("user=%s, time=%s", AuthUtil.getUserId(), TimeUtil.nowString()));
+        body.add("image", imageBase64);
+        body.add("description", "User upload");
+        body.add("type", "base64");
+        body.add("album", imgurConfig.getAlbumId());
+
+        Map<String, Object> response = httpRequest(imgurConfig.getUploadUrl(),
+                HttpMethod.POST,
+                MediaType.MULTIPART_FORM_DATA,
+                headers -> headers.setBearerAuth(imgurConfig.getAccessToken()),
+                body);
+
+        return Optional.ofNullable((Map<String, Object>) response.get("data"))
+                .map(data -> (String) data.get("link"))
+                .orElseThrow(() -> new AnonygramRuntimeException("Image url not found in response payload"));
+    }
+
+    public String getAuthorizationUrl() {
+        ImgurConfig imgurConfig = configService.get(ConfigEntity.Type.IMGUR);
+        ValidationUtil.assertTrue(imgurConfig.isDefaultConfigNotBlank(), "Imgur config not found, please try to authenticate");
+        return imgurConfig.getAuthorizeUrl() + "?client_id=" + imgurConfig.getClientId() + "&response_type=token";
+    }
+
+    public Map<String, String> saveToken(String accessToken, String refreshToken) {
+        ValidationUtil.assertTrue(StringUtils.isNotBlank(accessToken), "Imgur access token is blank when saving");
+        ValidationUtil.assertTrue(StringUtils.isNotBlank(refreshToken), "Imgur refresh token is blank when saving");
+
+        ImgurConfig imgurConfig = new ImgurConfig();
+        imgurConfig.setAccessToken(accessToken);
+        imgurConfig.setRefreshToken(refreshToken);
+        configService.save(imgurConfig);
+        log.info("Save access and refresh token to DB succeeded");
+        return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
+    }
+
+    public Map<String, String> refreshToken() {
+        ImgurConfig imgurConfig = configService.get(ConfigEntity.Type.IMGUR);
+        ValidationUtil.assertTrue(imgurConfig.isAllConfigNotBlank(), "Imgur config not found, please try to authenticate");
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("refresh_token", imgurConfig.getRefreshToken());
+        body.add("client_id", imgurConfig.getClientId());
+        body.add("client_secret", imgurConfig.getClientSecret());
+        body.add("grant_type", "refresh_token");
+
+        Map<String, Object> response = httpRequest(imgurConfig.getTokenUrl(),
+                HttpMethod.POST,
+                MediaType.APPLICATION_FORM_URLENCODED,
+                headers -> {
+                },
+                body);
+
+        return saveToken((String) response.get("access_token"), (String) response.get("refresh_token"));
+    }
+
+    private Map<String, Object> httpRequest(String requestUrl,
+                                           HttpMethod method,
+                                           MediaType contentType,
+                                           Consumer<HttpHeaders> headersConsumer,
+                                           MultiValueMap<String, String> body) {
+        WebClient client = WebClient.builder().baseUrl(requestUrl).build();
+        return client.method(method)
+                .contentType(contentType)
+
+                .headers(headersConsumer)
+                .body(BodyInserters.fromFormData(body))
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                })
+                .block();
+    }
+
+}

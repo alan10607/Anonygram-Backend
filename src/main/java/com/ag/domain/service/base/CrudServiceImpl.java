@@ -12,13 +12,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public abstract class CrudServiceImpl<Entity> implements CrudService<Entity> {
 
-    public abstract Entity getImpl(Entity entity);
+    protected abstract Entity getImpl(Entity entity);
 
-    public abstract Entity createImpl(Entity entity);
+    protected abstract Entity createImpl(Entity entity);
 
-    public abstract Entity updateImpl(Entity entity);
+    protected abstract Entity updateImpl(Entity entity);
 
-    public abstract Entity deleteImpl(Entity entity);
+    protected abstract Entity deleteImpl(Entity entity);
 
     @Override
     public Entity get(Entity entity) {
