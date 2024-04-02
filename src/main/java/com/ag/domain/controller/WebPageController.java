@@ -1,7 +1,9 @@
 package com.ag.domain.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -15,6 +17,11 @@ public class WebPageController {
         return "index.html";
     }
 
+    @RequestMapping("/err")
+    public String error(HttpServletResponse response, Model model) {
+        model.addAttribute("status", response.getStatus());
+        return "err.html";
+    }
 
     /**
      * Use this to test ssl for front-end.

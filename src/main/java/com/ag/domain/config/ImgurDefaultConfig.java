@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Slf4j
 @Data
-@ConfigurationProperties(prefix = "imgur.client")
+@ConfigurationProperties(prefix = "imgur")
 public class ImgurDefaultConfig {
     private String authorizeUrl;
     private String tokenUrl;
