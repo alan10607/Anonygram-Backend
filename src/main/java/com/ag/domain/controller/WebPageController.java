@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class WebPageController {
 
     @RequestMapping("/index")
-    public String index(){
+    public String index() {
         return "index.html";
     }
 
@@ -25,8 +25,9 @@ public class WebPageController {
 
     /**
      * Use this to test ssl for front-end.
-     * Redirect to the url specified by 'callbackUrl parameter.
-     * @return
+     * Redirect to the url specified by "callbackUrl" parameter.
+     *
+     * @return redirect page
      */
     @GetMapping("/ssl")
     public String ssl() {
@@ -38,6 +39,7 @@ public class WebPageController {
      * Need 'to' parameter in url to define the redirected url.
      * Ex: https://localhost/redirect?to=/imgur/saveToken#access_token=abc
      * will direct to https://localhost/imgur/saveToken?access_token=abc
+     *
      * @return redirect page
      */
     @GetMapping("/redirect")

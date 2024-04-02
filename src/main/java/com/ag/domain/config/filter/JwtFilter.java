@@ -2,6 +2,7 @@ package com.ag.domain.config.filter;
 
 import com.ag.domain.constant.TokenType;
 import com.ag.domain.exception.AgValidationException;
+import com.ag.domain.exception.base.AnonygramRuntimeException;
 import com.ag.domain.model.ForumUser;
 import com.ag.domain.model.JwtToken;
 import com.ag.domain.service.UserService;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -59,7 +61,8 @@ public class JwtFilter extends BaseAuthenticationFilter<UsernamePasswordAuthenti
     public ForumUser getUserFromToken(JwtToken jwtToken) {
         ForumUser user = userService.get(jwtToken.getUserId());
         if (user == null || !jwtToken.isTokenValid(user)) {
-            throw new JwtException(String.format("Invalid token=%s for user=%s", jwtToken.getValue(), jwtToken.getUserId()));
+            log.warn("Invalid token={} for user={}", jwtToken.getValue(), jwtToken.getUserId());
+            throw new AnonygramRuntimeException("Invalid token when try to get user");
         }
         return user;
     }
