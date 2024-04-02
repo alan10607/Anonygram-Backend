@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -36,9 +37,10 @@ public class SecurityConfig {
 //    public static final String[] PRIVATE_TEMPLATE_PATH = { "/redirect" };
 //
 //    public static final String[] REST_APIS = { FORUM_PATH, AUTH_PATH, REDIS_PATH, IMGUR_PATH, USER_PATH };
-    
+
     /**
      * Web security, replace WebSecurityConfigurerAdapter.configure(HttpSecurity http)
+     *
      * @param http
      * @return
      * @throws Exception
@@ -69,16 +71,12 @@ public class SecurityConfig {
 
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorizeRequests) ->
-                        authorizeRequests.requestMatchers("/login").hasAnyAuthority(UserRole.ROLE_NORMAL.name())
-                                .anyRequest().permitAll()
-//                                .anyRequest().hasAnyAuthority(UserRole.NORMAL.name())
-
+                                authorizeRequests.anyRequest().permitAll()
+//                .requestMatchers("/login").hasAnyAuthority(UserRole.ROLE_NORMAL.name())
                 )
-//                .exceptionHandling(customizer -> customizer.accessDeniedHandler(new RestExceptionAdvice.CustomAccessDeniedHandler()))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-               .addFilterBefore(anonymousFilter, AnonymousAuthenticationFilter.class)
-////                .addFilterBefore(new CustomSessionFilter(), SessionManagementFilter.class)
-//                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS); // 启用基于 Servlet 容器的会话管理
+                .addFilterBefore(anonymousFilter, AnonymousAuthenticationFilter.class)
+                .sessionManagement(customizer -> customizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 //                .formLogin(formLogin -> formLogin
 //                        .loginPage("/signin")
 //                        .usernameParameter("email")

@@ -27,6 +27,4 @@ public class UserDTO {
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;
 
-    private String imageBase64;
-
 }

@@ -64,7 +64,7 @@ public class ImgurService {
         ImgurConfig imgurConfig = new ImgurConfig();
         imgurConfig.setAccessToken(accessToken);
         imgurConfig.setRefreshToken(refreshToken);
-        configService.save(imgurConfig);
+        configService.patch(imgurConfig);
         log.info("Save access and refresh token to DB succeeded");
         return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
     }
