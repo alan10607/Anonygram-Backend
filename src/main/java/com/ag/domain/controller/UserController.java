@@ -45,13 +45,13 @@ public class UserController {
     }
 
     private UserDTO outputFilter(ForumUser user) {
-        if(user == null) {
+        if (user == null) {
             return null;
+        } else {
+            UserDTO userDTO = PojoFiledUtil.convertObject(user, UserDTO.class);
+            userDTO.setPassword(null);
+            return userDTO;
         }
-
-        UserDTO userDTO = PojoFiledUtil.convertObject(user, UserDTO.class);
-        userDTO.setPassword(null);
-        return userDTO;
     }
 
 }

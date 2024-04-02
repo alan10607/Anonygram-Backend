@@ -40,5 +40,4 @@ public class LikeController {
         likeService.delete(articleId, no);
     }
 
-
 }
