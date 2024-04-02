@@ -4,6 +4,7 @@ import com.ag.domain.exception.LockNotGotException;
 import com.ag.domain.model.Article;
 import com.ag.domain.model.ForumUser;
 import com.ag.domain.model.Like;
+import com.ag.domain.model.base.ConfigEntity;
 import com.ag.domain.util.AuthUtil;
 import com.google.common.util.concurrent.Striped;
 import lombok.AllArgsConstructor;
@@ -120,6 +121,19 @@ public class ConcurrentSafetyAdvice {
             public String getKeyByArgs(Object... args) {
                 validateArguments(args, String.class);
                 return getKeyByEntity(new ForumUser((String) args[0]));
+            }
+        },
+        CONFIG(ConfigEntity.class) {
+            @Override
+            public String getKeyByEntity(Object entity) {
+                ConfigEntity configEntity = (ConfigEntity) entity;
+                return String.format("%s_%s", this.getClazz().getName(), configEntity.getId());
+            }
+
+            @Override
+            public String getKeyByArgs(Object... args) {
+                validateArguments(args, ConfigEntity.Type.class);
+                return getKeyByEntity(((ConfigEntity.Type) args[0]).id);
             }
         };
 

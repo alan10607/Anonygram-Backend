@@ -35,25 +35,25 @@ public class LikeService extends CrudServiceImpl<Like> {
     }
 
     @Override
-    public Like getImpl(Like like) {
+    protected Like getImpl(Like like) {
         like.setUserId(AuthUtil.getUserId());
         return likeRepository.findById(like.getId()).orElse(null);
     }
 
     @Override
-    public Like createImpl(Like like) {
+    protected Like createImpl(Like like) {
         like.setUserId(AuthUtil.getUserId());
         return likeRepository.save(like);
     }
 
     @Override
-    public Like updateImpl(Like like) {
+    protected Like updateImpl(Like like) {
         // Ignored update
         return like;
     }
 
     @Override
-    public Like deleteImpl(Like like) {
+    protected Like deleteImpl(Like like) {
         like.setUserId(AuthUtil.getUserId());
         likeRepository.deleteById(like.getId());
         return like;

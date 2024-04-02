@@ -20,6 +20,7 @@ import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -111,6 +112,12 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
     @ExceptionHandler(value = {EntityNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handle(EntityNotFoundException e) {
+        return toErrorMap(e);
+    }
+
+    @ExceptionHandler(value = {MissingServletRequestParameterException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
         return toErrorMap(e);
     }
 }

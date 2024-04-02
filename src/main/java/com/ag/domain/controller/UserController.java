@@ -45,6 +45,10 @@ public class UserController {
     }
 
     private UserDTO outputFilter(ForumUser user) {
+        if(user == null) {
+            return null;
+        }
+
         UserDTO userDTO = PojoFiledUtil.convertObject(user, UserDTO.class);
         userDTO.setPassword(null);
         return userDTO;

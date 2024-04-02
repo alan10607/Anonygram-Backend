@@ -34,7 +34,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
     }
 
     @Override
-    public Article getImpl(Article article) {
+    protected Article getImpl(Article article) {
         Article firstArticle = articleRepository.findById(new Article(article.getArticleId(), 0).getId())
                 .filter(this::isNormalStatus)
                 .orElse(null);
@@ -53,7 +53,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
     }
 
     @Override
-    public Article createImpl(Article article) {
+    protected Article createImpl(Article article) {
         LocalDateTime now = TimeUtil.now();
         String articleId = UUID.randomUUID().toString();
         int no = 0;
@@ -76,7 +76,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
     }
 
     @Override
-    public Article updateImpl(Article article) {
+    protected Article updateImpl(Article article) {
         Article existing = articleRepository.findById(article.getId())
                 .orElseThrow(() -> new EntityNotFoundException(Article.class));
         existing.setTitle(article.getTitle());
@@ -86,7 +86,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
     }
 
     @Override
-    public Article deleteImpl(Article article) {
+    protected Article deleteImpl(Article article) {
         Article existing = articleRepository.findById(article.getId())
                 .orElseThrow(() -> new EntityNotFoundException(Article.class));
         existing.setStatus(ArticleStatus.DELETED);

@@ -37,6 +37,7 @@ public class UserService extends CrudServiceImpl<ForumUser> implements UserDetai
 
     /**
      * Spring security load username
+     *
      * @param email login email
      * @return UserDetails
      * @throws UsernameNotFoundException User not found
@@ -55,19 +56,23 @@ public class UserService extends CrudServiceImpl<ForumUser> implements UserDetai
     }
 
     @Override
-    public ForumUser getImpl(ForumUser user) {
+    protected ForumUser getImpl(ForumUser user) {
         return userRepository.findById(user.getId()).orElse(null);
     }
 
     @Override
-    public ForumUser createImpl(ForumUser user) {
+    protected ForumUser createImpl(ForumUser user) {
         LocalDateTime now = TimeUtil.now();
+        if(user.getRoles().isEmpty()){
+            user.setRoles(Collections.singletonList(UserRole.ROLE_NORMAL));
+        }
+
         user = ForumUser.builder()
                 .id(UUID.randomUUID().toString())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .password(bCryptPasswordEncoder.encode(user.getPassword()))
-                .roles(Collections.singletonList(UserRole.ROLE_NORMAL))
+                .roles(user.getRoles())
                 .createdTime(now)
                 .updatedTime(now)
                 .build();
@@ -76,7 +81,7 @@ public class UserService extends CrudServiceImpl<ForumUser> implements UserDetai
     }
 
     @Override
-    public ForumUser updateImpl(ForumUser user) {
+    protected ForumUser updateImpl(ForumUser user) {
         ForumUser existing = userRepository.findById(user.getId())
                 .orElseThrow(() -> new EntityNotFoundException(ForumUser.class));
         existing.setUsername(user.getUsername());
@@ -91,7 +96,7 @@ public class UserService extends CrudServiceImpl<ForumUser> implements UserDetai
     }
 
     @Override
-    public ForumUser deleteImpl(ForumUser user) {
+    protected ForumUser deleteImpl(ForumUser user) {
         userRepository.deleteById(user.getId());
         return user;
     }

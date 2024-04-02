@@ -88,6 +88,15 @@ server:
 # =================================
 imgur:
   client:
-    accessTokenUrl: https://api.imgur.com/oauth2/token
     authorizeUrl: https://api.imgur.com/oauth2/authorize
+    tokenUrl: https://api.imgur.com/oauth2/token
     uploadUrl: https://api.imgur.com/3/upload
+
+# =================================
+# Forum
+# =================================
+forum:
+  admin:
+    username: alan
+    email: alan@com
+    password: alan
