@@ -14,7 +14,12 @@ logging:
   path: /log
 
 imgur:
-  client:
-    clientId: eded92adbc0fab0
-    clientSecret: df9529b0b964bcede52760d688e4c57190a8842f
-    albumId: WcBFFA5
+  clientId: eded92adbc0fab0
+  clientSecret: df9529b0b964bcede52760d688e4c57190a8842f
+  albumId: WcBFFA5
+
+elasticsearch:
+  host: localhost
+  port: 9200
+  username: elastic
+  password: OGmrJovJi37nakTDF*zc

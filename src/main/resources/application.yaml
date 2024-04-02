@@ -87,10 +87,9 @@ server:
 # Imgur
 # =================================
 imgur:
-  client:
-    authorizeUrl: https://api.imgur.com/oauth2/authorize
-    tokenUrl: https://api.imgur.com/oauth2/token
-    uploadUrl: https://api.imgur.com/3/upload
+  authorizeUrl: https://api.imgur.com/oauth2/authorize
+  tokenUrl: https://api.imgur.com/oauth2/token
+  uploadUrl: https://api.imgur.com/3/upload
 
 # =================================
 # Forum
