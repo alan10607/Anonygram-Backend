@@ -37,7 +37,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
     @Override
     protected Article getImpl(Article article) {
         Article firstArticle = articleRepository.findById(new Article(article.getArticleId(), 0).getId())
-                .filter(this::isNormalStatus)
+                .filter(a -> a.getStatus() == ArticleStatus.NORMAL)
                 .orElse(null);
 
         if (firstArticle == null) {
@@ -49,7 +49,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
         }
 
         return articleRepository.findById(article.getId())
-                .filter(this::isNormalStatus)
+                .filter(a -> a.getStatus() == ArticleStatus.NORMAL)
                 .orElse(null);
     }
 
@@ -76,7 +76,8 @@ public class ArticleService extends CrudServiceImpl<Article> {
                 .word(article.getWord())
                 .status(ArticleStatus.NORMAL)
                 .createdTime(now)
-                .updatedTime(now).build();
+                .updatedTime(now)
+                .build();
 
         return articleRepository.save(article);
     }
@@ -124,18 +125,12 @@ public class ArticleService extends CrudServiceImpl<Article> {
     protected void beforeUpdateAndPatch(Article article) {
         validateTitle(article);
         validateWord(article);
-        validateStatusIsNormal(article);
         validateHavePermission(article);
     }
 
     @Override
     protected void beforeDelete(Article article) {
-        validateStatusIsNormal(article);
         validateHavePermission(article);
-    }
-
-    private boolean isNormalStatus(Article article) {
-        return article.getStatus() == ArticleStatus.NORMAL;
     }
 
     void validateArticleId(Article article) {
@@ -149,7 +144,7 @@ public class ArticleService extends CrudServiceImpl<Article> {
     void validateFirstArticleStatusIsNormal(Article article) {
         Article firstArticle = articleRepository.findById(new Article(article.getArticleId(), 0).getId())
                 .orElseThrow(() -> new EntityNotFoundException(Article.class));
-        ValidationUtil.assertTrue(isNormalStatus(firstArticle), "First article's status is not normal");
+        ValidationUtil.assertTrue(firstArticle.getStatus() == ArticleStatus.NORMAL, "First article's status is not normal");
     }
 
     void validateWord(Article article) {//TODO: please update front end
@@ -157,19 +152,15 @@ public class ArticleService extends CrudServiceImpl<Article> {
     }
 
     void validateTitle(Article article) {
-        if (article.getNo() != null && article.getNo() == 0) {
+        if (article.isCreatingFirstArticle()) {
             ValidationUtil.assertInLength(article.getTitle(), MAX_TITLE_LENGTH, "Title length must in {} bytes", MAX_TITLE_LENGTH);
-        } else {
+        } else if (article.isCreatingReplyArticle()){
             ValidationUtil.assertTrue(article.getTitle() == null, "Title must null if it is not first article");
         }
     }
 
-    void validateStatusIsNormal(Article article) {
-        ValidationUtil.assertTrue(isNormalStatus(article), "Status is not normal");
-    }
-
     void validateHavePermission(Article article) {
-        ValidationUtil.assertTrue(AuthUtil.isUserEquals(article.getAuthorId()), "No permission to update");
+        ValidationUtil.assertHavePermission(article.getAuthorId(), "No permission to update");
     }
 
 }

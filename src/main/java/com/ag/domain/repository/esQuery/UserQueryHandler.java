@@ -2,8 +2,6 @@ package com.ag.domain.repository.esQuery;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
-import com.ag.domain.constant.ArticleStatus;
-import com.ag.domain.model.Article;
 import com.ag.domain.model.ForumUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

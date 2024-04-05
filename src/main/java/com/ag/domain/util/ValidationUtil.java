@@ -1,6 +1,8 @@
 package com.ag.domain.util;
 
+import com.ag.domain.constant.UserRole;
 import com.ag.domain.exception.AgValidationException;
+import com.ag.domain.model.ForumUser;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.regex.Pattern;
@@ -32,6 +34,11 @@ public class ValidationUtil {
 
     public static void assertInLengthOrNull(String string, int maxLength, String errorMessage, Object... args) {
         assertTrue(string == null || (StringUtils.isNotBlank(string) && string.getBytes().length <= maxLength), errorMessage, args);
+    }
+
+    public static void assertHavePermission(String userId, String errorMessage, Object... args) {
+        ForumUser user = AuthUtil.getUser();
+        assertTrue(user.getId().equals(userId) || user.getRoles().contains(UserRole.ROLE_ADMIN), errorMessage, args);
     }
 
     public static boolean isUuid(String uuidString) {
