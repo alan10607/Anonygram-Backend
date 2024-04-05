@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class LikeQueryHandler extends QueryHandler<Like> {
 
     @Override
-    protected Class<Like> getDoucumentClass() {
+    protected Class<Like> getDocumentClass() {
         return Like.class;
     }
 

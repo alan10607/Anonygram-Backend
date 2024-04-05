@@ -2,7 +2,7 @@ package com.ag.domain.exception.base;
 
 import org.slf4j.helpers.MessageFormatter;
 
-public class AnonygramRuntimeException extends IllegalStateException {
+public class AnonygramRuntimeException extends RuntimeException {
 
     public AnonygramRuntimeException() {
         super();

@@ -24,4 +24,5 @@ public class QueryDTO {
         this.articleId = articleId;
         this.status = status;
     }
+
 }

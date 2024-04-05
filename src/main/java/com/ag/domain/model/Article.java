@@ -4,6 +4,7 @@ import com.ag.domain.constant.ArticleStatus;
 import com.ag.domain.model.base.CompositeEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
@@ -55,38 +56,28 @@ public class Article extends CompositeEntity {
         this.no = no;
     }
 
-    public Article(CreateNewArticleBuilder builder) {
-        this.no = 0;
-    }
-
-    public Article(ReplyArticleBuilder builder) {
-        this.articleId = builder.articleId;
-    }
-
     @Override
     public String getId() {
         return String.format("%s:%s", articleId, no);
     }
 
-    public static class CreateNewArticleBuilder {
-        public CreateNewArticleBuilder() {
-        }
 
-        public Article build() {
-            return new Article(this);
-        }
+    public boolean isCreatingFirstArticle() {
+        return this.articleId == null && this.no == 0;
     }
 
-    public static class ReplyArticleBuilder {
-        private final String articleId;
+    public void setCreatingFirstArticle() {
+        this.articleId = null;
+        this.no = 0;
+    }
 
-        public ReplyArticleBuilder(String articleId) {
-            this.articleId = articleId;
-        }
+    public boolean isCreatingReplyArticle() {
+        return StringUtils.isNotBlank(this.articleId) && this.no == null;
+    }
 
-        public Article build() {
-            return new Article(this);
-        }
+    public void setCreatingReplyArticle(String articleId) {
+        this.articleId = articleId;
+        this.no = null;
     }
 
 }

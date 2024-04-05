@@ -13,5 +13,4 @@ public abstract class CompositeEntity {
         // Ignored setter
     }
 
-
 }

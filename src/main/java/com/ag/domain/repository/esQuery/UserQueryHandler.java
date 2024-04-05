@@ -15,7 +15,7 @@ import java.util.List;
 public class UserQueryHandler extends QueryHandler<ForumUser> {
 
     @Override
-    protected Class<ForumUser> getDoucumentClass() {
+    protected Class<ForumUser> getDocumentClass() {
         return ForumUser.class;
     }
 
