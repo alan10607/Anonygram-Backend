@@ -14,7 +14,6 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-@ConfigurationProperties(prefix = "imgur.client")
 public class ImgurConfig extends ConfigEntity {
 
     @Override
@@ -48,24 +47,17 @@ public class ImgurConfig extends ConfigEntity {
 
     public boolean isAllConfigNotBlank() {
         return isDefaultConfigNotBlank()
-                && isAccessTokenNotBlank()
-                && isRefreshTokenNotBlank();
+                && StringUtils.isNotBlank(this.accessToken)
+                && StringUtils.isNotBlank(this.refreshToken);
     }
 
     public boolean isDefaultConfigNotBlank() {
-        return StringUtils.isNotBlank(authorizeUrl)
-                && StringUtils.isNotBlank(tokenUrl)
-                && StringUtils.isNotBlank(uploadUrl)
-                && StringUtils.isNotBlank(clientId)
-                && StringUtils.isNotBlank(clientSecret)
-                && StringUtils.isNotBlank(albumId);
+        return StringUtils.isNotBlank(this.authorizeUrl)
+                && StringUtils.isNotBlank(this.tokenUrl)
+                && StringUtils.isNotBlank(this.uploadUrl)
+                && StringUtils.isNotBlank(this.clientId)
+                && StringUtils.isNotBlank(this.clientSecret)
+                && StringUtils.isNotBlank(this.albumId);
     }
 
-    public boolean isAccessTokenNotBlank() {
-        return StringUtils.isNotBlank(accessToken);
-    }
-
-    public boolean isRefreshTokenNotBlank() {
-        return StringUtils.isNotBlank(refreshToken);
-    }
 }

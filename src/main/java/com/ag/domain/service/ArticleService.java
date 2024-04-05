@@ -3,6 +3,7 @@ package com.ag.domain.service;
 import com.ag.domain.advice.ConcurrentSafety;
 import com.ag.domain.constant.ArticleStatus;
 import com.ag.domain.exception.EntityNotFoundException;
+import com.ag.domain.exception.base.AnonygramRuntimeException;
 import com.ag.domain.model.Article;
 import com.ag.domain.repository.ArticleRepository;
 import com.ag.domain.service.base.CrudServiceImpl;
@@ -55,11 +56,16 @@ public class ArticleService extends CrudServiceImpl<Article> {
     @Override
     protected Article createImpl(Article article) {
         LocalDateTime now = TimeUtil.now();
-        String articleId = UUID.randomUUID().toString();
-        int no = 0;
-        if (!isCreateFirstArticle(article)) {
+        String articleId;
+        int no;
+        if (article.isCreatingFirstArticle()) {
+            articleId = UUID.randomUUID().toString();
+            no = 0;
+        } else if (article.isCreatingReplyArticle()) {
             articleId = article.getArticleId();
             no = articleRepository.countByArticleId(article.getArticleId());
+        } else {
+            throw new AnonygramRuntimeException("Illegal article id and no when creating");
         }
 
         article = Article.builder()
@@ -102,12 +108,15 @@ public class ArticleService extends CrudServiceImpl<Article> {
 
     @Override
     protected void beforeCreate(Article article) {
-        if (isCreateFirstArticle(article)) {
+        if (article.isCreatingFirstArticle()) {
             validateTitle(article);
-        } else {
+        } else if (article.isCreatingReplyArticle()) {
             validateArticleId(article);
             validateFirstArticleStatusIsNormal(article);
+        } else {
+            throw new AnonygramRuntimeException("Illegal article id and no when creating");
         }
+
         validateWord(article);
     }
 
@@ -123,10 +132,6 @@ public class ArticleService extends CrudServiceImpl<Article> {
     protected void beforeDelete(Article article) {
         validateStatusIsNormal(article);
         validateHavePermission(article);
-    }
-
-    public boolean isCreateFirstArticle(Article article) {
-        return article.getArticleId() == null;
     }
 
     private boolean isNormalStatus(Article article) {

@@ -29,7 +29,7 @@ public class ArticleQueryHandler extends QueryHandler<Article> {
     private static final String AGGREGATION_LATEST_ARTICLES = "latest_articles";
 
     @Override
-    protected Class<Article> getDoucumentClass() {
+    protected Class<Article> getDocumentClass() {
         return Article.class;
     }
 
@@ -64,7 +64,6 @@ public class ArticleQueryHandler extends QueryHandler<Article> {
         Map<String, Aggregation> subAggregation = ImmutableMap.<String, Aggregation>builder()
                 .put(AGGREGATION_MAX_CREATED_TIME, maxCreatedTimeAggregation)
                 .build();
-
 
         Aggregation aggregation = new Aggregation.Builder()
                 .terms(builder -> builder.field(Article.COL_ARTICLE_ID)

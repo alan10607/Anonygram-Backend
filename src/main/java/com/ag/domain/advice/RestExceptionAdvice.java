@@ -1,6 +1,5 @@
 package com.ag.domain.advice;
 
-import com.ag.domain.dto.RestResponseEntity;
 import com.ag.domain.exception.AgValidationException;
 import com.ag.domain.exception.EntityNotFoundException;
 import com.ag.domain.exception.LockNotGotException;
@@ -32,8 +31,7 @@ public class RestExceptionAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        //To prevent RestResponseEntity get re-wrap
-        return !returnType.getParameterType().equals(RestResponseEntity.class);
+        return true; // To prevent re-wrap
     }
 
     @Override

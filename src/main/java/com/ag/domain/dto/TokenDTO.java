@@ -24,7 +24,4 @@ public class TokenDTO {
         this.refreshToken = refreshToken;
     }
 
-    public TokenDTO(String accessToken) {
-        this.accessToken = accessToken;
-    }
 }

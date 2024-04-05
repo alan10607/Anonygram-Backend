@@ -30,8 +30,7 @@ public class ArticleController {
     @ResponseStatus(HttpStatus.CREATED)
     public ArticleDTO create(@RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
-        article.setArticleId(null);
-        article.setNo(0);
+        article.setCreatingFirstArticle();
         return PojoFiledUtil.convertObject(articleService.create(article), ArticleDTO.class);
     }
 
@@ -41,8 +40,7 @@ public class ArticleController {
     public ArticleDTO createReply(@PathVariable("articleId") String articleId,
                                   @RequestBody ArticleDTO articleDTO) {
         Article article = PojoFiledUtil.convertObject(articleDTO, Article.class);
-        article.setArticleId(articleId);
-        article.setNo(null);
+        article.setCreatingReplyArticle(articleId);
         return PojoFiledUtil.convertObject(articleService.create(article), ArticleDTO.class);
     }
 

@@ -1,29 +1,26 @@
 package com.ag.domain.repository.esQuery;
 
 import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOptionsBuilders;
 import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.aggregations.*;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
-import co.elastic.clients.util.NamedValue;
-import com.ag.domain.model.Article;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregation;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregations;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
-import org.springframework.data.elasticsearch.client.erhlc.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,30 +30,30 @@ import java.util.stream.Collectors;
 public abstract class QueryHandler<T> {
     @Autowired
     protected ElasticsearchOperations elasticsearchOperations;
-    private static final int DEFAULT_PAGE_SIZE = 100;
+    private static final Pageable DEFAULT_PAGEABLE = Pageable.ofSize(100);
+    private static final SortOptions DEFAULT_SORT_OPTIONS = SortOptionsBuilders.score()
+            .order((SortOrder.Desc))
+            .build()
+            ._toSortOptions();
 
-    protected abstract Class<T> getDoucumentClass();
+    protected abstract Class<T> getDocumentClass();
 
     public List<T> search(BoolQuery boolQuery) {
-        NativeQuery nativeQuery = NativeQuery.builder()
-                .withQuery(boolQuery._toQuery())
-                .withPageable(PageRequest.ofSize(DEFAULT_PAGE_SIZE))
-                .build();
-
-        return elasticsearchOperations.search(nativeQuery, getDoucumentClass())
-                .stream()
-                .map(SearchHit::getContent)
-                .collect(Collectors.toList());
+        return search(boolQuery, DEFAULT_SORT_OPTIONS, DEFAULT_PAGEABLE);
     }
 
     public List<T> search(BoolQuery boolQuery, SortOptions sortOptions) {
+        return search(boolQuery, sortOptions, DEFAULT_PAGEABLE);
+    }
+
+    public List<T> search(BoolQuery boolQuery, SortOptions sortOptions, Pageable pageable) {
         NativeQuery nativeQuery = NativeQuery.builder()
                 .withQuery(boolQuery._toQuery())
                 .withSort(sortOptions)
-                .withPageable(PageRequest.ofSize(DEFAULT_PAGE_SIZE))
+                .withPageable(pageable)
                 .build();
 
-        return elasticsearchOperations.search(nativeQuery, getDoucumentClass())
+        return elasticsearchOperations.search(nativeQuery, getDocumentClass())
                 .stream()
                 .map(SearchHit::getContent)
                 .collect(Collectors.toList());
@@ -67,7 +64,7 @@ public abstract class QueryHandler<T> {
                 .withQuery(boolQuery._toQuery())
                 .build();
 
-        return elasticsearchOperations.count(nativeQuery, getDoucumentClass());
+        return elasticsearchOperations.count(nativeQuery, getDocumentClass());
     }
 
     public List<String> searchAggregation(String aggregationName, Aggregation aggregation) {
@@ -76,7 +73,7 @@ public abstract class QueryHandler<T> {
                 .withAggregation(aggregationName, aggregation)
                 .build();
 
-        SearchHits<T> searchHits = elasticsearchOperations.search(nativeQuery, getDoucumentClass());
+        SearchHits<T> searchHits = elasticsearchOperations.search(nativeQuery, getDocumentClass());
         return Optional.ofNullable((ElasticsearchAggregations) searchHits.getAggregations())
                 .map(elasticsearchAggregations -> elasticsearchAggregations.aggregationsAsMap().get(aggregationName))
                 .map(a -> a.aggregation().getAggregate().sterms().buckets().array())
@@ -85,6 +82,5 @@ public abstract class QueryHandler<T> {
                 .map(bucket -> bucket.key().stringValue())
                 .collect(Collectors.toList());
     }
-
 
 }
