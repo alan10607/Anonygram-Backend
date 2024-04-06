@@ -5,12 +5,14 @@ import com.ag.domain.model.Article;
 import com.ag.domain.model.Like;
 import com.ag.domain.repository.LikeRepository;
 import com.ag.domain.util.AuthUtil;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -36,9 +38,16 @@ class LikeServiceTest {
     @Mock
     private LikeRepository likeRepository;
 
+    private static MockedStatic<AuthUtil> mockedStatic;
+
     @BeforeAll
     public static void setup() {
-        mockStatic(AuthUtil.class);
+        mockedStatic = mockStatic(AuthUtil.class);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        mockedStatic.close();
     }
 
     @Test

@@ -1,25 +1,27 @@
 package com.ag.domain.service;
 
+import com.ag.domain.constant.UserRole;
 import com.ag.domain.exception.AgValidationException;
-import com.ag.domain.model.Article;
 import com.ag.domain.model.ForumUser;
-import com.ag.domain.model.Like;
-import com.ag.domain.repository.LikeRepository;
 import com.ag.domain.repository.UserRepository;
 import com.ag.domain.util.AuthUtil;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.ag.domain.TestUtil.*;
+import static com.ag.domain.TestUtil.generateRandomString;
+import static com.ag.domain.TestUtil.generateUser;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mockStatic;
@@ -34,12 +36,16 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private LikeRepository likeRepository;
+    private static MockedStatic<AuthUtil> mockedStatic;
 
     @BeforeAll
-    public static void setup(){
-        mockStatic(AuthUtil.class);
+    public static void setup() {
+        mockedStatic = mockStatic(AuthUtil.class);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        mockedStatic.close();
     }
 
     @Test
@@ -57,7 +63,7 @@ class UserServiceTest {
         ForumUser user = generateUser("1234");
 
         // Act & Assert
-        assertThrows(AgValidationAgValidationException.class, () -> userService.validateId(user));
+        assertThrows(AgValidationException.class, () -> userService.validateId(user));
     }
 
     @Test
@@ -89,11 +95,9 @@ class UserServiceTest {
         // Arrange
         ForumUser user = generateUser();
         user.setUsername(generateRandomString(UserService.MAX_USERNAME_LENGTH + 1));
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
-        when(AuthUtil.isUserEquals(user.getId())).thenReturn(false);
 
         // Act & Assert
-        assertThrows(AgValidationAgValidationException.class, () -> userService.validateUsername(user));
+        assertThrows(AgValidationException.class, () -> userService.validateUsername(user));
     }
 
     @Test
@@ -105,7 +109,7 @@ class UserServiceTest {
         when(AuthUtil.isUserEquals(user.getId())).thenReturn(false);
 
         // Act & Assert
-        assertThrows(AgValidationAgValidationException.class, () -> userService.validateUsername(user));
+        assertThrows(AgValidationException.class, () -> userService.validateUsername(user));
     }
 
 
@@ -138,11 +142,9 @@ class UserServiceTest {
         // Arrange
         ForumUser user = generateUser();
         user.setEmail(generateRandomString(UserService.MAX_EMAIL_LENGTH + 1));
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
-        when(AuthUtil.isUserEquals(user.getId())).thenReturn(false);
 
         // Act & Assert
-        assertThrows(AgValidationAgValidationException.class, () -> userService.validateEmail(user));
+        assertThrows(AgValidationException.class, () -> userService.validateEmail(user));
     }
 
     @Test
@@ -154,7 +156,7 @@ class UserServiceTest {
         when(AuthUtil.isUserEquals(user.getId())).thenReturn(false);
 
         // Act & Assert
-        assertThrows(AgValidationAgValidationException.class, () -> userService.validateEmail(user));
+        assertThrows(AgValidationException.class, () -> userService.validateEmail(user));
     }
 
     @Test
@@ -187,14 +189,32 @@ class UserServiceTest {
         assertThrows(AgValidationException.class, () -> userService.validatePassword(user));
     }
 
-    ////
+    @Test
+    void validateRoles_should_success_because_only_normal_role() {
+        // Arrange
+        ForumUser user = generateUser();
+        user.setRoles(Collections.singletonList(UserRole.ROLE_NORMAL));
+
+        // Act & Assert
+        assertDoesNotThrow(() -> userService.validateRoles(user));
+    }
+
+    @Test
+    void validateRoles_should_failed_because_have_not_normal_role() {
+        // Arrange
+        ForumUser user = generateUser();
+        user.setRoles(Collections.singletonList(UserRole.ROLE_ADMIN));
+
+        // Act & Assert
+        assertThrows(AgValidationException.class, () -> userService.validateRoles(user));
+    }
 
     @Test
     void validateHeadUrl_should_success_because_length_within_max_limit() {
         // Arrange
         ForumUser user = generateUser();
         String prefix = "https://";
-        user.setHeadUrl(prefix+generateRandomString(UserService.MAX_HEAD_URL_LENGTH - prefix.length()));
+        user.setHeadUrl(prefix + generateRandomString(UserService.MAX_HEAD_URL_LENGTH - prefix.length()));
 
         // Act & Assert
         assertDoesNotThrow(() -> userService.validateHeadUrl(user));
@@ -215,7 +235,7 @@ class UserServiceTest {
         // Arrange
         ForumUser user = generateUser();
         String prefix = "https://";
-        user.setHeadUrl(prefix+generateRandomString(UserService.MAX_HEAD_URL_LENGTH - prefix.length() + 1));
+        user.setHeadUrl(prefix + generateRandomString(UserService.MAX_HEAD_URL_LENGTH - prefix.length() + 1));
 
         // Act & Assert
         assertThrows(AgValidationException.class, () -> userService.validateHeadUrl(user));
