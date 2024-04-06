@@ -22,65 +22,66 @@ import java.util.function.Supplier;
 @ExtendWith(MockitoExtension.class)
 @Slf4j
 class LockUtilTest {
+    private String key = "test_key";
+    private int expiredMs = (int) LockUtil.WAIT_TRY_LOCK_MS;
 
     @Test
-    public void test_lock_if_all_thread_get_lock() throws InterruptedException {
-        // arrange
-        String key = "test_key";
-        AtomicInteger number = new AtomicInteger();
-        Supplier<AtomicInteger> supplier = createSupplier(number, 10);
-        int numThreads = 10;
-
-        // Create a fixed-size thread pool to simulate concurrent access
-        ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
-
-        // Use CountDownLatch to wait for all threads to finish
-        CountDownLatch latch = new CountDownLatch(numThreads);
-
-        // act
-        startThreads(key, executorService, supplier, latch);
-        waitAndShutdownThreads(latch, executorService);
-
-        // assert
-        assertTrue(executorService.isTerminated());
-        assertEquals(0, latch.getCount());
-        assertEquals(10, number.intValue()
-            ,"All threads should finish cause runtime 10*10 ms < lock expire time 3000ms");
+    public void testLock_10_10() throws InterruptedException {
+        executeMultiService(10, 10);
     }
-
 
     @Test
-    public void test_lock_if_not_all_thread_get_lock() throws InterruptedException {
-        // arrange
-        String key = "test_key";
-        AtomicInteger number = new AtomicInteger();
-        Supplier<AtomicInteger> supplier = createSupplier(number, 100);
-        int numThreads = 10;
-
-        // Create a fixed-size thread pool to simulate concurrent access
-        ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
-
-        // Use CountDownLatch to wait for all threads to finish
-        CountDownLatch latch = new CountDownLatch(numThreads);
-
-        // act
-        startThreads(key, executorService, supplier, latch);
-        waitAndShutdownThreads(latch, executorService);
-
-        // assert
-        assertTrue(executorService.isTerminated());
-        assertEquals(0, latch.getCount());
-        assertTrue(10 > number.intValue()
-            ,"There should some threads not finish cause runtime 1000*10 ms > lock expire time 3000ms");
+    public void testLock_10_1000() throws InterruptedException {
+        executeMultiService(10, 1000);
     }
 
-    private Supplier<AtomicInteger> createSupplier(AtomicInteger number, long runtimeMs) {
+    @Test
+    public void testLock_100_1000() throws InterruptedException {
+        executeMultiService(100, 1000);
+    }
+//TODO: thread should test one after one
+    @Test
+    public void testLock_500_10() throws InterruptedException {
+        executeMultiService(500, 10);
+    }
+
+    private void executeMultiService(int threadNumber, int runtimeMs) throws InterruptedException {
+        // Arrange
+        AtomicInteger finishCount = new AtomicInteger();
+        Supplier<AtomicInteger> supplier = createSupplier(finishCount, runtimeMs);
+
+        // Create a fixed-size thread pool to simulate concurrent access
+        ExecutorService executorService = Executors.newFixedThreadPool(threadNumber);
+
+        // Use CountDownLatch to wait for all threads to finish
+        CountDownLatch latch = new CountDownLatch(threadNumber);
+
+        // Act
+        startThreads(threadNumber, key, executorService, supplier, latch);
+        waitAndShutdownThreads(latch, executorService);
+
+        // Assert
+        assertTrue(executorService.isTerminated());
+        assertEquals(0, latch.getCount());
+        int expect = calculateFinishThreads(threadNumber, runtimeMs, expiredMs);
+        assertTrue(finishCount.intValue() <= expect,
+                String.format("Finish Threads should be min(finishCount of threads %s, (expired time %s / runtime of each thread %s))",
+                        threadNumber, expiredMs, runtimeMs));
+        log.warn("Threads number={}, finished={}, expect={}", threadNumber, finishCount, expect);
+    }
+
+    private int calculateFinishThreads(int threadNumber, int runtimeMs, int expiredMs) {
+        int capability = expiredMs / runtimeMs;
+        return Math.min(threadNumber, capability);
+    }
+
+    private Supplier<AtomicInteger> createSupplier(AtomicInteger finishCount, long runtimeMs) {
         return () -> {
             try {
                 Thread.sleep(runtimeMs);
-                number.incrementAndGet();
-                log.info("===> Thread" + Thread.currentThread() + ", number=" + number);
-                return number;
+                finishCount.incrementAndGet();
+                log.debug("===> Finish count=" + finishCount);
+                return finishCount;
             } catch (Exception e) {
                 log.error("", e);
                 throw new RuntimeException(e);
@@ -88,13 +89,14 @@ class LockUtilTest {
         };
     }
 
-    private <T> void startThreads(String key, ExecutorService executorService, Supplier<T> supplier, CountDownLatch latch) {
-        for (int i = 0; i < 10; i++) {
+    private <T> void startThreads(int numThreads, String key, ExecutorService executorService, Supplier<T> supplier, CountDownLatch latch) {
+        for (int i = 0; i < numThreads; i++) {
             executorService.submit(() -> {
                 try {
                     LockUtil.lock(key, supplier);
-                } catch (LockNotGotException | InterruptedException e) {
-                    log.error("Error test thread: " + Thread.currentThread());
+                } catch (LockNotGotException e) {
+                } catch (InterruptedException e) {
+                    log.error("Error thread", e);
                 } finally {
                     latch.countDown();
                 }

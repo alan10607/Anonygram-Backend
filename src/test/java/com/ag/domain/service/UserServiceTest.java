@@ -36,16 +36,16 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    private static MockedStatic<AuthUtil> mockedStatic;
+    private static MockedStatic<AuthUtil> mockedAuthUtil;
 
     @BeforeAll
     public static void setup() {
-        mockedStatic = mockStatic(AuthUtil.class);
+        mockedAuthUtil = mockStatic(AuthUtil.class);
     }
 
     @AfterAll
     public static void tearDown() {
-        mockedStatic.close();
+        mockedAuthUtil.close();
     }
 
     @Test
@@ -72,7 +72,7 @@ class UserServiceTest {
         ForumUser user = generateUser();
         user.setUsername(generateRandomString(UserService.MAX_USERNAME_LENGTH));
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
-        when(AuthUtil.isUserEquals(user.getId())).thenReturn(false);
+        when(AuthUtil.isSameUser(user.getId())).thenReturn(false);
 
         // Act & Assert
         assertDoesNotThrow(() -> userService.validateUsername(user));
@@ -84,7 +84,7 @@ class UserServiceTest {
         ForumUser user = generateUser();
         user.setUsername(generateRandomString(UserService.MAX_USERNAME_LENGTH));
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
-        when(AuthUtil.isUserEquals(user.getId())).thenReturn(true);
+        when(AuthUtil.isSameUser(user.getId())).thenReturn(true);
 
         // Act & Assert
         assertDoesNotThrow(() -> userService.validateUsername(user));
@@ -106,7 +106,7 @@ class UserServiceTest {
         ForumUser user = generateUser();
         user.setUsername(generateRandomString(UserService.MAX_USERNAME_LENGTH));
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
-        when(AuthUtil.isUserEquals(user.getId())).thenReturn(false);
+        when(AuthUtil.isSameUser(user.getId())).thenReturn(false);
 
         // Act & Assert
         assertThrows(AgValidationException.class, () -> userService.validateUsername(user));
@@ -119,7 +119,7 @@ class UserServiceTest {
         ForumUser user = generateUser();
         user.setEmail(generateRandomString(UserService.MAX_EMAIL_LENGTH));
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
-        when(AuthUtil.isUserEquals(user.getId())).thenReturn(false);
+        when(AuthUtil.isSameUser(user.getId())).thenReturn(false);
 
         // Act & Assert
         assertDoesNotThrow(() -> userService.validateEmail(user));
@@ -131,7 +131,7 @@ class UserServiceTest {
         ForumUser user = generateUser();
         user.setEmail(generateRandomString(UserService.MAX_EMAIL_LENGTH));
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
-        when(AuthUtil.isUserEquals(user.getId())).thenReturn(true);
+        when(AuthUtil.isSameUser(user.getId())).thenReturn(true);
 
         // Act & Assert
         assertDoesNotThrow(() -> userService.validateEmail(user));
@@ -153,7 +153,7 @@ class UserServiceTest {
         ForumUser user = generateUser();
         user.setEmail(generateRandomString(UserService.MAX_EMAIL_LENGTH));
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
-        when(AuthUtil.isUserEquals(user.getId())).thenReturn(false);
+        when(AuthUtil.isSameUser(user.getId())).thenReturn(false);
 
         // Act & Assert
         assertThrows(AgValidationException.class, () -> userService.validateEmail(user));

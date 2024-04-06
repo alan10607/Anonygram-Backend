@@ -38,16 +38,16 @@ class LikeServiceTest {
     @Mock
     private LikeRepository likeRepository;
 
-    private static MockedStatic<AuthUtil> mockedStatic;
+    private static MockedStatic<AuthUtil> mockedAuthUtil;
 
     @BeforeAll
     public static void setup() {
-        mockedStatic = mockStatic(AuthUtil.class);
+        mockedAuthUtil = mockStatic(AuthUtil.class);
     }
 
     @AfterAll
     public static void tearDown() {
-        mockedStatic.close();
+        mockedAuthUtil.close();
     }
 
     @Test
