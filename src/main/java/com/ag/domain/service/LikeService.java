@@ -2,7 +2,6 @@ package com.ag.domain.service;
 
 import com.ag.domain.advice.ConcurrentSafety;
 import com.ag.domain.model.Article;
-import com.ag.domain.model.ForumUser;
 import com.ag.domain.model.Like;
 import com.ag.domain.repository.LikeRepository;
 import com.ag.domain.service.base.CrudServiceImpl;
@@ -10,7 +9,6 @@ import com.ag.domain.util.AuthUtil;
 import com.ag.domain.util.ValidationUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -70,13 +68,11 @@ public class LikeService extends CrudServiceImpl<Like> {
         validateArticleId(like);
         validateNo(like);
         validateArticleIsExist(like);
-        validateLikeIsExist(like);
+        validateLikeIsNotExist(like);
     }
 
     @Override
     protected void beforeDelete(Like like) {
-        validateArticleId(like);
-        validateNo(like);
         validateArticleIsExist(like);
     }
 
@@ -88,7 +84,7 @@ public class LikeService extends CrudServiceImpl<Like> {
         ValidationUtil.assertInRange(like.getNo(), 0, null, "No must >= 0");
     }
 
-    void validateLikeIsExist(Like like) {
+    void validateLikeIsNotExist(Like like) {
         like.setUserId(AuthUtil.getUserId());
         ValidationUtil.assertTrue(likeRepository.findById(like.getId()).isEmpty(), "Like already exists");
     }
