@@ -27,11 +27,7 @@ public class AuthUtil {
         return getUser().getId();
     }
 
-    public static String getUsername() {
-        return getUser().getUsername();
-    }
-
-    public static boolean isUserEquals(String userId) {
+    public static boolean isSameUser(String userId) {
         return getUser().getId().equals(userId);
     }
 

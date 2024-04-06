@@ -37,7 +37,6 @@ class TokenServiceTest {
     @Mock
     private JwtFilter jwtFilter;
 
-
     @Test
     void createToken_should_success_because_authenticate_ok() {
         // Arrange

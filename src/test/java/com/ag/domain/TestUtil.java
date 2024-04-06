@@ -6,6 +6,7 @@ import com.ag.domain.model.Article;
 import com.ag.domain.model.ForumUser;
 import com.ag.domain.model.Like;
 import com.ag.domain.util.TimeUtil;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import java.time.LocalDateTime;
@@ -84,5 +85,12 @@ public class TestUtil {
                 user,
                 null,
                 user.getAuthorities());
+    }
+
+    public static AnonymousAuthenticationToken generateAnonymousAuthenticationToken(ForumUser anonymousUser) {
+        return new AnonymousAuthenticationToken(
+                anonymousUser.getId(),
+                anonymousUser,
+                anonymousUser.getAuthorities());
     }
 }

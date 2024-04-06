@@ -15,8 +15,8 @@ import java.util.function.Supplier;
 @Slf4j
 public class LockUtil {
     private static final Striped<Lock> stripedLocks = Striped.lock(10000);
-    private static final long WAIT_TRY_LOCK_MS = 3000;
-    private static final long BUSY_SLEEP_MS = 1000;
+    public static final long WAIT_TRY_LOCK_MS = 3000;
+    public static final long BUSY_SLEEP_MS = 500;
 
     /**
      * The runnable.run() will not start another thread, it will be the same thread as parent.
@@ -30,14 +30,14 @@ public class LockUtil {
         try {
             if (lock.tryLock(WAIT_TRY_LOCK_MS, TimeUnit.MILLISECONDS)) {
                 try {
-                    log.info("Lock function with key={}", key);
+                    log.debug("Lock function with key={}", key);
                     return supplier.get();
                 } finally {
                     lock.unlock();
-                    log.info("Unlock function with key={}", key);
+                    log.debug("Unlock function with key={}", key);
                 }
             } else {
-                Thread.sleep(BUSY_SLEEP_MS);//Cache Breakdown (Hotspot Invalid), reject request if the query exists
+                Thread.sleep(BUSY_SLEEP_MS); // Cache Breakdown (Hotspot Invalid), reject request if the query exists
                 log.info("Function was locked by the key={}, skip this time", key);
                 throw new LockNotGotException("Function was locked by the key={}", key);
             }
