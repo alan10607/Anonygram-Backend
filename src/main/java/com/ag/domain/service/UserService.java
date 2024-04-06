@@ -175,7 +175,7 @@ public class UserService extends CrudServiceImpl<ForumUser> implements UserDetai
     }
 
     void validateHavePermission(ForumUser user) {
-        ValidationUtil.assertTrue(AuthUtil.isUserEquals(user.getId()), "No permission to update");
+        ValidationUtil.assertHavePermission(user.getId(), "No permission to update");
     }
 
 }

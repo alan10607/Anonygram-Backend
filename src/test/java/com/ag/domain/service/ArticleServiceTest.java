@@ -39,7 +39,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    void validateArticleId_should_success_if_is_uuid() {
+    void validateArticleId_should_success_because_is_uuid() {
         // Arrange
         Article article = generateArticle(UUID.randomUUID().toString(), 0);
 
@@ -48,7 +48,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    void validateArticleId_should_failed_if_not_uuid() {
+    void validateArticleId_should_failed_because_not_uuid() {
         // Arrange
         Article article = generateArticle("1234", 0);
 
@@ -57,7 +57,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    void validateNo_should_success_if_no_is_greater_than_or_equal_to_zero() {
+    void validateNo_should_success_because_no_is_greater_than_or_equal_to_zero() {
         // Arrange
         Article article = generateArticle(UUID.randomUUID().toString(), 0);
 
@@ -66,7 +66,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    void validateNo_should_failed_if_no_is_less_than_zero() {
+    void validateNo_should_failed_because_no_is_less_than_zero() {
         // Arrange
         Article article = generateArticle(UUID.randomUUID().toString(), -1);
 
@@ -75,7 +75,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    void validateFirstArticleStatusIsNormal_should_succeed_when_status_is_normal() {
+    void validateFirstArticleStatusIsNormal_should_succeed_because_status_is_normal() {
         // Arrange
         Article article = generateArticle();
         article.setStatus(ArticleStatus.NORMAL);
@@ -86,7 +86,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    void validateFirstArticleStatusIsNormal_should_failed_when_status_is_not_normal() {
+    void validateFirstArticleStatusIsNormal_should_failed_because_status_is_not_normal() {
         // Arrange
         Article article = generateArticle();
         article.setStatus(ArticleStatus.DELETED);
@@ -97,7 +97,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    void validateWord_should_succeed_when_word_length_is_within_max_limit() {
+    void validateWord_should_succeed_because_word_length_is_within_max_limit() {
         // Arrange
         Article article = generateArticle();
         article.setWord(generateRandomString(ArticleService.MAX_WORD_LENGTH));
@@ -107,7 +107,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    void validateWord_should_failed_when_word_length_exceeds_max_limit() {
+    void validateWord_should_failed_because_word_length_exceeds_max_limit() {
         // Arrange
         Article article = generateArticle();
         article.setWord(generateRandomString(ArticleService.MAX_WORD_LENGTH + 1));
@@ -117,7 +117,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    void validateTitle_should_succeed_when_is_first_article_and_title_length_is_within_max_limit() {
+    void validateTitle_should_succeed_because_is_first_article_and_title_length_is_within_max_limit() {
         // Arrange
         Article article = generateArticle();
         article.setCreatingFirstArticle();
@@ -128,7 +128,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    void validateTitle_should_failed_when_is_first_article_and_title_length_exceeds_max_limit() {
+    void validateTitle_should_failed_because_is_first_article_and_title_length_exceeds_max_limit() {
         // Arrange
         Article article = generateArticle();
         article.setCreatingFirstArticle();
@@ -139,7 +139,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    void validateTitle_should_succeed_when_is_replying_article_and_title_is_null() {
+    void validateTitle_should_succeed_because_is_replying_article_and_title_is_null() {
         // Arrange
         Article article = generateArticle();
         article.setCreatingReplyArticle(UUID.randomUUID().toString());
@@ -150,7 +150,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    void validateTitle_should_failed_when_is_replying_article_and_title_is_not_null() {
+    void validateTitle_should_failed_because_is_replying_article_and_title_is_not_null() {
         // Arrange
         Article article = generateArticle();
         article.setCreatingReplyArticle(UUID.randomUUID().toString());
@@ -161,7 +161,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    void validateHavePermission_should_succeed_when_user_is_author() {
+    void validateHavePermission_should_succeed_because_user_is_author() {
         // Arrange
         Article article = generateArticle();
         when(AuthUtil.getUser()).thenReturn(generateUser(article.getAuthorId()));
@@ -171,7 +171,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    void validateHavePermission_should_failed_when_user_is_not_author() {
+    void validateHavePermission_should_failed_because_user_is_not_author() {
         // Arrange
         Article article = generateArticle();
         when(AuthUtil.getUser()).thenReturn(generateUser(UUID.randomUUID().toString()));

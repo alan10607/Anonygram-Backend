@@ -4,6 +4,7 @@ import com.ag.domain.constant.ArticleStatus;
 import com.ag.domain.constant.UserRole;
 import com.ag.domain.model.Article;
 import com.ag.domain.model.ForumUser;
+import com.ag.domain.model.Like;
 import com.ag.domain.util.TimeUtil;
 
 import java.time.LocalDateTime;
@@ -45,6 +46,19 @@ public class TestUtil {
                 .roles(Collections.singletonList(UserRole.ROLE_NORMAL))
                 .createdTime(now)
                 .updatedTime(now)
+                .build();
+    }
+
+
+    public static Like generateLike() {
+        return generateLike(UUID.randomUUID().toString(), 0, UUID.randomUUID().toString());
+    }
+
+    public static Like generateLike(String articleId, Integer no, String userId) {
+        return Like.builder()
+                .articleId(articleId)
+                .no(no)
+                .userId(userId)
                 .build();
     }
 
