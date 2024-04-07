@@ -22,8 +22,8 @@ public class LockUtil {
      * The runnable.run() will not start another thread, it will be the same thread as parent.
      *
      * @param key      Lock by this string
-     * @param supplier supplier function that locked
-     * @return
+     * @param supplier Supplier function that locked
+     * @return Supplier result
      */
     public static <T> T lock(String key, Supplier<T> supplier) throws InterruptedException {
         Lock lock = stripedLocks.get(key);

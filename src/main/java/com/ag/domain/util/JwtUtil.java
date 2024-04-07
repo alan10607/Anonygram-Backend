@@ -21,10 +21,10 @@ import java.util.function.Function;
 public class JwtUtil {
     private static final String SECRET_KEY = "EsPKLbwWNsOtNoifyls3afApQVXy17mQTd+D22Qy5+/MiSV5eFYxEE651nY41mDt";
 
-    public static String createToken(Map<String, Object> extraClaim, ForumUser user, long expiredHour) {
+    public static String createToken(Map<String, Object> extraClaims, String subject, long expiredHour) {
         return Jwts.builder()
-                .setClaims(extraClaim)
-                .setSubject(user.getId()) // subject = user id
+                .setClaims(extraClaims)
+                .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * expiredHour))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -64,6 +64,5 @@ public class JwtUtil {
     public static boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
-
 
 }

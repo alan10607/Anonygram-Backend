@@ -49,12 +49,12 @@ public class JwtToken {
     }
 
     private String createToken(ForumUser user, TokenType tokenType) {
-        Map<String, Object> extraClaim = ImmutableMap.<String, Object>builder()
+        Map<String, Object> extraClaims = ImmutableMap.<String, Object>builder()
                 .put(CLAIM_NAME_ID, user.getId())
                 .put(CLAIM_NAME_TOKEN_TYPE, tokenType)
                 .build();
 
-        return JwtUtil.createToken(extraClaim, user, tokenType.expiredHour);
+        return JwtUtil.createToken(extraClaims, user.getId(), tokenType.expiredHour); // subject = user id
     }
 
     public boolean isTokenExpired(){
