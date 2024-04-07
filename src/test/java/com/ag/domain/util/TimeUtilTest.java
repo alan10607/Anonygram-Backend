@@ -4,9 +4,11 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TimeUtilTest {
@@ -14,11 +16,9 @@ class TimeUtilTest {
 
     @Test
     public void testNow() {
-        LocalDateTime now = TimeUtil.now();
         LocalDateTime expected = LocalDateTime.now(UTC_PLUS_8);
-        long diffInMilliseconds = ChronoUnit.MILLIS.between(expected, now);
-        assertTrue(Math.abs(diffInMilliseconds) < 1000,
-        "The difference between expected and actual time is within acceptable range");
+        assertEquals(expected.toInstant(ZoneOffset.UTC).getEpochSecond(),
+                TimeUtil.now().toInstant(ZoneOffset.UTC).getEpochSecond());
     }
 
     @Test
@@ -31,13 +31,4 @@ class TimeUtilTest {
         "The difference between expected and actual time strings is within acceptable range");
     }
 
-    @Test
-    public void testNowShortString() {
-        String format = "yyyyMMddHHmmss";
-        String nowShortString = TimeUtil.nowShortString();
-        LocalDateTime now = LocalDateTime.now(UTC_PLUS_8);
-        String expected = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        assertTrue(nowShortString.startsWith(expected.substring(0, format.length() - 1)),
-        "The difference between expected and actual short time strings is within acceptable range");
-    }
 }

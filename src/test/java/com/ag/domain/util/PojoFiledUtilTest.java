@@ -43,7 +43,7 @@ class PojoFiledUtilTest {
     void overwritePublicFields() {
         // Arrange
         TestObject target = new TestObject(10, null, "title");
-        TestObject source = new TestObject(20, "newValue", "title");
+        TestObject source = new TestObject(20, "newValue", null);
 
         // Act
         PojoFiledUtil.overwriteFields(target, source);
@@ -101,12 +101,9 @@ class PojoFiledUtilTest {
     public void convertObject_if_convert_NoJsonIgnoreObject() {
         // Arrange
         TestObject original = new TestObject(1, "Alan", "Engineer");
-        //assert
-        assertThrows(Exception.class, () ->
-                PojoFiledUtil.convertObject(original, NoJsonIgnoreObject.class));
 
-
+        // Act & Assert
+        assertThrows(Exception.class, () -> PojoFiledUtil.convertObject(original, NoJsonIgnoreObject.class));
     }
-
 
 }
