@@ -10,11 +10,23 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class TestUtil {
+
+    public static List<Article> generateArticleList(int length) {
+        return generateArticleList(UUID.randomUUID().toString(), length);
+    }
+
+    public static List<Article> generateArticleList(String articleId, int length) {
+        List<Article> articleList = new ArrayList<>();
+        Article firstArticle = generateArticle(articleId, 0);
+        articleList.add(firstArticle);
+        for (int i = 1; i < length; ++i) {
+            articleList.add(generateArticle(articleId, i));
+        }
+        return articleList;
+    }
 
     public static Article generateArticle() {
         return generateArticle(UUID.randomUUID().toString(), 0);

@@ -139,17 +139,17 @@ public class UserService extends CrudServiceImpl<ForumUser> implements UserDetai
     }
 
     void validateUsername(ForumUser user) {
-        ValidationUtil.assertInLength(user.getUsername(), MAX_USERNAME_LENGTH, "Username length must in {} bytes", MAX_USERNAME_LENGTH);
+        ValidationUtil.assertInLength(user.getUsername(), MAX_USERNAME_LENGTH, "Username length must in {} bytes and not blank", MAX_USERNAME_LENGTH);
         ValidationUtil.assertTrue(userRepository.findByUsername(user.getUsername()).isEmpty() || AuthUtil.isSameUser(user.getId()), "Username already exists");
     }
 
     void validateEmail(ForumUser user) {
-        ValidationUtil.assertInLength(user.getEmail(), MAX_EMAIL_LENGTH, "Email length must in {} bytes", MAX_EMAIL_LENGTH);
+        ValidationUtil.assertInLength(user.getEmail(), MAX_EMAIL_LENGTH, "Email length must in {} bytes and not blank", MAX_EMAIL_LENGTH);
         ValidationUtil.assertTrue(userRepository.findByEmail(user.getEmail()).isEmpty() || AuthUtil.isSameUser(user.getId()), "Email already exists");
     }
 
     void validatePassword(ForumUser user) {
-        ValidationUtil.assertInLength(user.getPassword(), MAX_PASSWORD_LENGTH, "Password length must in {} bytes", MAX_PASSWORD_LENGTH);
+        ValidationUtil.assertInLength(user.getPassword(), MAX_PASSWORD_LENGTH, "Password length must in {} bytes and not blank", MAX_PASSWORD_LENGTH);
     }
 
     void validateRoles(ForumUser user) {

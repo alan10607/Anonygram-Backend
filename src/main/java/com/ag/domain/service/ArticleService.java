@@ -148,12 +148,12 @@ public class ArticleService extends CrudServiceImpl<Article> {
     }
 
     void validateWord(Article article) {//TODO: please update front end
-        ValidationUtil.assertInLength(article.getWord(), MAX_WORD_LENGTH, "Word length must in {} bytes", MAX_WORD_LENGTH);
+        ValidationUtil.assertInLength(article.getWord(), MAX_WORD_LENGTH, "Word length must in {} bytes and not blank", MAX_WORD_LENGTH);
     }
 
     void validateTitle(Article article) {
         if (article.isCreatingFirstArticle()) {
-            ValidationUtil.assertInLength(article.getTitle(), MAX_TITLE_LENGTH, "Title length must in {} bytes", MAX_TITLE_LENGTH);
+            ValidationUtil.assertInLength(article.getTitle(), MAX_TITLE_LENGTH, "Title length must in {} bytes and not blank", MAX_TITLE_LENGTH);
         } else if (article.isCreatingReplyArticle()){
             ValidationUtil.assertTrue(article.getTitle() == null, "Title must null if it is not first article");
         }
