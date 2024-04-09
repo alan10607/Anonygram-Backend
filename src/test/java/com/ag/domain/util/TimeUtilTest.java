@@ -24,10 +24,8 @@ class TimeUtilTest {
     @Test
     public void testNowString() {
         String format = "yyyy-MM-dd HH:mm:ss.SSS";
-        String nowString = TimeUtil.nowString();
-        String expected = LocalDateTime.now(UTC_PLUS_8)
-                           .format(DateTimeFormatter.ofPattern(format));
-        assertTrue(nowString.startsWith(expected.substring(0, format.length() - 5)),
+        String expected = LocalDateTime.now(UTC_PLUS_8).format(DateTimeFormatter.ofPattern(format));
+        assertTrue(TimeUtil.nowString().startsWith(expected.substring(0, format.length() - 5)),
         "The difference between expected and actual time strings is within acceptable range");
     }
 
