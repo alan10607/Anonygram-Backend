@@ -47,11 +47,11 @@ public class ConcurrentSafetyAdvice {
         try {
             if (lock.tryLock(WAIT_TRY_LOCK_MS, TimeUnit.MILLISECONDS)) {
                 try {
-                    log.info("Lock function with key={}", key);
+                    log.debug("Lock function with key={}", key);
                     return pjp.proceed();
                 } finally {
                     lock.unlock();
-                    log.info("Unlock function with key={}", key);
+                    log.debug("Unlock function with key={}", key);
                 }
             } else {
                 Thread.sleep(BUSY_SLEEP_MS);//Cache Breakdown (Hotspot Invalid), reject request if the query exists
