@@ -54,7 +54,7 @@ public class ConcurrentSafetyAdvice {
                     log.debug("Unlock function with key={}", key);
                 }
             } else {
-                Thread.sleep(BUSY_SLEEP_MS);//Cache Breakdown (Hotspot Invalid), reject request if the query exists
+                Thread.sleep(BUSY_SLEEP_MS);// Cache Breakdown (Hotspot Invalid), reject request if the query exists
                 log.info("Function was locked by the key={}, skip this time", key);
                 throw new LockNotGotException("Resource is temporarily locked");
             }
